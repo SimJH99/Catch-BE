@@ -12,8 +12,10 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 이번 프로젝트에서 서비스의 대상을 백화점으로 선정했다. 그 이유는  가장 먼저 많은 고객들을 대상으로 서비스를 제공하고 있는 업계이기 때문이다. 해당 프로젝트는 많은 고객들의 데이터를 분석하고 제공해주기 때문에 많은 이용자 수를 가지고 있는 곳이 필요했다. 뿐만 아니라 백화점은 유통 및 서비스 업계에 속해 있는데 해당 업계는 많은 고객들을 분석하고 이벤트를 기획을 하는 것이 회사매출에 가장 중요한 부분을 차지하고 있기 때문에 대상을 백화점으로 선정했다.
 
 ## CRM 마케팅 사례
-<img src="https://github.com/SimJH99/Catch-BE/assets/78871184/98343e3d-833d-45c1-b242-c3eed59871a2" height="40%" width="40%">
-<img src="https://github.com/SimJH99/Catch-BE/assets/78871184/f0450c44-5d32-484e-999b-84b81e05e1f2" height="45%" width="45%">
+<p align="center">
+<img src=".github/Image/마켓 컬리.png" height="40%" width="40%">
+<img src=".github/Image/알리익스프레스.png" height="40%" width="40%">
+</p>
 
 **마켓컬리**
   - 마켓컬리에서는 SMS 문자메시지를 통해 CRM을 하고있다. 유사한 성향을 가진 고객 집단을 분류해 맞춤형 할인 쿠폰 등 개인화 된 혜택을 제공하고 있다.
