@@ -1,13 +1,13 @@
-package com.example.demo;
+package com.encore.thecatch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CatchApplication {
+public class TheCatchApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CatchApplication.class, args);
+		SpringApplication.run(TheCatchApplication.class, args);
 	}
 
 }

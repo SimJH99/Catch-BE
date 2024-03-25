@@ -1,10 +1,10 @@
-package com.example.demo;
+package com.encore.thecatch;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CatchApplicationTests {
+class TheCatchApplicationTests {
 
 	@Test
 	void contextLoads() {
