@@ -14,7 +14,7 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: update #create
+      ddl-auto: create
     show-sql: true
 
 
@@ -29,10 +29,11 @@ logging:
 
 
 jwt:
-  secretKey: ticketpaperdlwhdvy
+  secretKey: D59B2D12051FDFE36D27DC7AE65FC69CD761D501D8A058C0EACC9387BA8B9F34
+  issuer: thecatch
   access:
-    expiration: 3600000 # 1시간(60분) (1000L(ms -> s) * 60L(s -> m) * 60L(m -> h))
-    header: Authorization
+    expiration-minutes: 30
+#    액세스 토큰의 유효 시간은 30분
   refresh:
-    expiration: 1209600000 #  (1000L(ms -> s) * 60L(s -> m) * 60L(m -> h) * 24L(h -> 하루) * 14(2주))
-    header: Authorization-refresh
+    expiration-hours: 24
+#    리프레시 토큰의 유효시간은 24시간

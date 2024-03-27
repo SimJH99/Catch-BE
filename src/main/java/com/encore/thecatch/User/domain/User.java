@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,7 +31,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 //    @Column(nullable = false)
-    private BirthDate birthDate; // 생년월일
+    private BirthDate birthDate; // 년,월,일
     @Column(nullable = false)
     private TotalAddress totalAddress; // (주소, 상세주소, 우편번호)
     @Column(nullable = false)
@@ -37,8 +39,15 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private SocialType socialType; // KAKAO, NAVER, GOOGLE
+                                   // email은 null이 들어감
+
     private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인 이면 null)
-    private String refreshToken; // 리포레시 토큰
+
+    @Column(nullable = false)
+    private String phoneNumber; // 전화번호
+
+    @Enumerated(EnumType.STRING)
+    private Role role; // User 권한
 
     @CreatedDate
     @Column(nullable = false)
@@ -61,9 +70,6 @@ public class User {
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
     }
-    public void updateRefreshToken(String updateRefreshToken){
-        this.refreshToken = updateRefreshToken;
-    }
 
     public static User toEntity(UserSignUpDto userSignUpDto) {
         BirthDate birthDate = BirthDate.builder()
@@ -84,9 +90,12 @@ public class User {
                 .password(userSignUpDto.getPassword())
                 .birthDate(birthDate)
                 .totalAddress(totalAddress)
+                .phoneNumber(userSignUpDto.getPhoneNumber())
+                .role(Role.USER)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
                 .build();
 
         return user;
     }
+
 }

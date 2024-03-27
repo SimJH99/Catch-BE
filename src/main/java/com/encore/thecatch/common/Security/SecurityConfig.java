@@ -1,9 +1,10 @@
-package com.encore.thecatch.Security;
+package com.encore.thecatch.common.Security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,15 +15,17 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement((sessionManagement) ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ) // 세션을 사용하지 않겠다는 stateless 서버로 만들겠다는 의미
-                .authorizeHttpRequests((authorizeRequests) ->
-                        authorizeRequests.anyRequest().permitAll()
-                );
+                .csrf(CsrfConfigurer<HttpSecurity>::disable)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/user/doLogin", "/user/signUp","/").permitAll()
+                .anyRequest().authenticated();
         return http.build();
     }
+
+//    스프링 시큐리티를 통해 암호화를 진행
+//    시큐리티 설정에서 PasswordEncoder를 구현한 클래스를 빈으로 추가
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
