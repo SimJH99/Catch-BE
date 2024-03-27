@@ -1,6 +1,6 @@
-package com.encore.thecatch.User.dto.request;
+package com.encore.thecatch.user.dto.request;
 
-import com.encore.thecatch.User.domain.Role;
+import com.encore.thecatch.user.domain.Role;
 import lombok.Data;
 
 @Data

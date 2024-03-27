@@ -1,4 +1,4 @@
-package com.encore.thecatch.User.dto.request;
+package com.encore.thecatch.user.dto.request;
 
 import lombok.Data;
 

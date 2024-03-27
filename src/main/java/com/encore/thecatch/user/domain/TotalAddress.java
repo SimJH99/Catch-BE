@@ -1,4 +1,4 @@
-package com.encore.thecatch.User.domain;
+package com.encore.thecatch.user.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

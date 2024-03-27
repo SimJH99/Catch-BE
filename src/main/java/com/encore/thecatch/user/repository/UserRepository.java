@@ -1,6 +1,6 @@
-package com.encore.thecatch.User.repository;
+package com.encore.thecatch.user.repository;
 
-import com.encore.thecatch.User.domain.User;
+import com.encore.thecatch.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

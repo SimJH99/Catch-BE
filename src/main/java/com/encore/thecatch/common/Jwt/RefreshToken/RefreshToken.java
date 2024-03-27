@@ -1,6 +1,6 @@
 package com.encore.thecatch.common.Jwt.RefreshToken;
 
-import com.encore.thecatch.User.domain.User;
+import com.encore.thecatch.user.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

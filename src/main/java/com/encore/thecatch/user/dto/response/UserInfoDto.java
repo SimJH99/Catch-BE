@@ -1,10 +1,11 @@
-package com.encore.thecatch.User.dto.response;
+package com.encore.thecatch.user.dto.response;
 
-import com.encore.thecatch.User.domain.BirthDate;
-import com.encore.thecatch.User.domain.TotalAddress;
-import com.encore.thecatch.User.domain.User;
+import com.encore.thecatch.user.domain.BirthDate;
+import com.encore.thecatch.user.domain.TotalAddress;
+import com.encore.thecatch.user.domain.User;
 import lombok.Builder;
 import lombok.Data;
+
 
 @Data
 @Builder

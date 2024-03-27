@@ -1,25 +1,27 @@
-package com.encore.thecatch.User.domain;
+package com.encore.thecatch.user.domain;
 
-import com.encore.thecatch.User.dto.request.UserSignUpDto;
+import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,6 +72,19 @@ public class User {
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
     }
+
+    public void dataEncode(String email, String name, String phoneNumber) {
+        this.email = email;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void dataDecode(String email, String name, String phoneNumber) {
+        this.email = email;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
+
 
     public static User toEntity(UserSignUpDto userSignUpDto) {
         BirthDate birthDate = BirthDate.builder()

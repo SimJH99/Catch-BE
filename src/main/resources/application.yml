@@ -14,7 +14,7 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
 
@@ -37,3 +37,5 @@ jwt:
   refresh:
     expiration-hours: 24
 #    리프레시 토큰의 유효시간은 24시간
+
+symmetricKey: data_encoding_decoding_key # 로컬용 운영은 다른 key 적용
