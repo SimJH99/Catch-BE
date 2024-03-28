@@ -1,14 +1,16 @@
-package com.encore.thecatch.common.Jwt.RefreshToken;
+package com.encore.thecatch.common.jwt.RefreshToken;
 
 import com.encore.thecatch.user.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @NoArgsConstructor
+
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

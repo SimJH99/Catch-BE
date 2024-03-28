@@ -1,10 +1,9 @@
-package com.encore.thecatch.common.Security;
+package com.encore.thecatch.common.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,7 +24,7 @@ public class SecurityConfig{
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/doLogin", "/user/signUp","/").permitAll()
+                .antMatchers("/user/doLogin", "/user/signUp","/user/{id}/detail").permitAll()
                 .anyRequest().authenticated();
         return http.build();
     }
@@ -40,6 +39,7 @@ public class SecurityConfig{
     // AesBytesEncryptor 사용을 위한 Bean등록
     @Bean
     public AesBytesEncryptor aesBytesEncryptor() {
+
         return new AesBytesEncryptor(symmetricKey,"70726574657374");
     }
 }

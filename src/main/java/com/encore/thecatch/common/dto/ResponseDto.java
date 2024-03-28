@@ -1,4 +1,4 @@
-package com.encore.thecatch.common.Dto;
+package com.encore.thecatch.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

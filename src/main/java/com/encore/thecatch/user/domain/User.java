@@ -1,7 +1,7 @@
 package com.encore.thecatch.user.domain;
 
-import com.encore.thecatch.common.CatchException;
-import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.dto.Role;
+import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,12 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +29,7 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private BirthDate birthDate; // 년,월,일
     @Column(nullable = false)
     private TotalAddress totalAddress; // (주소, 상세주소, 우편번호)
@@ -41,7 +38,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private SocialType socialType; // KAKAO, NAVER, GOOGLE
-                                   // email은 null이 들어감
+    // email은 null이 들어감
 
     private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인 이면 null)
 
@@ -49,37 +46,28 @@ public class User {
     private String phoneNumber; // 전화번호
 
     @Enumerated(EnumType.STRING)
-    private Role role; // User 권한
+    private Role role;
 
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdTime;
-    @LastModifiedDate
-    private LocalDateTime modifiedTime;
+    @Enumerated(EnumType.STRING)
+    private Grade grade;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdTime = LocalDateTime.now();
-        this.modifiedTime = LocalDateTime.now();
+    private boolean active;
+
+    public void userActiveToFalse() {
+        this.active = false;
     }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.modifiedTime = LocalDateTime.now();
-    }
-
     // 비밀번호 암호화 메서드
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
     }
 
-    public void dataEncode(String email, String name, String phoneNumber) {
+    public void dataEncode(String name, String email, String phoneNumber) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
 
-    public void dataDecode(String email, String name, String phoneNumber) {
+    public void dataDecode(String name, String email, String phoneNumber) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;

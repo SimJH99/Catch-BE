@@ -1,5 +1,6 @@
-package com.encore.thecatch.common.Jwt;
+package com.encore.thecatch.common.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -9,10 +10,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.security.sasl.AuthenticationException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,16 +25,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private JwtTokenProvider jwtTokenProvider;
-
-    public JwtAuthFilter(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String token = parseBearerToken(request);
+            String token = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
             log.info("Filter is running");
             if (token != null && !token.equalsIgnoreCase("null")) {
                 User user = parseUserSpecification(token);
@@ -43,14 +38,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (ExpiredJwtException e) {
+            reissueAccessToken(request, response, e);
         } catch (Exception exception) {
             logger.error("could not set user authentication in security context", exception);
         }
         filterChain.doFilter(request, response);
     }
 
-    private String parseBearerToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
+    private String parseBearerToken(HttpServletRequest request, String headerName) {
+        return Optional.ofNullable(request.getHeader(headerName))
                 .filter(token -> token.substring(0, 7).equalsIgnoreCase("Bearer "))
                 .map(token -> token.substring(7))
                 .orElse(null);
@@ -63,8 +60,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .orElse("anonymous:anonymous")
                 .split(":");
 
-        // import org.springframework.security.core.userdetails.User;
         return new User(split[0], "", List.of(new SimpleGrantedAuthority(split[1])));
+    }
+
+    private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        try {
+            String refreshToken = parseBearerToken(request, "refreshToken");
+            if (refreshToken == null) {
+                throw exception;
+            }
+            String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+            jwtTokenProvider.validateRefreshToken(refreshToken, oldAccessToken);
+            String newAccessToken = jwtTokenProvider.recreateAccessToken(oldAccessToken);
+            User user = parseUserSpecification(newAccessToken);
+            UsernamePasswordAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.getAuthorities());
+            authenticated.setDetails(new WebAuthenticationDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticated);
+
+            response.setHeader("newAccessToken", newAccessToken);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
+        }
     }
 
 }
