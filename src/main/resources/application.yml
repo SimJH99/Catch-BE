@@ -14,20 +14,14 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
-
-
   redis:
     host: localhost
     port: 6379
-
-
 logging:
   level:
     root: info
-
-
 jwt:
   secretKey: D59B2D12051FDFE36D27DC7AE65FC69CD761D501D8A058C0EACC9387BA8B9F34
   issuer: thecatch
@@ -37,3 +31,5 @@ jwt:
   refresh:
     expiration-hours: 24
 #    리프레시 토큰의 유효시간은 24시간
+
+symmetricKey: a00aa00000aaaaaaafdfdfdf98989889 # 로컬용 운영은 다른 key 적용
