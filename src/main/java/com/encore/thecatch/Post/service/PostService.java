@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,18 +36,14 @@ public class PostService {
     public Post createPost(CreatePostReq createPostReq) {
         List<String> imgPaths = null;
 
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Member findMember = memberRepository.findByEmail(authentication.getName())
-//                .orElseThrow(MemberNotFoundException::new);
-        Long id = 1L;
-        User findUser = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(EntityNotFoundException::new);
 
         if (createPostReq.getImages() != null) {
             imgPaths = s3Service.upload("Post", createPostReq.getImages());
         }
 
-        Post newPost = createPostReq.toEntity(imgPaths, findUser);
+        Post newPost = createPostReq.toEntity(imgPaths, user);
         postRepository.save(newPost);
 
         if (imgPaths != null) {
@@ -81,7 +79,8 @@ public class PostService {
 
 
     public Page<Post> myPostList(Long id, Pageable pageable) {
-        Long userId = 1L;
-        return postRepository.findAllByUserId(userId, pageable);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(EntityNotFoundException::new);
+        return postRepository.findAllByUserId(user.getId(), pageable);
     }
 }
