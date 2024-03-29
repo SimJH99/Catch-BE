@@ -10,6 +10,8 @@ import com.encore.thecatch.user.dto.response.UserInfoDto;
 import com.encore.thecatch.user.service.UserService;
 import com.encore.thecatch.common.ResponseCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,13 +19,14 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class UserController {
     private final UserService userService;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/user/signUp")
     public ResponseDto userSignUp(@RequestBody UserSignUpDto userSignUpDto) throws Exception {
-        User user =userService.signUp(userSignUpDto);
+        User user = userService.signUp(userSignUpDto);
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_MEMBER, new DefaultResponse<Long>(user.getId()));
     }
 
@@ -32,9 +35,19 @@ public class UserController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<UserInfoDto>(userService.userDetail(id)));
     }
 
+    @PostMapping("/user/{id}/disable")
+    public ResponseDto userDisable(@PathVariable Long id) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<>(userService.userDisable(id)));
+    }
+
     @PostMapping("/user/doLogin")
     public ResponseDto userLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request) throws Exception {
         ResponseDto responseDto = userService.doLogin(userLoginDto, IPUtil.getClientIP(request));
         return responseDto;
+    }
+
+    @PostMapping("/test")
+    public ResponseDto userSignUp() throws Exception {
+        return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_MEMBER, new DefaultResponse<Long>(userService.test()));
     }
 }
