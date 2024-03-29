@@ -13,5 +13,4 @@ public class ResponseDto {
     private HttpStatus httpStatus;
     private Object message;
     private Object result;
-
 }

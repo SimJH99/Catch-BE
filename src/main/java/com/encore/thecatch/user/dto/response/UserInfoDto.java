@@ -17,7 +17,7 @@ public class UserInfoDto {
     private int day;
     private String address;
     private String detailAddress;
-    private int zipcode;
+    private String zipcode;
     private boolean consentReceiveMarketing;
 
     public static UserInfoDto toUserInfoDto(User user) {
