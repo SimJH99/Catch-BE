@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @EnableJpaAuditing
-@SpringBootApplication
 @EnableMethodSecurity
+@SpringBootApplication(exclude = {
+		org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration.class,
+		org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration.class,
+		org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration.class
+})
 public class TheCatchApplication {
 
 	public static void main(String[] args) {

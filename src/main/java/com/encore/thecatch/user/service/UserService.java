@@ -1,9 +1,11 @@
 package com.encore.thecatch.user.service;
 
 import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
+import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.log.domain.Log;
@@ -14,15 +16,12 @@ import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
-import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.transaction.Transactional;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -158,8 +156,5 @@ public class UserService {
         return new ResponseDto(HttpStatus.OK, "user Disable",null);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Long test() {
-        return 1L;
-    }
+
 }

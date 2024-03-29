@@ -1,6 +1,7 @@
 package com.encore.thecatch.common.security;
 
 import com.encore.thecatch.common.jwt.JwtAuthFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,11 +41,10 @@ public class SecurityConfig{
         return httpSecurity.build();
     }
 
-//    스프링 시큐리티를 통해 암호화를 진행
+    //    스프링 시큐리티를 통해 암호화를 진행
 //    시큐리티 설정에서 PasswordEncoder를 구현한 클래스를 빈으로 추가
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
