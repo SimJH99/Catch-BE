@@ -1,26 +1,29 @@
 package com.encore.thecatch.user.service;
 
 import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
+import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
+import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.log.domain.Log;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.LogRepository;
+import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
-import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +31,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.transaction.Transactional;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final LogRepository logRepository;
-    private final String privateKey_256;
+
+    private final AesUtil aesUtil;
 
     private final CompanyRepository companyRepository;
 
@@ -52,6 +55,7 @@ public class UserService {
                        LogRepository logRepository,
                        @Value("${symmetricKey}")
                        String privateKey256, CompanyRepository companyRepository
+                       AesUtil aesUtil
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -60,6 +64,7 @@ public class UserService {
         this.logRepository = logRepository;
         privateKey_256 = privateKey256;
         this.companyRepository = companyRepository;
+        this.aesUtil = aesUtil;
     }
 
     @Transactional
@@ -72,29 +77,56 @@ public class UserService {
         User user = User.toEntity(userSignUpDto, company);
 
         user.passwordEncode(passwordEncoder);
-
-        String name = aesCBCEncode(user.getName());
-        String email = aesCBCEncode(user.getEmail());
-        String phoneNumber = aesCBCEncode(user.getPhoneNumber());
-        user.dataEncode(name, email, phoneNumber);
+        toEncodeAES(user);
 
         return userRepository.save(user);
     }
 
+    private void toEncodeAES(User user) throws Exception {
+        String name = aesUtil.aesCBCEncode(user.getName());
+        String email = aesUtil.aesCBCEncode(user.getEmail());
+        String phoneNumber = aesUtil.aesCBCEncode(user.getPhoneNumber());
+        String address = aesUtil.aesCBCEncode(user.getTotalAddress().getAddress());
+        String detailAddress = aesUtil.aesCBCEncode(user.getTotalAddress().getDetailAddress());
+        String zipcode = aesUtil.aesCBCEncode(String.valueOf(user.getTotalAddress().getZipcode()));
+
+        TotalAddress totalAddress = TotalAddress.builder()
+                .address(address)
+                .detailAddress(detailAddress)
+                .zipcode(zipcode)
+                .build();
+
+        user.dataEncode(name, email, phoneNumber, totalAddress);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     public UserInfoDto userDetail(Long id) throws Exception {
         User user = userRepository.findById(id).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        String name = aesCBCDecode(user.getName());
-        String email = aesCBCDecode(user.getEmail());
-        String phoneNumber = aesCBCDecode(user.getPhoneNumber());
-        user.dataDecode(name, email, phoneNumber);
+        decodeToUser(user);
 
         UserInfoDto userInfoDto = UserInfoDto.toUserInfoDto(user);
         return userInfoDto;
     }
 
+    private void decodeToUser(User user) throws Exception {
+        String name = aesUtil.aesCBCDecode(user.getName());
+        String email = aesUtil.aesCBCDecode(user.getEmail());
+        String phoneNumber = aesUtil.aesCBCDecode(user.getPhoneNumber());
+        String address = aesUtil.aesCBCDecode(user.getTotalAddress().getAddress());
+        String detailAddress = aesUtil.aesCBCDecode(user.getTotalAddress().getDetailAddress());
+        String zipcode = aesUtil.aesCBCDecode(String.valueOf(user.getTotalAddress().getZipcode()));
+
+        TotalAddress totalAddress = TotalAddress.builder()
+                .address(address)
+                .detailAddress(detailAddress)
+                .zipcode(zipcode)
+                .build();
+        user.dataDecode(name, email, phoneNumber, totalAddress);
+    }
+
     @Transactional
     public ResponseDto doLogin(UserLoginDto userLoginDto, String ip) throws Exception {
-        String email = aesCBCEncode(userLoginDto.getEmail());
+        String email = aesUtil.aesCBCEncode(userLoginDto.getEmail());
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("이메일이 일치하지 않습니다."));
         if(!passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword())){
@@ -116,7 +148,7 @@ public class UserService {
         Log loginLog = Log.builder()
                 .type(LogType.LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                 .ip(ip)
-                .email(user.getEmail())
+                .email(aesUtil.aesCBCDecode(user.getEmail()))
                 .method("POST")
                 .data("user login")
                 .build();
@@ -126,32 +158,11 @@ public class UserService {
         return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
     }
 
-
-    public String aesCBCEncode(String plainText) throws Exception {
-
-        SecretKeySpec secretKey = new SecretKeySpec(privateKey_256.getBytes(StandardCharsets.UTF_8), "AES");
-        IvParameterSpec IV = new IvParameterSpec("0123456789abcdef".getBytes());
-
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-        c.init(Cipher.ENCRYPT_MODE, secretKey, IV);
-
-        byte[] encrpytionByte = c.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-
-        return Hex.encodeHexString(encrpytionByte);
-    }
-
-    public String aesCBCDecode(String encodeText) throws Exception {
-
-        SecretKeySpec secretKey = new SecretKeySpec(privateKey_256.getBytes(StandardCharsets.UTF_8), "AES");
-        IvParameterSpec IV = new IvParameterSpec("0123456789abcdef".getBytes());
-
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-        c.init(Cipher.DECRYPT_MODE, secretKey, IV);
-
-        byte[] decodeByte = Hex.decodeHex(encodeText.toCharArray());
-
-        return new String(c.doFinal(decodeByte), StandardCharsets.UTF_8);
+    public ResponseDto userDisable(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+        user.userActiveToDisable();
+        return new ResponseDto(HttpStatus.OK, "user Disable",null);
     }
 }

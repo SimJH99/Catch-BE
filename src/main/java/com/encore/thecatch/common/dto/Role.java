@@ -1,5 +1,5 @@
 package com.encore.thecatch.common.dto;
 
 public enum Role {
-    USER, ADMIN
+    USER, ADMIN, MARKETER, CS
 }

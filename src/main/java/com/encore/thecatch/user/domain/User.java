@@ -8,12 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,12 +34,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean consentReceiveMarketing; // 마케팅 수신 동의 여부 (true, false)
 
-    @Enumerated(EnumType.STRING)
-    private SocialType socialType; // KAKAO, NAVER, GOOGLE
-    // email은 null이 들어감
-
-    private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인 이면 null)
-
     @Column(nullable = false)
     private String phoneNumber; // 전화번호
 
@@ -58,7 +49,9 @@ public class User extends BaseEntity {
 
     private boolean active;
 
-    public void userActiveToFalse() {
+    private String userNotice;
+
+    public void userActiveToDisable() {
         this.active = false;
     }
     // 비밀번호 암호화 메서드
@@ -66,20 +59,22 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(this.password);
     }
 
-    public void dataEncode(String name, String email, String phoneNumber) {
+    public void dataEncode(String name, String email, String phoneNumber, TotalAddress totalAddress) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.totalAddress = totalAddress;
     }
 
-    public void dataDecode(String name, String email, String phoneNumber) {
+    public void dataDecode(String name, String email, String phoneNumber, TotalAddress totalAddress) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.totalAddress = totalAddress;
     }
-
 
     public static User toEntity(UserSignUpDto userSignUpDto, Company company) {
+
         BirthDate birthDate = BirthDate.builder()
                 .year(userSignUpDto.getYear())
                 .month(userSignUpDto.getMonth())
@@ -100,11 +95,12 @@ public class User extends BaseEntity {
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
+                .grade(Grade.SLIVER)
+                .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
                 .company(company)
                 .build();
 
         return user;
     }
-
 }

@@ -1,3 +1,14 @@
+cloud:
+  aws:
+    credentials:
+      access-key:
+      secret-key:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: catch-s3
+    stack:
+      auto: false
 
 server:
   port: 8001

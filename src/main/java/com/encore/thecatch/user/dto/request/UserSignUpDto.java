@@ -14,7 +14,7 @@ public class UserSignUpDto {
     private int day;
     private String address;
     private String detailAddress;
-    private int zipcode;
+    private String zipcode;
     private String phoneNumber;
     private Role role;
     private boolean consentReceiveMarketing;
