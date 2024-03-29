@@ -1,10 +1,11 @@
 package com.encore.thecatch.user.service;
 
 import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
-import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.log.domain.Log;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.LogRepository;
@@ -12,13 +13,11 @@ import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
-import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.transaction.Transactional;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +35,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AesBytesEncryptor encryptor;
     private final JwtTokenProvider jwtTokenProvider;
     private final LogRepository logRepository;
     private final String privateKey_256;
@@ -45,7 +42,6 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        PasswordEncoder passwordEncoder,
-                       AesBytesEncryptor encryptor,
                        JwtTokenProvider jwtTokenProvider,
                        LogRepository logRepository,
                        @Value("${symmetricKey}")
@@ -54,7 +50,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.encryptor = encryptor;
         this.jwtTokenProvider = jwtTokenProvider;
         this.logRepository = logRepository;
         privateKey_256 = privateKey256;
@@ -123,38 +118,6 @@ public class UserService {
         return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
     }
 
-    // 암호화
-    public String encrypt(String data) {
-        byte[] encrypt = encryptor.encrypt(data.getBytes(StandardCharsets.UTF_8));
-        return byteArrayToString(encrypt);
-    }
-
-    // 복호화
-    public String decrypt(String data) {
-        byte[] decryptBytes = stringToByteArray(data);
-        byte[] decrypt = encryptor.decrypt(decryptBytes);
-        return new String(decrypt, StandardCharsets.UTF_8);
-    }
-
-    // byte -> String
-    public String byteArrayToString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte abyte : bytes) {
-            sb.append(abyte);
-            sb.append(" ");
-        }
-        return sb.toString();
-    }
-
-    // String -> byte
-    public byte[] stringToByteArray(String byteString) {
-        String[] split = byteString.split("\\s");
-        ByteBuffer buffer = ByteBuffer.allocate(split.length);
-        for (String s : split) {
-            buffer.put((byte) Integer.parseInt(s));
-        }
-        return buffer.array();
-    }
     public String aesCBCEncode(String plainText) throws Exception {
 
         SecretKeySpec secretKey = new SecretKeySpec(privateKey_256.getBytes(StandardCharsets.UTF_8), "AES");

@@ -20,7 +20,12 @@ public enum ResponseCode {
     POST_NOT_FOUND("POST_NOT_FOUND", "게시글이 존재하지 않습니다."),
     SUCCESS_CREATE_COMMENT("SUCCESS_CREATE_COMMENT", "댓글을 성공적으로 저장했습니다."),
     AES_ENCODE_FAIL("AES_ENCODE_FAIL","데이터 암호화 오류 발생"),
-    AES_DECODE_FAIL("AES_DECODE_FAIL", "데이터 복호화 오류 발생")
+    AES_DECODE_FAIL("AES_DECODE_FAIL", "데이터 복호화 오류 발생"),
+    SUCCESS_CREATE_POST("SUCCESS_CREATE_POST", "게시물 생성 완료"),
+    SUCCESS_FOUND_POST("SUCCESS_FOUND_POST", "게시물 상세 조회 성공"),
+    SUCCESS_FOUND_MY_POSTS("SUCCESS_FOUND_MY_POSTS", "내 문의 내역 조회 성공"),
+    SUCCESS_UPDATE_MY_POST("SUCCESS_UPDATE_MY_POST", "문의 글 수정 완료"),
+    SUCCESS_DELETE_MY_POST("SUCCESS_DELETE_MY_POST", "문의 글 삭제 완료"),
     ;
 
 
