@@ -10,5 +10,4 @@ public class CouponReqDto {
     private int quantity;
     private String startDate;
     private String endDate;
-    private Long companyId;
 }

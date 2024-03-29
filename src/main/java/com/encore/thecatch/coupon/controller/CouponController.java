@@ -1,6 +1,8 @@
 package com.encore.thecatch.coupon.controller;
 
-import com.encore.thecatch.common.CommonResponse;
+import com.encore.thecatch.common.DefaultResponse;
+import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.dto.CouponReceiveDto;
 import com.encore.thecatch.coupon.dto.CouponReqDto;
@@ -8,7 +10,6 @@ import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,48 +26,48 @@ public class CouponController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<CommonResponse> couponCreate(@RequestBody CouponReqDto couponReqDto){
+    public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto) throws Exception{
         Coupon coupon = couponService.create(couponReqDto);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.CREATED, "coupon success created", coupon.getId()), HttpStatus.CREATED);
+        return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
-
-    @PatchMapping("/publish/{id}")
-//    public ResponseEntity<CommonResponse> couponPublish(@RequestBody List<MemberReqDto> memberReqDtos)
-    public ResponseEntity<CommonResponse> couponPublish(@PathVariable Long id){
-        Coupon coupon = couponService.publish(id);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "coupon success publish", coupon.getId()), HttpStatus.OK);
-    }
-
-    @PatchMapping("/receive")
-    public ResponseEntity<CommonResponse> couponReceive(@RequestBody CouponReceiveDto couponReceiveDto){
-        Coupon coupon = couponService.receive(couponReceiveDto);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "coupon success receive", coupon.getName()),HttpStatus.OK);
-    }
-
-    @GetMapping("/list/{companyId}")
-    public ResponseEntity<CommonResponse> findAll(@PathVariable Long companyId) {
-        List<CouponResDto> couponResDtos = couponService.findAll(companyId);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "success check", couponResDtos), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse> couponRead(@PathVariable Long id){
-        Coupon coupon = couponService.findById(id);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "coupon success read", CouponResDto.toCouponResDto(coupon)), HttpStatus.OK);
-    }
-
-
-    @PatchMapping("/{id}/update")
-    public ResponseEntity<CommonResponse> couponUpdate(@PathVariable Long id, @RequestBody CouponReqDto couponReqDto){
-        Coupon coupon = couponService.couponUpdate(id, couponReqDto);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "coupon success uppdate", coupon.getId()), HttpStatus.OK);
-    }
-
-    @PatchMapping("/{id}/delete")
-    public ResponseEntity<CommonResponse> couponDelete(@PathVariable Long id){
-        couponService.couponDelete(id);
-        return new ResponseEntity<>(new CommonResponse(HttpStatus.OK, "coupon success delete", null), HttpStatus.OK);
-    }
+//
+//    @PatchMapping("/publish/{id}")
+//    public ResponseDto couponPublish(@PathVariable Long id){
+//        Coupon coupon = couponService.publish(id);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
+//    }
+//
+//    @PatchMapping("/receive")
+//    public ResponseDto couponReceive(@RequestBody CouponReceiveDto couponReceiveDto){
+//        Coupon coupon = couponService.receive(couponReceiveDto);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_RECEIVE_COUPON, new DefaultResponse<Long>(coupon.getId()));
+//    }
+//
+//    @GetMapping("/list/{companyId}")
+//    public ResponseDto findAll(@PathVariable Long companyId) {
+//        List<CouponResDto> couponResDtos = couponService.findAll(companyId);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponResDtos));
+//
+//    }
+//
+//    @GetMapping("/{id}")
+//    public ResponseDto couponRead(@PathVariable Long id){
+//        Coupon coupon = couponService.findById(id);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<CouponResDto>(CouponResDto.toCouponResDto(coupon)));
+//    }
+//
+//
+//    @PatchMapping("/{id}/update")
+//    public ResponseDto couponUpdate(@PathVariable Long id, @RequestBody CouponReqDto couponReqDto){
+//        Coupon coupon = couponService.couponUpdate(id, couponReqDto);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS , new DefaultResponse<Long>(coupon.getId()));
+//    }
+//
+//    @PatchMapping("/{id}/delete")
+//    public ResponseDto couponDelete(@PathVariable Long id){
+//        couponService.couponDelete(id);
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_COUPON, new DefaultResponse<Long>(id));
+//    }
 
 
 
