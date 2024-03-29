@@ -7,6 +7,8 @@ import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.company.domain.Company;
+import com.encore.thecatch.company.repository.CompanyRepository;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.log.domain.Log;
 import com.encore.thecatch.log.domain.LogType;
@@ -44,11 +46,15 @@ public class UserService {
 
     private final AesUtil aesUtil;
 
+    private final CompanyRepository companyRepository;
+
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider jwtTokenProvider,
                        LogRepository logRepository,
+                       @Value("${symmetricKey}")
+                       String privateKey256, CompanyRepository companyRepository
                        AesUtil aesUtil
     ) {
         this.userRepository = userRepository;
@@ -56,6 +62,8 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.logRepository = logRepository;
+        privateKey_256 = privateKey256;
+        this.companyRepository = companyRepository;
         this.aesUtil = aesUtil;
     }
 
@@ -64,7 +72,9 @@ public class UserService {
         if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
             throw new CatchException(ResponseCode.EXISTING_EMAIL);
         }
-        User user = User.toEntity(userSignUpDto);
+        Company company = companyRepository.findById(userSignUpDto.getCompanyId()).orElseThrow(()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
+        System.out.println(userSignUpDto.getPassword());
+        User user = User.toEntity(userSignUpDto, company);
 
         user.passwordEncode(passwordEncoder);
         toEncodeAES(user);
@@ -155,6 +165,4 @@ public class UserService {
         user.userActiveToDisable();
         return new ResponseDto(HttpStatus.OK, "user Disable",null);
     }
-
-
 }

@@ -43,4 +43,4 @@ jwt:
     expiration-hours: 24
 #    리프레시 토큰의 유효시간은 24시간
 
-symmetricKey: a00aa00000aaaaaaafdfdfdf98989889 # 로컬용 운영은 다른 key 적용
+symmetricKey:  # 로컬용 운영은 다른 key 적용

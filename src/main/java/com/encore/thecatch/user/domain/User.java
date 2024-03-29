@@ -2,6 +2,7 @@ package com.encore.thecatch.user.domain;
 
 import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.entity.BaseEntity;
+import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +43,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Grade grade;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
     private boolean active;
 
     private String userNotice;
@@ -68,7 +73,8 @@ public class User extends BaseEntity {
         this.totalAddress = totalAddress;
     }
 
-    public static User toEntity(UserSignUpDto userSignUpDto) {
+    public static User toEntity(UserSignUpDto userSignUpDto, Company company) {
+
         BirthDate birthDate = BirthDate.builder()
                 .year(userSignUpDto.getYear())
                 .month(userSignUpDto.getMonth())
@@ -92,6 +98,7 @@ public class User extends BaseEntity {
                 .grade(Grade.SLIVER)
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
+                .company(company)
                 .build();
 
         return user;

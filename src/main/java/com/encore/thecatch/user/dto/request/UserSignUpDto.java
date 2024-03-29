@@ -1,6 +1,7 @@
 package com.encore.thecatch.user.dto.request;
 
 import com.encore.thecatch.common.dto.Role;
+import com.encore.thecatch.company.domain.Company;
 import lombok.Data;
 
 @Data
@@ -17,4 +18,5 @@ public class UserSignUpDto {
     private String phoneNumber;
     private Role role;
     private boolean consentReceiveMarketing;
+    private Long companyId;
 }
