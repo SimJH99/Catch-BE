@@ -15,5 +15,5 @@ import javax.persistence.Embeddable;
 public class TotalAddress {
     private String address;
     private String detailAddress;
-    private int zipcode;
+    private String zipcode;
 }
