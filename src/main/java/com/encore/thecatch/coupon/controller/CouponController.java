@@ -4,15 +4,14 @@ import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
-import com.encore.thecatch.coupon.dto.CouponReceiveDto;
 import com.encore.thecatch.coupon.dto.CouponReqDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/coupon")

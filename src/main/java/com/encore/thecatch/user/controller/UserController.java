@@ -1,6 +1,7 @@
 package com.encore.thecatch.user.controller;
 
 import com.encore.thecatch.common.DefaultResponse;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
 import com.encore.thecatch.user.domain.User;
@@ -8,10 +9,7 @@ import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
 import com.encore.thecatch.user.service.UserService;
-import com.encore.thecatch.common.ResponseCode;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,10 +42,5 @@ public class UserController {
     public ResponseDto userLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request) throws Exception {
         ResponseDto responseDto = userService.doLogin(userLoginDto, IPUtil.getClientIP(request));
         return responseDto;
-    }
-
-    @PostMapping("/test")
-    public ResponseDto userSignUp() throws Exception {
-        return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_MEMBER, new DefaultResponse<Long>(userService.test()));
     }
 }

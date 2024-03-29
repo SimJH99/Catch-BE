@@ -38,7 +38,7 @@ jwt:
   issuer: thecatch
   access:
     expiration-minutes: 30
-#    액세스 토큰의 유효 시간은 30분
+  #    액세스 토큰의 유효 시간은 30분
   refresh:
     expiration-hours: 24
 #    리프레시 토큰의 유효시간은 24시간

@@ -53,8 +53,7 @@ public class UserService {
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider jwtTokenProvider,
                        LogRepository logRepository,
-                       @Value("${symmetricKey}")
-                       String privateKey256, CompanyRepository companyRepository
+                       CompanyRepository companyRepository,
                        AesUtil aesUtil
     ) {
         this.userRepository = userRepository;
@@ -62,7 +61,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.logRepository = logRepository;
-        privateKey_256 = privateKey256;
         this.companyRepository = companyRepository;
         this.aesUtil = aesUtil;
     }
