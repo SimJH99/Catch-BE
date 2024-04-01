@@ -1,6 +1,6 @@
-package com.encore.thecatch.Post.dto.Request;
+package com.encore.thecatch.post.dto.request;
 
-import com.encore.thecatch.Post.Entity.Post;
+import com.encore.thecatch.post.entity.Post;
 import com.encore.thecatch.user.domain.User;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

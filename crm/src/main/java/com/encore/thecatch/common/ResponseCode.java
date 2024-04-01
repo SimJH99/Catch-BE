@@ -31,7 +31,12 @@ public enum ResponseCode {
     SUCCESS_FOUND_POST("SUCCESS_FOUND_POST", "게시물 상세 조회 성공"),
     SUCCESS_FOUND_MY_POSTS("SUCCESS_FOUND_MY_POSTS", "내 문의 내역 조회 성공"),
     SUCCESS_UPDATE_MY_POST("SUCCESS_UPDATE_MY_POST", "문의 글 수정 완료"),
-    SUCCESS_DELETE_MY_POST("SUCCESS_DELETE_MY_POST", "문의 글 삭제 완료")
+    SUCCESS_DELETE_MY_POST("SUCCESS_DELETE_MY_POST", "문의 글 삭제 완료"),
+    POST_NOT_ACTIVE("POST_NOT_ACTIVE", "찾을 수 없는 게시글입니다."),
+    SUCCESS_ADD_IMAGES("SUCCESS_ADD_IMAGES", "사진 추가 성공"),
+    SUCCESS_DELETE_IMAGES("SUCCESS_DELETE_IMAGES", "사진 삭제 성공"),
+    S3_DELETE_ERROR("S3_DELETE_ERROR", "S3 이미지 삭제 실패"),
+    IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "찾을 수 없는 이미지 입니다.")
     ;
 
 

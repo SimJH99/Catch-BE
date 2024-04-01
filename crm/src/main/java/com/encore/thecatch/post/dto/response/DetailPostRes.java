@@ -1,6 +1,6 @@
-package com.encore.thecatch.Post.dto.Response;
+package com.encore.thecatch.post.dto.response;
 
-import com.encore.thecatch.Post.Entity.Post;
+import com.encore.thecatch.post.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
 

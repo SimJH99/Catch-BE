@@ -1,10 +1,11 @@
-package com.encore.thecatch.common.S3;
+package com.encore.thecatch.common.s3;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,13 @@ public class S3Service {
         this.amazonS3Client = amazonS3Client;
     }
 
-    public List<String> upload(String fileType,List<MultipartFile> multipartFile) {
+    //다중파일 업로드
+    public List<String> uploadList(String fileType, List<MultipartFile> multipartFile) {
         List<String> imgUrlList = new ArrayList<>();
 
         // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
         for (MultipartFile file : multipartFile) {
-            if (file.isEmpty()){
+            if (file.isEmpty()) {
                 return null;
             }
             String uploadFilePath = fileType + "/" + getFolderName();
@@ -42,16 +44,43 @@ public class S3Service {
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
 
-            try(InputStream inputStream = file.getInputStream()) {
+            try (InputStream inputStream = file.getInputStream()) {
                 String keyName = uploadFilePath + "/" + fileName;
                 amazonS3Client.putObject(new PutObjectRequest(bucket, keyName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
-                imgUrlList.add(amazonS3Client.getUrl(bucket+"/post/image", fileName).toString());
-            } catch(IOException e) {
+                imgUrlList.add(amazonS3Client.getUrl(bucket + "/Post/" + getFolderName(), fileName).toString());
+            } catch (IOException e) {
                 throw new NoSuchElementException("업로드 실패");
             }
         }
         return imgUrlList;
+    }
+
+    //개인 파일 업로드
+    public String upload(String fileType, MultipartFile multipartFile) {
+        String imgUrl = "";
+
+        MultipartFile file = multipartFile;
+
+        if (file.isEmpty()) {
+            return null;
+        }
+        String uploadFilePath = fileType + "/" + getFolderName();
+        String fileName = createFileName(file.getOriginalFilename());
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream()) {
+            String keyName = uploadFilePath + "/" + fileName;
+            amazonS3Client.putObject(new PutObjectRequest(bucket, keyName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            imgUrl = amazonS3Client.getUrl(bucket + "/Post/" + getFolderName(), fileName).toString();
+        } catch (IOException e) {
+            throw new NoSuchElementException("업로드 실패");
+        }
+
+        return imgUrl;
     }
 
     // 이미지파일명 중복 방지
@@ -79,7 +108,7 @@ public class S3Service {
     }
 
     // 년/월/일 폴더명 반환
-    private String getFolderName(){
+    private String getFolderName() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Date date = new Date();
         String str = sdf.format(date);
@@ -88,9 +117,15 @@ public class S3Service {
     }
 
     // S3에 업로드된 파일 삭제
-    public void deleteFile(String fileName){
-        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, fileName);
-        amazonS3Client.deleteObject(deleteObjectRequest);
+    public void deleteFile(String fileUrl) {
+//        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, fileName);
+//        amazonS3Client.deleteObject(deleteObjectRequest);
+        try{
+            String fileKey = fileUrl.substring(49);
+            amazonS3Client.deleteObject(bucket, fileKey);
+        } catch (Exception exception) {
+            throw new CatchException(ResponseCode.S3_DELETE_ERROR);
+        }
     }
 }
 

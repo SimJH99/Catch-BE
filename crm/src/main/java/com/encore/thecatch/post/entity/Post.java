@@ -1,4 +1,4 @@
-package com.encore.thecatch.Post.Entity;
+package com.encore.thecatch.post.entity;
 
 import com.encore.thecatch.user.domain.User;
 import lombok.AllArgsConstructor;
@@ -40,6 +40,11 @@ public class Post {
     @Transient
     private List<Image> imgList = new ArrayList<>();
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Status status = Status.BEFORE;
+
     @CreationTimestamp
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdTime;
@@ -48,7 +53,7 @@ public class Post {
     @Column(columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedTime;
 
-    @Column()
+    @Builder.Default
     private int active = 0;
 
     public void updatePost(String title, String category, String contents){

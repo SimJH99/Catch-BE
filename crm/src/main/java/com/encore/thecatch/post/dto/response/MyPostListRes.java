@@ -1,4 +1,4 @@
-package com.encore.thecatch.Post.dto.Response;
+package com.encore.thecatch.post.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

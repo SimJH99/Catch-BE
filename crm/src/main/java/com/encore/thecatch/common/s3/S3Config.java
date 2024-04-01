@@ -1,4 +1,4 @@
-package com.encore.thecatch.common.S3;
+package com.encore.thecatch.common.s3;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

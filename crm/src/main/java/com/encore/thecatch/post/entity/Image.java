@@ -1,4 +1,4 @@
-package com.encore.thecatch.Post.Entity;
+package com.encore.thecatch.post.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
