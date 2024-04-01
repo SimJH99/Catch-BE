@@ -53,8 +53,10 @@ public class Post {
     @Column(columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedTime;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private int active = 0;
+    private Active active = Active.FALSE;
 
     public void updatePost(String title, String category, String contents){
         this.title = title;
@@ -63,7 +65,7 @@ public class Post {
     }
 
     public void isDelete(){
-        this.active = 1;
+        this.active = Active.TURE;
     }
 
 }

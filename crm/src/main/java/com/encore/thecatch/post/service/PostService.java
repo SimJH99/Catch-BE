@@ -3,6 +3,7 @@ package com.encore.thecatch.post.service;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.s3.S3Service;
+import com.encore.thecatch.post.entity.Active;
 import com.encore.thecatch.post.entity.Image;
 import com.encore.thecatch.post.entity.Post;
 import com.encore.thecatch.post.dto.request.AddImageReq;
@@ -105,7 +106,7 @@ public class PostService {
     // 삭제된 게시글 확인
     public void activePost(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
-        if (post.getActive() == 1) {
+        if (post.getActive() == Active.TURE) {
             throw new CatchException(ResponseCode.POST_NOT_ACTIVE);
         }
     }
