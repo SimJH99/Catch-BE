@@ -3,6 +3,7 @@ package com.encore.thecatch.coupon.service;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.Role;
+import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
@@ -65,84 +66,98 @@ public class CouponService {
         return coupon;
         }
 
+
+
+    public List<CouponResDto> findAll(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Company company = user.getCompany();
+        List<Coupon> coupons = couponRepository.findByCompanyId(company);
+        List<CouponResDto> couponResDtos = new ArrayList<>();
+        for(Coupon coupon : coupons){
+            couponResDtos.add(CouponResDto.toCouponResDto(coupon));
+        }
+        return couponResDtos;
+    }
+
+    public List<CouponResDto> findMyAll(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        List<PublishCoupon> coupons = publishCouponRepository.findByUserId(user.getId());
+        List<CouponResDto> couponResDtos = new ArrayList<>();
+        for(PublishCoupon coupon : coupons){
+            couponResDtos.add(CouponResDto.publishToCouponDto(coupon));
+        }
+        return couponResDtos;
+    }
+
+    public CouponResDto findById(Long id) {
+        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠폰입니다."));
+        return CouponResDto.toCouponResDto(coupon);
     }
 //
-//    public List<CouponResDto> findAll(Long companyId){
-////        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-////        Long companyId = memberRepository.findByEmail(authentication.getEmail()).orElseThrow(
-////                () -> "존재하지 않는 회사 입니다.").getCompanyId();
-//        List<Coupon> coupons = couponRepository.findByCompanyId(companyId);
-//        List<CouponResDto> couponResDtos = new ArrayList<>();
-//        for(Coupon coupon : coupons){
-//            couponResDtos.add(CouponResDto.toCouponResDto(coupon));
-//        }
-//        return couponResDtos;
-//    }
-//
-//    public Coupon findById(Long id) {
-//        return couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠폰입니다."));
-//    }
-//
-//    @Transactional
-//    public Coupon publish(Long id) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-//        Long companyId = user.getCompany().getId();
-//
-//        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
-//        if(!coupon.getCompanyId().equals(companyId)&& !user.getRole().equals(Role.ADMIN)){
-//            throw new CatchException(ResponseCode.ACCESS_DENIED);
-//        }
-//        if(coupon.getCouponStatus() == CouponStatus.PUBLISH){
-//            throw new IllegalArgumentException("이미 발행된 쿠폰입니다.");
-//        }
-//        coupon.publishCoupon();
-////        couponRepository.save(coupon);
-//        return coupon;
-//    }
-//
-//
-//    @Transactional
-//    public Coupon receive(CouponReceiveDto couponReceiveDto) {
-////    public Coupon receive(String code) {
-////        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-////        Long memberId = memberRepository.findByEmail(authentication.getEmail()).orElseThrow(
-////                () -> "존재하지 않는 회원 입니다.").getId();
-//        Long memberId = 1L;
-//        Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
-//        if(coupon.getCouponStatus().equals(CouponStatus.PUBLISH) && coupon.getCode().equals(couponReceiveDto.getCode())){
-//            PublishCoupon publishCoupon = PublishCoupon.builder()
-//                    .member_id(memberId)
-//                    .coupon(coupon)
-//                    .couponStatus(CouponStatus.RECEIVE)
-//                    .build();
-//            publishCouponRepository.save(publishCoupon);
-//        }
-//        return coupon;
-//    }
-//
-//    public Coupon couponUpdate(Long id, CouponReqDto couponReqDto){
-//        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
-//        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE)){
-//            coupon.updateCoupon(couponReqDto);
-//            couponRepository.save(coupon);
-//        }else{
-//            throw new IllegalArgumentException("수정 불가한 쿠폰입니다.");
-//        }
-//
-//        return coupon;
-//    }
-//    @Transactional
-//    public Coupon couponDelete(Long id) {
-////        Long companyId = memberRepository.findByEmail(authentication.getEmail()).orElseThrow(
-////                () -> "존재하지 않는 회사 입니다.").getCompanyId();
-//        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
-//        if(coupon.getCouponStatus().equals(CouponStatus.PUBLISH)){
-//            throw new IllegalArgumentException("삭제 불가한 쿠폰입니다.");
-//        }else{
-//            coupon.deleteCoupon();
-//        }
-//
-//        return coupon;
-//    }
-//}
+    @Transactional
+    public Coupon publish(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Long companyId = user.getCompany().getId();
+        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
+        if(!coupon.getCompanyId().equals(companyId)&& !user.getRole().equals(Role.ADMIN)){
+            throw new CatchException(ResponseCode.ACCESS_DENIED);
+        }
+        if(coupon.getCouponStatus() == CouponStatus.PUBLISH){
+            throw new IllegalArgumentException("이미 발행된 쿠폰입니다.");
+        }
+        coupon.publishCoupon();
+//        couponRepository.save(coupon);
+        return coupon;
+    }
+
+
+    @Transactional
+    public Coupon receive(CouponReceiveDto couponReceiveDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
+        if(!coupon.getCompanyId().equals(user.getCompany())){
+            throw new CatchException(ResponseCode.NON_RECEIVABLE_COUPON);
+        }
+        if(coupon.getCouponStatus().equals(CouponStatus.PUBLISH) && publishCouponRepository.findByCouponIdAndUserId(coupon.getId(), user.getId()).isEmpty()){
+            PublishCoupon publishCoupon = PublishCoupon.builder()
+                    .user(user)
+                    .coupon(coupon)
+                    .couponStatus(CouponStatus.RECEIVE)
+                    .build();
+            publishCouponRepository.save(publishCoupon);
+        }else if(!publishCouponRepository.findByCouponIdAndUserId(coupon.getId(), userRepository.count()).isEmpty()){
+            throw new CatchException(ResponseCode.ALREADY_RECEIVED_COUPON);
+        }
+        return coupon;
+    }
+
+    public Coupon couponUpdate(Long id, CouponReqDto couponReqDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
+        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && user.getRole().equals(Role.ADMIN) && coupon.getCompanyId() == user.getCompany()){
+            coupon.updateCoupon(couponReqDto);
+            couponRepository.save(coupon);
+        }else{
+            throw new CatchException(ResponseCode.COUPON_CAN_NOT_UPDATE);
+        }
+        return coupon;
+    }
+    @Transactional
+    public Coupon couponDelete(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
+        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && user.getRole().equals(Role.ADMIN) && coupon.getCompanyId() == user.getCompany()){
+            coupon.deleteCoupon();
+        }else{
+            throw new IllegalArgumentException("삭제 불가한 쿠폰입니다.");
+        }
+
+        return coupon;
+    }
+}

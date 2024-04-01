@@ -12,10 +12,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 		org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration.class,
 		org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration.class
 })
-public class TheCatchApplication {
+public class CrmApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TheCatchApplication.class, args);
+		SpringApplication.run(CrmApplication.class, args);
 	}
 
 }
