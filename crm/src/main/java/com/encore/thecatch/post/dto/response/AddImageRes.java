@@ -8,7 +8,6 @@ import lombok.Getter;
 public class AddImageRes {
     private String image;
 
-
     public static AddImageRes from(String imageUrl){
         return  AddImageRes.builder()
                 .image(imageUrl)

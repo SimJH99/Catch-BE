@@ -3,6 +3,8 @@ package com.encore.thecatch.post.service;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.s3.S3Service;
+import com.encore.thecatch.common.util.S3UrlUtil;
+import com.encore.thecatch.log.domain.Log;
 import com.encore.thecatch.post.entity.Active;
 import com.encore.thecatch.post.entity.Image;
 import com.encore.thecatch.post.entity.Post;
@@ -37,28 +39,29 @@ public class PostService {
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
     private final S3Service s3Service;
+    private final S3UrlUtil s3UrlUtil;
 
     @PreAuthorize("hasAuthority('USER')")
     public Post createPost(CreatePostReq createPostReq) {
-        List<String> imgPaths = null;
+        List<String> imgkeys = null;
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
         if (createPostReq.getImages() != null) {
-            imgPaths = s3Service.uploadList("Post", createPostReq.getImages());
+            imgkeys = s3Service.uploadList("post", createPostReq.getImages());
         }
 
-        Post newPost = createPostReq.toEntity(imgPaths, user);
+        Post newPost = createPostReq.toEntity(user);
         postRepository.save(newPost);
 
-        if (imgPaths != null) {
-            List<String> imgList = new ArrayList<>();
+        if (imgkeys != null) {
+//            List<String> imgKeys = new ArrayList<>();
 
-            for (String imgUrl : imgPaths) {
-                Image img = new Image(imgUrl, newPost);
+            for (String imgKey : imgkeys) {
+                Image img = new Image(imgKey, newPost);
                 imageRepository.save(img);
-                imgList.add(img.getImgUrl());
+//                imgkeys.add(img.getKeyValue());
             }
         }
 
@@ -77,12 +80,20 @@ public class PostService {
         activePost(id);
         Post post = postRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         List<Image> imgList = imageRepository.findAllByPostId(post.getId());
-        List<String> imgUrl = new ArrayList<>();
+        List<String> imgUrls = new ArrayList<>();
+
+
+//        for (Image image : imgList){
+//            System.out.println(image.getKeyValue());
+//        }
+
         for (Image image : imgList) {
-            imgUrl.add(image.getImgUrl());
+            String key = image.getKeyValue();
+            String url = s3UrlUtil.setUrl();
+            imgUrls.add(url + key);
         }
 
-        return DetailPostRes.from(post, imgUrl);
+        return DetailPostRes.from(post, imgUrls);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -113,25 +124,25 @@ public class PostService {
 
     @PreAuthorize("hasAuthority('USER')")
     public AddImageRes addImage(Long id, AddImageReq addImageReq) {
-        String imgPath = null;
+        String imgKey = null;
 
         Post post = postRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
 
         if (addImageReq.getImage() != null) {
-            imgPath = s3Service.upload("Post", addImageReq.getImage());
-            Image img = new Image(imgPath, post);
+            imgKey = s3Service.upload("post", addImageReq.getImage());
+            Image img = new Image(imgKey, post);
             imageRepository.save(img);
         }
 
-        return AddImageRes.from(imgPath);
+        return AddImageRes.from(s3UrlUtil.setUrl() + imgKey);
     }
 
     @PreAuthorize("hasAuthority('USER')")
     public void deleteImage(Long id) {
-        Image image = imageRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.IMAGE_NOT_FOUND));
-        String imageUrl = image.getImgUrl();
+        Image image = imageRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.IMAGE_NOT_FOUND));
+        String imageKey = image.getKeyValue();
 
         imageRepository.delete(image);
-        s3Service.deleteFile(imageUrl);
+        s3Service.deleteFile(imageKey);
     }
 }

@@ -20,18 +20,20 @@ import java.util.*;
 @Slf4j
 public class S3Service {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+
+    private final String bucket;
 
     private final AmazonS3Client amazonS3Client;
 
-    public S3Service(AmazonS3Client amazonS3Client) {
+    public S3Service(@Value("${cloud.aws.s3.bucket}") String bucket,
+                     AmazonS3Client amazonS3Client) {
+        this.bucket = bucket;
         this.amazonS3Client = amazonS3Client;
     }
 
     //다중파일 업로드
     public List<String> uploadList(String fileType, List<MultipartFile> multipartFile) {
-        List<String> imgUrlList = new ArrayList<>();
+        List<String> imgKeys = new ArrayList<>();
 
         // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
         for (MultipartFile file : multipartFile) {
@@ -48,17 +50,17 @@ public class S3Service {
                 String keyName = uploadFilePath + "/" + fileName;
                 amazonS3Client.putObject(new PutObjectRequest(bucket, keyName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
-                imgUrlList.add(amazonS3Client.getUrl(bucket + "/Post/" + getFolderName(), fileName).toString());
+                imgKeys.add(fileType + "/" + getFolderName()+ "/" + fileName);
             } catch (IOException e) {
                 throw new NoSuchElementException("업로드 실패");
             }
         }
-        return imgUrlList;
+        return imgKeys;
     }
 
     //개인 파일 업로드
     public String upload(String fileType, MultipartFile multipartFile) {
-        String imgUrl = "";
+        String imgKey = "";
 
         MultipartFile file = multipartFile;
 
@@ -75,12 +77,12 @@ public class S3Service {
             String keyName = uploadFilePath + "/" + fileName;
             amazonS3Client.putObject(new PutObjectRequest(bucket, keyName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
-            imgUrl = amazonS3Client.getUrl(bucket + "/Post/" + getFolderName(), fileName).toString();
+            imgKey =  fileType + "/" + getFolderName() + "/" + fileName;
         } catch (IOException e) {
             throw new NoSuchElementException("업로드 실패");
         }
 
-        return imgUrl;
+        return imgKey;
     }
 
     // 이미지파일명 중복 방지
@@ -117,11 +119,8 @@ public class S3Service {
     }
 
     // S3에 업로드된 파일 삭제
-    public void deleteFile(String fileUrl) {
-//        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, fileName);
-//        amazonS3Client.deleteObject(deleteObjectRequest);
+    public void deleteFile(String fileKey) {
         try{
-            String fileKey = fileUrl.substring(49);
             amazonS3Client.deleteObject(bucket, fileKey);
         } catch (Exception exception) {
             throw new CatchException(ResponseCode.S3_DELETE_ERROR);

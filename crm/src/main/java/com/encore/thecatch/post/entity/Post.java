@@ -38,7 +38,8 @@ public class Post {
     private User user;
 
     @Transient
-    private List<Image> imgList = new ArrayList<>();
+    @Builder.Default
+    private List<Image> imageList = new ArrayList<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

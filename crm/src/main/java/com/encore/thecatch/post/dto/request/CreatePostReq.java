@@ -18,7 +18,7 @@ public class CreatePostReq {
 
     private List<MultipartFile> images;
 
-    public Post toEntity(List<String> imagePath, User user){
+    public Post toEntity(User user){
         return Post.builder()
                 .title(title)
                 .category(category)
