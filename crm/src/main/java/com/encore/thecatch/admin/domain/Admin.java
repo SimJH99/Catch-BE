@@ -29,5 +29,4 @@ public class Admin extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
 }

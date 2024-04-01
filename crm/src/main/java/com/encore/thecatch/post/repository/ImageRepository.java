@@ -1,6 +1,6 @@
-package com.encore.thecatch.Post.repository;
+package com.encore.thecatch.post.repository;
 
-import com.encore.thecatch.Post.Entity.Image;
+import com.encore.thecatch.post.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

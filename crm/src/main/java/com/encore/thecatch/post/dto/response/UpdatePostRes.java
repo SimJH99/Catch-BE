@@ -1,11 +1,8 @@
-package com.encore.thecatch.Post.dto.Response;
+package com.encore.thecatch.post.dto.response;
 
-import com.encore.thecatch.Post.Entity.Image;
-import com.encore.thecatch.Post.Entity.Post;
+import com.encore.thecatch.post.entity.Post;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -16,14 +13,11 @@ public class UpdatePostRes {
 
     private String contents;
 
-    private List<Image> imagePath;
-
     public static UpdatePostRes from (Post post){
         return UpdatePostRes.builder()
                 .title(post.getTitle())
                 .category(post.getCategory())
                 .contents(post.getContents())
-                .imagePath(post.getImgList())
                 .build();
     }
 }

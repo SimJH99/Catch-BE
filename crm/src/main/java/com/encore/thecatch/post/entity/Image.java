@@ -1,4 +1,4 @@
-package com.encore.thecatch.Post.Entity;
+package com.encore.thecatch.post.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,15 +17,15 @@ public class Image {
     private Long id;
 
     @Column(nullable = false)
-    private String imgUrl;
+    private String keyValue;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
-    public Image(String imgUrl, Post post) {
-        this.imgUrl = imgUrl;
+    public Image(String keyValue, Post post) {
+        this.keyValue = keyValue;
         this.post = post;
     }
 }
