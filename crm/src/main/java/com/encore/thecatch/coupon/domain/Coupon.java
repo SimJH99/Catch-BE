@@ -3,6 +3,7 @@ package com.encore.thecatch.coupon.domain;
 import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.coupon.dto.CouponReqDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,21 +41,21 @@ public class Coupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CouponStatus couponStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
+    @JsonIgnore
     private Company companyId;
 
-//    public void updateCoupon(CouponReqDto couponReqDto){
-//        this.name = couponReqDto.getName();
-//        this.quantity = couponReqDto.getQuantity();
-//        this.startDate = LocalDateTime.parse(couponReqDto.getStartDate());
-//        this.endDate = LocalDateTime.parse(couponReqDto.getEndDate());
-//        this.companyId = couponReqDto.getCompanyId();
-//    }
-//
-//    public void publishCoupon(){
-//        this.couponStatus = CouponStatus.PUBLISH;
-//    }
-//
-//    public void deleteCoupon() { this.couponStatus = CouponStatus.DELETE; }
+    public void updateCoupon(CouponReqDto couponReqDto){
+        this.name = couponReqDto.getName();
+        this.quantity = couponReqDto.getQuantity();
+        this.startDate = LocalDateTime.parse(couponReqDto.getStartDate());
+        this.endDate = LocalDateTime.parse(couponReqDto.getEndDate());
+    }
+
+    public void publishCoupon(){
+        this.couponStatus = CouponStatus.PUBLISH;
+    }
+
+    public void deleteCoupon() { this.couponStatus = CouponStatus.DELETE; }
 }

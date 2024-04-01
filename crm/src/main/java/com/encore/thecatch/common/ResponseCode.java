@@ -31,7 +31,11 @@ public enum ResponseCode {
     SUCCESS_FOUND_POST("SUCCESS_FOUND_POST", "게시물 상세 조회 성공"),
     SUCCESS_FOUND_MY_POSTS("SUCCESS_FOUND_MY_POSTS", "내 문의 내역 조회 성공"),
     SUCCESS_UPDATE_MY_POST("SUCCESS_UPDATE_MY_POST", "문의 글 수정 완료"),
-    SUCCESS_DELETE_MY_POST("SUCCESS_DELETE_MY_POST", "문의 글 삭제 완료")
+    SUCCESS_DELETE_MY_POST("SUCCESS_DELETE_MY_POST", "문의 글 삭제 완료"),
+    NON_RECEIVABLE_COUPON("NON_RECEIVABLE_COUPON", "수령 불가한 쿠폰입니다."),
+    ALREADY_RECEIVED_COUPON("ALREADY_RECEIVED_COUPON", "이미 수령한 쿠폰입니다."),
+    COUPON_NOT_FOUND("COUPON_NOT_FOUND", "해당 쿠폰은 존재하지 않습니다."),
+    COUPON_CAN_NOT_UPDATE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 수정 불가합니다.")
     ;
 
 

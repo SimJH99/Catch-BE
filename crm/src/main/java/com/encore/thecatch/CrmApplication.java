@@ -5,8 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-
-
 @EnableJpaAuditing
 @EnableMethodSecurity
 @SpringBootApplication(exclude = {
@@ -14,10 +12,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 		org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration.class,
 		org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration.class
 })
-public class TheCatchApplication {
+public class CrmApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TheCatchApplication.class, args);
+		SpringApplication.run(CrmApplication.class, args);
 	}
 
 }

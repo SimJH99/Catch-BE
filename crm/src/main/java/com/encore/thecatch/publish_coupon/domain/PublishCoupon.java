@@ -2,6 +2,8 @@ package com.encore.thecatch.publish_coupon.domain;
 
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
+import com.encore.thecatch.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,12 +21,14 @@ public class PublishCoupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(nullable = false)
-    private Long member_id;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "coupon_id")
+    @JoinColumn(name = "coupon_id", nullable = false)
+    @JsonIgnore
     private Coupon coupon;
 
     @Enumerated(EnumType.STRING)
