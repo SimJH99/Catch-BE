@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -76,11 +78,13 @@ public class EmailSendService {
         String toMail = emailReqDto.getEmail(); // 넘겨받은 보낼 메일 주소
         String title = "Catch 로그인 인증 메일 입니다."; // 이메일 제목
         String content =
-                "Catch 로그인 인증 메일 입니다." +    //html 형식으로 작성 !
-                        "<br><br>" +
-                        "인증 번호는 " + authNumber + "입니다." +
-                        "<br>" +
-                        "3분내로 인증번호를 제대로 입력해주세요"; //이메일 내용 삽입
+                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
+                "<h2 style='margin-bottom: 20px;'>Catch 로그인 인증 메일입니다.</h2>" +
+                "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + authNumber + "</strong>입니다.</p>" +
+                "<p>3분 내로 인증 번호를 제대로 입력해주세요.</p>" +
+                "</div>" +
+                "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+
         mailSend(username, toMail, title, content);
         return Integer.toString(authNumber);
     }
@@ -122,6 +126,8 @@ public class EmailSendService {
     }
 
 
+    @PreAuthorize("hasAuthority('MARKETER')")
+    @Transactional
     public void GroupSend(EmailTask task, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {
