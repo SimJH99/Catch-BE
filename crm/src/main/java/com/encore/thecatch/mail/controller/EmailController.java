@@ -21,7 +21,6 @@ public class EmailController {
 
     @PostMapping("/mailSend")
     public ResponseDto mailSend(@RequestBody EmailReqDto emailReqDto){
-        System.out.println("이메일 인증 이메일 :"+emailReqDto.getEmail());
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEmailAuthNumber(emailReqDto));
     }
 

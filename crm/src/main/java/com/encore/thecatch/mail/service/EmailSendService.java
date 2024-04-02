@@ -8,6 +8,7 @@ import com.encore.thecatch.mail.Entity.EmailTask;
 import com.encore.thecatch.mail.dto.EmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.mail.repository.EmailTaskRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -22,6 +23,7 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Slf4j
 public class EmailSendService {
     private final JavaMailSender javaMailSender;
     private final String username;
@@ -113,7 +115,8 @@ public class EmailSendService {
             javaMailSender.send(message);
         } catch (MessagingException e) {//이메일 서버에 연결할 수 없거나, 잘못된 이메일 주소를 사용하거나, 인증 오류가 발생하는 등 오류
             // 이러한 경우 MessagingException이 발생
-            e.printStackTrace();//e.printStackTrace()는 예외를 기본 오류 스트림에 출력하는 메서드
+
+            log.error("error: " + e);
         }
         redisService.setValues(Integer.toString(authNumber),toMail, Duration.ofMinutes(3L)); // 유효기간 3분
     }
@@ -138,7 +141,6 @@ public class EmailSendService {
         }).thenApply(result -> {
             // CompletableFuture가 완료된 후에 실행될 작업을 정의합니다.
             EmailLog log = EmailLog.builder()
-                    .type(LogType.EMAIL)
                     .message(result.getMsg())
                     .CODE(result.getResultCode())
                     .toEmail(result.getData())

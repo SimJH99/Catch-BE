@@ -20,16 +20,16 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @PostMapping("/total/catchAdmin/signUp")
+    @PostMapping("/system/admin/signUp")
     public ResponseDto totalAdminSingUp(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.totalAdminSignUp(adminSignUpDto));
     }
-    @PostMapping("/catchAdmin/signUp")
+    @PostMapping("/admin/signUp")
     public ResponseDto adminSingUp(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.adminSignUp(adminSignUpDto));
     }
 
-    @PostMapping("/catchAdmin/doLogin")
+    @PostMapping("/admin/doLogin")
     public ResponseDto adminDoLogin(@RequestBody AdminLoginDto adminLoginDto, HttpServletRequest request) throws Exception {
         return adminService.doLogin(adminLoginDto, IPUtil.getClientIP(request));
     }

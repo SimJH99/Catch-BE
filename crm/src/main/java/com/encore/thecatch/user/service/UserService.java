@@ -142,7 +142,7 @@ public class UserService {
 
 
         UserLog userLoginLog = UserLog.builder()
-                .type(LogType.LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                 .ip(ip)
                 .email(aesUtil.aesCBCDecode(user.getEmail()))
                 .method("POST")

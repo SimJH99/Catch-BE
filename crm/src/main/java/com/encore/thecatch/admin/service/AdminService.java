@@ -111,12 +111,11 @@ public class AdminService {
 
 
         AdminLog adminLog = AdminLog.builder()
-                .type(LogType.LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .type(LogType.ADMIN_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                 .ip(ip)
                 .employeeNumber(aesUtil.aesCBCDecode(admin.getEmployeeNumber()))
                 .method("POST")
                 .data("admin login")
-                .type(LogType.ADMIN)
                 .build();
 
 
