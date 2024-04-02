@@ -33,14 +33,19 @@ public class UserController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<UserInfoDto>(userService.userDetail(id)));
     }
 
-    @PostMapping("/user/{id}/disable")
-    public ResponseDto userDisable(@PathVariable Long id) {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<>(userService.userDisable(id)));
+    @PostMapping("/user/disable")
+    public ResponseDto userDisable() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<>(userService.userDisable()));
     }
 
     @PostMapping("/user/doLogin")
     public ResponseDto userLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request) throws Exception {
         ResponseDto responseDto = userService.doLogin(userLoginDto, IPUtil.getClientIP(request));
         return responseDto;
+    }
+
+    @PostMapping("user/doLogout")
+    public ResponseDto userLogin(){
+        return new ResponseDto(HttpStatus.OK,ResponseCode.SUCCESS,new DefaultResponse<>(userService.doLogout()));
     }
 }

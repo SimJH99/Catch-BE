@@ -59,14 +59,14 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(this.password);
     }
 
-    public void dataEncode(String name, String email, String phoneNumber, com.encore.thecatch.user.domain.TotalAddress totalAddress) {
+    public void dataEncode(String name, String email, String phoneNumber, TotalAddress totalAddress) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.totalAddress = totalAddress;
     }
 
-    public void dataDecode(String name, String email, String phoneNumber, com.encore.thecatch.user.domain.TotalAddress totalAddress) {
+    public void dataDecode(String name, String email, String phoneNumber, TotalAddress totalAddress) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -75,13 +75,13 @@ public class User extends BaseEntity {
 
     public static User toEntity(UserSignUpDto userSignUpDto, Company company) {
 
-        com.encore.thecatch.user.domain.BirthDate birthDate = com.encore.thecatch.user.domain.BirthDate.builder()
+        BirthDate birthDate = BirthDate.builder()
                 .year(userSignUpDto.getYear())
                 .month(userSignUpDto.getMonth())
                 .day(userSignUpDto.getDay())
                 .build();
 
-        com.encore.thecatch.user.domain.TotalAddress totalAddress = com.encore.thecatch.user.domain.TotalAddress.builder()
+        TotalAddress totalAddress = TotalAddress.builder()
                 .address(userSignUpDto.getAddress())
                 .detailAddress(userSignUpDto.getDetailAddress())
                 .zipcode(userSignUpDto.getZipcode())
@@ -95,7 +95,7 @@ public class User extends BaseEntity {
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
-                .grade(com.encore.thecatch.user.domain.Grade.SLIVER)
+                .grade(Grade.SLIVER)
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
                 .company(company)

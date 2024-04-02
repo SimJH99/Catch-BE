@@ -4,7 +4,6 @@ import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.s3.S3Service;
 import com.encore.thecatch.common.util.S3UrlUtil;
-import com.encore.thecatch.log.domain.Log;
 import com.encore.thecatch.post.entity.Active;
 import com.encore.thecatch.post.entity.Image;
 import com.encore.thecatch.post.entity.Post;
