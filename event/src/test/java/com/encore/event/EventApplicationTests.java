@@ -1,10 +1,10 @@
-package com.encore.publishcoupon;
+package com.encore.event;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PublishcouponApplicationTests {
+class EventApplicationTests {
 
 	@Test
 	void contextLoads() {
