@@ -1,0 +1,38 @@
+package com.encore.thecatch.log.domain;
+
+import com.encore.thecatch.common.entity.BaseEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class AdminLog extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private LogType type; // ADMIN,
+
+    private String method;
+
+    private String data;
+
+    private String ip;
+
+    private String employeeNumber;
+
+    @CreatedDate
+    @Column(nullable = false)
+    private LocalDateTime createdTime;
+
+}

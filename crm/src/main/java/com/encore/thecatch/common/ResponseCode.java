@@ -10,6 +10,7 @@ public enum ResponseCode {
     SUCCESS("SUCCESS", "성공"),
     SUCCESS_CREATE_MEMBER("SUCCESS_CREATE_MEMBER","계정 생성 성공"),
     SUCCESS_CHANGE_MEMBER_PASSWORD("SUCCESS_CREATE_MEMBER","비밀번호 변경 성공"),
+    EXISTING_EMPLOYEE_NUMBER("EXISTING_EMPLOYEE_NUMBER", "이미 존재하는 사원 번호입니다."),
     EXISTING_EMAIL("EXISTING_EMAIL", "이미 존재하는 이메일 주소입니다."),
     CODE_NOT_CONFIRMED("CODE_NOT_CONFIRMED", "인증번호를 확인해주세요."),
     CODE_EXPIRED("CODE_EXPIRED", "만료된 인증번호입니다."),

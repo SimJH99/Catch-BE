@@ -1,5 +1,11 @@
 package com.encore.thecatch.log.domain;
 
 public enum LogType {
-    ADMIN, LOGIN;
+    USER_LOGIN,
+    ADMIN_LOGIN,
+    ADMIN_MARKETER_CS_CREATE,
+    ADMIN_MARKETER_CS_DELETE,
+    MARKETER_COUPON_CREATE,
+    MARKETER_COUPON_UPDATE,
+    MARKETER_COUPON_DELETE,
 }

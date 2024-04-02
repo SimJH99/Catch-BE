@@ -15,20 +15,18 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Log extends BaseEntity {
+public class EmailLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LogType type; // ADMIN,
+    private String message; // 발송여부
 
-    private String method;
+    private String CODE; // S-1 성공 , F-1 실패
 
-    private String data;
+    private String toEmail; // 받는 사람 이메일
 
-    private String ip;
-
-    private String email;
+    private Long emailTaskId;
 
     @CreatedDate
     @Column(nullable = false)
