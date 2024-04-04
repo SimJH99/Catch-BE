@@ -1,11 +1,17 @@
 package com.encore.thecatch.log.domain;
 
+import com.encore.thecatch.admin.domain.Admin;
+import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
+import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.entity.BaseEntity;
+import com.encore.thecatch.company.domain.Company;
+import com.encore.thecatch.user.domain.TotalAddress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,6 +26,8 @@ public class AdminLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String employeeNumber;
+
     @Enumerated(EnumType.STRING)
     private LogType type; // ADMIN,
 
@@ -28,8 +36,6 @@ public class AdminLog extends BaseEntity {
     private String data;
 
     private String ip;
-
-    private String employeeNumber;
 
     @CreatedDate
     @Column(nullable = false)
