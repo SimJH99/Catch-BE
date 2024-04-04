@@ -36,13 +36,13 @@ public class SecurityConfig{
                 corsConfiguration.addExposedHeader("New-Access-Token");
                 return corsConfiguration;
             });
-            httpSecurity.httpBasic(basic -> basic.disable())
-                // Http basic Auth  기반으로 로그인 인증창 X
+        httpSecurity.httpBasic(basic -> basic.disable())
+            // Http basic Auth  기반으로 로그인 인증창 X
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                // jwt 인증 하므로 무연결 상태
+            // jwt 인증 하므로 무연결 상태
             .and()
             .authorizeHttpRequests(req -> req
-                .antMatchers("/user/signUp","/user/doLogin", "/system/admin/signUp","/admin/doLogin","/mailSend","/mailAuthCheck")
+                .antMatchers("/user/signUp","/user/doLogin", "/system/admin/signUp","/admin/doLogin","/mailSend","/admin/mailAuthCheck")
                     .permitAll()
                     // 해당 url은 인증 필요 x
                 .anyRequest().authenticated()
