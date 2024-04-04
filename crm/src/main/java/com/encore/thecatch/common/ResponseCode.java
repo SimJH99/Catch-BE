@@ -20,6 +20,8 @@ public enum ResponseCode {
     INVALID_PW("INVALID_PW", "비밀번호를 확인해주세요."),
     PAYLOAD_INVALID("PAYLOAD_INVALID","입력값을 확인해주세요"),
     INAPPROPRIATE_PARAMETER_VALUE("INAPPROPRIATE_PARAMETER_VALUE", "잘못된 입력값입니다."),
+    INVALID_VERIFICATION_CODE("INVALID_VERIFICATION_CODE","인증코드가 잘못되었습니다."),
+    INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR","내부서버 에러입니다"),
     POST_NOT_FOUND("POST_NOT_FOUND", "게시글이 존재하지 않습니다."),
     SUCCESS_CREATE_COMMENT("SUCCESS_CREATE_COMMENT", "댓글을 성공적으로 저장했습니다."),
     AES_ENCODE_FAIL("AES_ENCODE_FAIL","데이터 암호화 오류 발생"),

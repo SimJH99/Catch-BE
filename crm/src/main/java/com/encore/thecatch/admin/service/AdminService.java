@@ -135,11 +135,10 @@ public class AdminService {
                 adminLogRepository.save(adminLog);
                 return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN, result);
             }else {
-                return new ResponseDto(HttpStatus.UNAUTHORIZED, "Invalid verification code", null);
+                return new ResponseDto(HttpStatus.UNAUTHORIZED, ResponseCode.INVALID_VERIFICATION_CODE, null);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during authentication verification", null);
+            return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR, null);
         }
     }
 
