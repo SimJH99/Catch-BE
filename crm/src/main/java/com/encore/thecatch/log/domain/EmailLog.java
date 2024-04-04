@@ -20,6 +20,9 @@ public class EmailLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private LogType type; // EMAIL,
+
     private String message; // 발송여부
 
     private String CODE; // S-1 성공 , F-1 실패

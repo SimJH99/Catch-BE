@@ -4,7 +4,6 @@ import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
 import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.company.domain.Company;
-import com.encore.thecatch.user.domain.TotalAddress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +25,8 @@ public class Admin extends BaseEntity {
     private String name;
     @Column(unique = true, nullable = false)
     private String employeeNumber;
+    @Column(unique = true, nullable = false)
+    private String email;
     @Column(nullable = false)
     private String password;
     @ManyToOne
@@ -43,18 +44,21 @@ public class Admin extends BaseEntity {
                 .name(adminSignUpDto.getName())
                 .employeeNumber(adminSignUpDto.getEmployeeNumber())
                 .password(adminSignUpDto.getPassword())
+                .email(adminSignUpDto.getEmail())
                 .role(adminSignUpDto.getRole())
                 .company(company)
                 .build();
     }
 
-    public void dataEncode(String name, String employeeNumber) {
+    public void dataEncode(String name, String employeeNumber, String email) {
         this.name = name;
         this.employeeNumber = employeeNumber;
+        this.email = email;
     }
 
-    public void dataDecode(String name, String employeeNumber) {
+    public void dataDecode(String name, String employeeNumber, String email) {
         this.name = name;
         this.employeeNumber = employeeNumber;
+        this.email = email;
     }
 }

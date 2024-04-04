@@ -129,7 +129,7 @@ public class UserService {
             throw new CatchException(ResponseCode.USER_NOT_FOUND);
         }
         String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", user.getEmail(), user.getRole())); // 토큰 생성
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getId()); // 리프레시 토큰 생성
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getRole(), user.getId()); // 리프레시 토큰 생성
         // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
         refreshTokenRepository.findById(user.getId())
                 .ifPresentOrElse(
