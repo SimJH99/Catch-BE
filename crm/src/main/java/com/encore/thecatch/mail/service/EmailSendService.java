@@ -99,7 +99,7 @@ public class EmailSendService {
         mailSend(username, toMail, title, content);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MARKETER') or hasAuthority('CS')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public String createGroupEmail(GroupEmailReqDto groupEmailReqDto) {
         List<String> emailList = groupEmailReqDto.getEmailList();
 

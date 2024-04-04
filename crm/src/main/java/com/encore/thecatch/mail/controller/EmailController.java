@@ -32,14 +32,5 @@ public class EmailController {
         String result = emailSendService.createGroupEmail(groupEmailReqDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
     }
-//    @PostMapping("/mailAuthCheck")
-//    public ResponseDto AuthCheck(@RequestBody EmailCheckDto emailCheckDto){
-//        boolean Checked = emailSendService.checkAuthNum(emailCheckDto.getEmail(), emailCheckDto.getAuthNum());
-//        if(Checked){
-//            return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_EMAIL_CHECK, "SUCCESS_EMAIL_CHECK" );
-//        }
-//        else{
-//            return new ResponseDto(HttpStatus.EXPECTATION_FAILED, ResponseCode.EMAIL_CHECK_FAIL, "EMAIL_CHECK_FAIL");
-//        }
-//    }
+
 }
