@@ -1,11 +1,15 @@
 package com.encore.thecatch.mail.service;
 
+import com.encore.thecatch.admin.domain.Admin;
+import com.encore.thecatch.admin.dto.request.AdminLoginDto;
+import com.encore.thecatch.admin.repository.AdminRepository;
+import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.redis.RedisService;
+import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.log.domain.EmailLog;
-import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.mail.Entity.EmailTask;
-import com.encore.thecatch.mail.dto.EmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.mail.repository.EmailTaskRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -31,8 +34,9 @@ public class EmailSendService {
     private final String username;
     private final RedisService redisService;
     private final EmailLogRepository emailLogRepository;
-
     private final EmailTaskRepository emailTaskRepository;
+    private final AdminRepository adminRepository;
+    private final AesUtil aesUtil;
     private int authNumber;
 
     public EmailSendService(
@@ -41,13 +45,17 @@ public class EmailSendService {
             String username,
             RedisService redisService,
             EmailLogRepository emailLogRepository,
-            EmailTaskRepository emailTaskRepository
+            EmailTaskRepository emailTaskRepository,
+            AdminRepository adminRepository,
+            AesUtil aesUtil
     ) {
         this.javaMailSender = javaMailSender;
         this.username = username;
         this.redisService = redisService;
         this.emailLogRepository = emailLogRepository;
         this.emailTaskRepository = emailTaskRepository;
+        this.adminRepository = adminRepository;
+        this.aesUtil = aesUtil;
     }
 
     public boolean checkAuthNum(String email, String authNum) {
@@ -73,9 +81,12 @@ public class EmailSendService {
     }
 
     @Async
-    public String createEmailAuthNumber(EmailReqDto emailReqDto) {
+    public void createEmailAuthNumber(AdminLoginDto adminLoginDto) throws Exception {
+        Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminLoginDto.getEmployeeNumber()))
+                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+
         makeRandomNumber();
-        String toMail = emailReqDto.getEmail(); // 넘겨받은 보낼 메일 주소
+        String toMail = aesUtil.aesCBCDecode(admin.getEmail()); // 넘겨받은 보낼 메일 주소
         String title = "Catch 로그인 인증 메일 입니다."; // 이메일 제목
         String content =
                 "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
@@ -86,9 +97,9 @@ public class EmailSendService {
                 "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
 
         mailSend(username, toMail, title, content);
-        return Integer.toString(authNumber);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('MARKETER') or hasAuthority('CS')")
     public String createGroupEmail(GroupEmailReqDto groupEmailReqDto) {
         List<String> emailList = groupEmailReqDto.getEmailList();
 
@@ -127,7 +138,6 @@ public class EmailSendService {
 
 
     @PreAuthorize("hasAuthority('MARKETER')")
-    @Transactional
     public void GroupSend(EmailTask task, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {

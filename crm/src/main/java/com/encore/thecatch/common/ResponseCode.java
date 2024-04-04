@@ -8,6 +8,8 @@ import lombok.Getter;
 public enum ResponseCode {
 
     SUCCESS("SUCCESS", "성공"),
+    SUCCESS_EMAIL_CHECK("SUCCESS_EMAIL_CHECK", "이메일 인증 성공"),
+    SUCCESS_LOGIN("SUCCESS_LOGIN", "로그인 성공"),
     SUCCESS_CREATE_MEMBER("SUCCESS_CREATE_MEMBER","계정 생성 성공"),
     SUCCESS_CHANGE_MEMBER_PASSWORD("SUCCESS_CREATE_MEMBER","비밀번호 변경 성공"),
     EXISTING_EMPLOYEE_NUMBER("EXISTING_EMPLOYEE_NUMBER", "이미 존재하는 사원 번호입니다."),
@@ -22,6 +24,7 @@ public enum ResponseCode {
     SUCCESS_CREATE_COMMENT("SUCCESS_CREATE_COMMENT", "댓글을 성공적으로 저장했습니다."),
     AES_ENCODE_FAIL("AES_ENCODE_FAIL","데이터 암호화 오류 발생"),
     AES_DECODE_FAIL("AES_DECODE_FAIL", "데이터 복호화 오류 발생"),
+    EMAIL_CHECK_FAIL("EMAIL_CHECK_FAIL","이메일 인증 실패"),
     SUCCESS_CREATE_COUPON("SUCCESS_CREATE_COUPON", "쿠폰 생성 성공"),
     SUCCESS_PUBLISH_COUPON("SUCCESS_PUBLISH_COUPON", "쿠폰 발행 성공"),
     SUCCESS_RECEIVE_COUPON("SUCCESS_RECEIVE_COUPON", "쿠폰 수령 성공"),
@@ -41,7 +44,8 @@ public enum ResponseCode {
     NON_RECEIVABLE_COUPON("NON_RECEIVABLE_COUPON", "수령 불가한 쿠폰입니다."),
     ALREADY_RECEIVED_COUPON("ALREADY_RECEIVED_COUPON", "이미 수령한 쿠폰입니다."),
     COUPON_NOT_FOUND("COUPON_NOT_FOUND", "해당 쿠폰은 존재하지 않습니다."),
-    COUPON_CAN_NOT_UPDATE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 수정 불가합니다.")
+    COUPON_CAN_NOT_UPDATE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 수정 불가합니다."),
+    CHECK_EMAIL("CHECK_EMAIL","이메일을 확인해주세요"),
     ;
 
 

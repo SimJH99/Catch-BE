@@ -6,7 +6,9 @@ import com.encore.thecatch.admin.service.AdminService;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
+import com.encore.thecatch.mail.dto.EmailCheckDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +24,7 @@ public class AdminController {
 
     @PostMapping("/system/admin/signUp")
     public ResponseDto totalAdminSingUp(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.totalAdminSignUp(adminSignUpDto));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.systemAdminSignUp(adminSignUpDto));
     }
     @PostMapping("/admin/signUp")
     public ResponseDto adminSingUp(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
@@ -30,7 +32,18 @@ public class AdminController {
     }
 
     @PostMapping("/admin/doLogin")
-    public ResponseDto adminDoLogin(@RequestBody AdminLoginDto adminLoginDto, HttpServletRequest request) throws Exception {
-        return adminService.doLogin(adminLoginDto, IPUtil.getClientIP(request));
+    public ResponseDto adminDoLogin(@RequestBody AdminLoginDto adminLoginDto) throws Exception {
+        return adminService.doLogin(adminLoginDto);
+    }
+
+    @PostMapping("/admin/mailAuthCheck")
+    public ResponseDto verifyAuthNumber(@RequestBody EmailCheckDto emailCheckDto, HttpServletRequest request) {
+        try {
+            // 인증 번호 검증을 AdminService에 전달하고 응답을 반환합니다.
+            return adminService.validateAuthNumber(emailCheckDto.getEmployeeNumber(), emailCheckDto.getAuthNumber(), IPUtil.getClientIP(request));
+        } catch (Exception e) {
+            // 인증 번호 검증 요청 처리 중에 예외가 발생하면 500 Internal Server Error를 반환합니다.
+            return new ResponseDto(HttpStatus.EXPECTATION_FAILED, ResponseCode.EMAIL_CHECK_FAIL, "EMAIL_CHECK_FAIL");
+        }
     }
 }
