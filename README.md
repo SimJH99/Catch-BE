@@ -121,4 +121,13 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 |**발급된 쿠폰**|발급된 쿠폰은 수정 및 삭제가 불가능 하다.|
 |**미발급 쿠폰**|미발급된 쿠폰은 수정 및 삭제가 가능하다.|
 
+</br>
+
+#  [📅 WBS](https://docs.google.com/spreadsheets/d/19pO974fKGKGOW3XLY8PIu9Kd5hFQFiLN8cf3-CNAI-o/edit?usp=sharing)
+
+# [📈 ERD](https://www.erdcloud.com/d/4hBsL2CcK8LnCFWJL)
+
+# [🖥 화면설계서](https://www.figma.com/file/J6p1dopme7dCpIH5zSnxHc/Catch?type=design&node-id=0%3A1&mode=design&t=OH7rpExEUxgtSPbR-1)
+
+
   
