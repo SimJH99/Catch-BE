@@ -50,6 +50,7 @@ public class CouponService {
         if(user.getRole().equals(Role.USER)){
             throw new CatchException(ResponseCode.ACCESS_DENIED);
         }
+
         // UUID(Universally Unique Identifier)란?
         //범용 고유 식별자를 의미하며 중복이 되지 않는 유일한 값을 구성하고자 할때 주로 사용됨(ex)세션 식별자, 쿠키 값, 무작위 데이터베이스값 )
         String code = UUID.randomUUID().toString();
