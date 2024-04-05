@@ -1,5 +1,6 @@
 package com.encore.thecatch.common.jwt;
 
+import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.redis.RedisService;
@@ -67,14 +68,14 @@ public class JwtTokenProvider {
         return accessToken;
 
     }
-    public String createRefreshToken(Long id) {
+    public String createRefreshToken(Role role, Long id) {
         String refreshToken = Jwts.builder()
                 .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
                 .setIssuer(issuer)
                 .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .setExpiration(Date.from(Instant.now().plus(refreshTokenExpirationHours, ChronoUnit.HOURS)))
                 .compact();
-        redisService.setValues(String.valueOf(id),refreshToken, Duration.ofMillis(1000L * 60 * 60 * 24));
+        redisService.setValues(String.valueOf(role)+id ,refreshToken, Duration.ofHours(24L));
         return refreshToken;
     }
 
@@ -101,8 +102,8 @@ public class JwtTokenProvider {
     @Transactional
     public void validateRefreshToken(String refreshToken, String oldAccessToken) throws JsonProcessingException {
         validateAndPraseToken(refreshToken); // 리프레시 토큰이 유효한 토큰인지 검증
-        String userEmail = decodeJwtPayloadSubject(oldAccessToken).split(":")[0];
-        refreshTokenRepository.findByIdAndReissueCountLessThan(userEmail, reissueLimit)
+        String value = decodeJwtPayloadSubject(oldAccessToken).split(":")[0];
+        refreshTokenRepository.findByIdAndReissueCountLessThan(value, reissueLimit)
                 .filter(userRefreshToken -> userRefreshToken.validateRefreshToken(refreshToken))
                 .orElseThrow(()-> new ExpiredJwtException(null,null, "Refresh token expired"));
     }

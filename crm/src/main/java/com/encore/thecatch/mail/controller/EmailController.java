@@ -1,5 +1,7 @@
 package com.encore.thecatch.mail.controller;
 
+import com.encore.thecatch.admin.dto.request.AdminLoginDto;
+import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.mail.dto.EmailCheckDto;
@@ -20,8 +22,9 @@ public class EmailController {
     }
 
     @PostMapping("/mailSend")
-    public ResponseDto mailSend(@RequestBody EmailReqDto emailReqDto){
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEmailAuthNumber(emailReqDto));
+    public ResponseDto mailSend(@RequestBody AdminLoginDto adminLoginDto) throws Exception {
+        emailSendService.createEmailAuthNumber(adminLoginDto);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, null);
     }
 
     @PostMapping("/groupMailSend")
@@ -29,14 +32,5 @@ public class EmailController {
         String result = emailSendService.createGroupEmail(groupEmailReqDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
     }
-    @PostMapping("/mailAuthCheck")
-    public String AuthCheck(@RequestBody EmailCheckDto emailCheckDto){
-        Boolean Checked=emailSendService.checkAuthNum(emailCheckDto.getEmail(),emailCheckDto.getAuthNum());
-        if(Checked){
-            return "ok";
-        }
-        else{
-            throw new NullPointerException("뭔가 잘못!");
-        }
-    }
+
 }
