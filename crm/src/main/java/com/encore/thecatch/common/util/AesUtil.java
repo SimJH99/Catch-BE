@@ -2,9 +2,7 @@ package com.encore.thecatch.common.util;
 
 import lombok.Getter;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
@@ -28,9 +26,8 @@ public class AesUtil {
 
         c.init(Cipher.ENCRYPT_MODE, secretKey, IV);
 
-        byte[] encrpytionByte = c.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-
-        return Hex.encodeHexString(encrpytionByte);
+        byte[] encryptionByte = c.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+        return Hex.encodeHexString(encryptionByte);
     }
 
     public String aesCBCDecode(String encodeText) throws Exception {

@@ -7,11 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @EnableJpaAuditing
 @EnableMethodSecurity
-@SpringBootApplication(exclude = {
-		org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration.class,
-		org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration.class,
-		org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration.class
-})
+@SpringBootApplication()
 public class CrmApplication {
 
 	public static void main(String[] args) {
