@@ -35,7 +35,7 @@ public class ComplaintQueryRepository {
                         user.name,
                         complaint.title,
                         complaint.status))
-                .from(complaint)
+                .from(complaint )
                 .leftJoin(complaint.user, user)
                 .where(
                         eqPostId(searchComplaintCondition.getComplaintId()),
