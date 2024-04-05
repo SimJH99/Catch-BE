@@ -51,8 +51,8 @@ public class S3Service {
                 amazonS3Client.putObject(new PutObjectRequest(bucket, keyName, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
                 imgKeys.add(fileType + "/" + getFolderName()+ "/" + fileName);
-            } catch (IOException e) {
-                throw new NoSuchElementException("업로드 실패");
+            } catch (CatchException | IOException e) {
+                throw new CatchException(ResponseCode.S3_UPLOAD_ERROR);
             }
         }
         return imgKeys;
