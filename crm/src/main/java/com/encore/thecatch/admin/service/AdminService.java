@@ -19,6 +19,7 @@ import com.encore.thecatch.log.repository.AdminLogRepository;
 import com.encore.thecatch.mail.service.EmailSendService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,10 +61,14 @@ public class AdminService {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Transactional
     public Admin adminSignUp(AdminSignUpDto adminSignUpDto) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         if (adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminSignUpDto.getEmployeeNumber())).isPresent()) {
             throw new CatchException(ResponseCode.EXISTING_EMPLOYEE_NUMBER);
         }
-        Company company = companyRepository.findById(adminSignUpDto.getCompanyId()).orElseThrow(
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+        Company company = companyRepository.findById(systemAdmin.getCompany().getId()).orElseThrow(
                 ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
 
         Admin admin = Admin.toEntity(adminSignUpDto, company);
@@ -138,7 +143,6 @@ public class AdminService {
                 return new ResponseDto(HttpStatus.UNAUTHORIZED, ResponseCode.INVALID_VERIFICATION_CODE, null);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR, null);
         }
     }
