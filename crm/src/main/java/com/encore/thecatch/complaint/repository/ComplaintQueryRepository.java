@@ -5,7 +5,6 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
 import com.encore.thecatch.complaint.dto.response.ListComplaintRes;
 import com.encore.thecatch.complaint.dto.response.QListComplaintRes;
-import com.encore.thecatch.complaint.entity.Active;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
 import com.encore.thecatch.user.domain.QUser;
@@ -42,7 +41,7 @@ public class ComplaintQueryRepository {
                         eqName(searchComplaintCondition.getName()),
                         eqTitle(searchComplaintCondition.getTitle()),
                         eqStatus(searchComplaintCondition.getStatus()),
-                        complaint.active.eq(Active.valueOf("TRUE")))
+                        complaint.active.eq(true))
                 .fetch();
     }
 
@@ -65,9 +64,4 @@ public class ComplaintQueryRepository {
     private BooleanExpression eqStatus(Status status) {
         return status != null ? complaint.status.eq(status) : null;
     }
-
-    private BooleanExpression eqActive(Active active) {
-        return active != null ? complaint.active.eq(active) : null;
-    }
-
 }

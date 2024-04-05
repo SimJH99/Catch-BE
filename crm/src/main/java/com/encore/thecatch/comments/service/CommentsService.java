@@ -7,7 +7,6 @@ import com.encore.thecatch.comments.dto.request.UpdateCommentsReq;
 import com.encore.thecatch.comments.dto.response.CreateCommentsRes;
 import com.encore.thecatch.comments.dto.response.DetailCommentRes;
 import com.encore.thecatch.comments.dto.response.UpdateCommentsRes;
-import com.encore.thecatch.comments.entity.Active;
 import com.encore.thecatch.comments.entity.Comments;
 import com.encore.thecatch.comments.repository.CommentsRepository;
 import com.encore.thecatch.common.CatchException;
@@ -36,7 +35,7 @@ public class CommentsService {
     @PreAuthorize("hasAuthority('MARKETER')")
     public CreateCommentsRes createComment(Long id, CreateCommentsReq createCommentsReq) throws Exception {
 
-        if (commentsRepository.findByComplaintIdAndActive(id, Active.TRUE).isPresent()) {
+        if (commentsRepository.findByComplaintIdAndActive(id, true).isPresent()) {
             throw new CatchException(ResponseCode.ALREADY_BEEN_COMMENTS);
         }
 
@@ -53,21 +52,21 @@ public class CommentsService {
 
 
     public DetailCommentRes detailComment(Long id) {
-        Comments comments = commentsRepository.findByComplaintIdAndActive(id, Active.TRUE).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
+        Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
         return DetailCommentRes.from(comments);
     }
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('CS')")
     public UpdateCommentsRes updateComment(Long id, UpdateCommentsReq updateCommentsReq) {
-        Comments comments = commentsRepository.findByComplaintIdAndActive(id, Active.TRUE).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
+        Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
         comments.updateComment(updateCommentsReq.getComment());
         return UpdateCommentsRes.from(comments);
     }
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('CS')")
     public String deleteComment(Long id) {
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
-        Comments comments = commentsRepository.findByComplaintIdAndActive(id, Active.TRUE).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
+        Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
         comments.deleteComment();
         complaint.isBefore();
         return "Complete delete";

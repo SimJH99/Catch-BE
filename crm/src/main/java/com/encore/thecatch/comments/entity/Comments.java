@@ -42,15 +42,14 @@ public class Comments {
     private LocalDateTime updatedTime;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Active active = Active.TRUE;
+    private boolean active = true;
 
     public void updateComment (String comment){
         this.comment = comment;
     }
 
     public void deleteComment (){
-        this.active = Active.FALSE;
+        this.active = false;
     }
 }

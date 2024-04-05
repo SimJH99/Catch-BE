@@ -50,6 +50,10 @@ public class Complaint {
     @Builder.Default
     private Status status = Status.BEFORE;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
     @CreationTimestamp
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdTime;
@@ -58,10 +62,6 @@ public class Complaint {
     @Column(columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedTime;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Active active = Active.TRUE;
 
     //글 내용 수정 메소드
     public void updatePost(String title, String category, String contents) {
@@ -72,7 +72,7 @@ public class Complaint {
 
     //삭제 메소드
     public void isDelete() {
-        this.active = Active.FALSE;
+        this.active = false;
     }
 
     // 답변 완료 시 상태 변화

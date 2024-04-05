@@ -42,6 +42,7 @@ public enum ResponseCode {
     SUCCESS_ADD_IMAGES("SUCCESS_ADD_IMAGES", "사진 추가 성공"),
     SUCCESS_DELETE_IMAGES("SUCCESS_DELETE_IMAGES", "사진 삭제 성공"),
     S3_DELETE_ERROR("S3_DELETE_ERROR", "S3 이미지 삭제 실패"),
+    S3_UPLOAD_ERROR("S3_UPLOAD_ERROR", "S3 이미지 등록 실패"),
     IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "찾을 수 없는 이미지 입니다."),
     NON_RECEIVABLE_COUPON("NON_RECEIVABLE_COUPON", "수령 불가한 쿠폰입니다."),
     ALREADY_RECEIVED_COUPON("ALREADY_RECEIVED_COUPON", "이미 수령한 쿠폰입니다."),
@@ -53,7 +54,7 @@ public enum ResponseCode {
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "찾을 수 없는 답변입니다."),
     SUCCESS_POST_LIST("SUCCESS_POST_LIST", "게시글 조회 완료"),
     SUCCESS_UPDATE_COMMENT("SUCCESS_UPDATE_COMMENT", "답변 수정 완료"),
-    SUCCESS_DELETE_COMMENT("SUCCESS_DELETE_COMMENT", "답변 삭제 완료")
+    SUCCESS_DELETE_COMMENT("SUCCESS_DELETE_COMMENT", "답변 삭제 완료"),
     CHECK_EMAIL("CHECK_EMAIL","이메일을 확인해주세요"),
     ;
 

@@ -53,7 +53,6 @@ dependencies {
 
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'ch.qos.logback:logback-classic'
-	implementation group: 'commons-codec', name: 'commons-codec', version: '1.9'
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.5.RELEASE'
 	implementation 'javax.mail:mail:1.4.7'
 	implementation 'org.springframework:spring-context-support:5.3.9'

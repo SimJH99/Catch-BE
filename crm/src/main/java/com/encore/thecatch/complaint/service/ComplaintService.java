@@ -9,11 +9,7 @@ import com.encore.thecatch.complaint.dto.request.AddImageReq;
 import com.encore.thecatch.complaint.dto.request.CreateComplaintReq;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
 import com.encore.thecatch.complaint.dto.request.UpdateComplaintReq;
-import com.encore.thecatch.complaint.dto.response.AddImageRes;
-import com.encore.thecatch.complaint.dto.response.DetailComplaintRes;
-import com.encore.thecatch.complaint.dto.response.ListComplaintRes;
-import com.encore.thecatch.complaint.dto.response.UpdateComplaintRes;
-import com.encore.thecatch.complaint.entity.Active;
+import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.entity.Image;
 import com.encore.thecatch.complaint.repository.ComplaintQueryRepository;
@@ -50,24 +46,32 @@ public class ComplaintService {
     @PreAuthorize("hasAuthority('USER')")
     public Complaint createComplaint(CreateComplaintReq createComplaintReq) {
         List<String> imgkeys = null;
+        try{
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+            Complaint newComplaint = createComplaintReq.toEntity(user);
+            complaintRepository.save(newComplaint);
 
-        if (createComplaintReq.getImages() != null) {
-            imgkeys = s3Service.uploadList("complaint", createComplaintReq.getImages());
-        }
-
-        Complaint newComplaint = createComplaintReq.toEntity(user);
-        complaintRepository.save(newComplaint);
-
-        if (imgkeys != null) {
-            for (String imgKey : imgkeys) {
-                Image img = new Image(imgKey, newComplaint);
-                imageRepository.save(img);
+            if (createComplaintReq.getImages() != null  && !createComplaintReq.getImages().isEmpty()) {
+                imgkeys = s3Service.uploadList("complaint", createComplaintReq.getImages());
             }
+
+            if (imgkeys != null) {
+                for (String imgKey : imgkeys) {
+                    Image img = new Image(imgKey, newComplaint);
+                    imageRepository.save(img);
+                }
+            }
+            return newComplaint;
+        } catch (CatchException e) {
+            if(imgkeys != null && !imgkeys.isEmpty()){
+                for (String keys : imgkeys){
+                    s3Service.deleteFile(keys);
+                }
+            }
+            throw new  CatchException(ResponseCode.S3_UPLOAD_ERROR);
         }
-        return newComplaint;
     }
 
     public Complaint deletePost(Long id) {
@@ -101,17 +105,16 @@ public class ComplaintService {
 
 
     @PreAuthorize("hasAuthority('USER')")
-    public Page<Complaint> myComplaintList(Pageable pageable) {
+    public Page<MyComplaintRes> myComplaintList(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        return complaintRepository.findAllByUserIdAndActive(user.getId(), pageable, Active.TRUE);
+        return complaintRepository.findAllByUserIdAndActive(user.getId(), pageable, true).map(MyComplaintRes::toDto);
     }
-
 
     // 삭제된 게시글 확인
     public void activeComplaint(Long id) {
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
-        if (complaint.getActive() == Active.FALSE) {
+        if (!complaint.isActive()) {
             throw new CatchException(ResponseCode.POST_NOT_ACTIVE);
         }
     }

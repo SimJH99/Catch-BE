@@ -7,10 +7,7 @@ import com.encore.thecatch.complaint.dto.request.AddImageReq;
 import com.encore.thecatch.complaint.dto.request.CreateComplaintReq;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
 import com.encore.thecatch.complaint.dto.request.UpdateComplaintReq;
-import com.encore.thecatch.complaint.dto.response.AddImageRes;
-import com.encore.thecatch.complaint.dto.response.DetailComplaintRes;
-import com.encore.thecatch.complaint.dto.response.ListComplaintRes;
-import com.encore.thecatch.complaint.dto.response.UpdateComplaintRes;
+import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.service.ComplaintService;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +45,8 @@ public class ComplaintController {
     //내 글 보기
     @GetMapping("/myPosts")
     public ResponseDto myComplaintList(Pageable pageable) {
-
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_FOUND_MY_POSTS,
-                new DefaultResponse<Page<Complaint>>(complaintService.myComplaintList(pageable)));
+                new DefaultResponse<Page<MyComplaintRes>>(complaintService.myComplaintList(pageable)));
     }
 
     // 게시글 리스트 보기 (검색 로직)
