@@ -124,10 +124,19 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 </br>
 
 #  [📅 WBS](https://docs.google.com/spreadsheets/d/19pO974fKGKGOW3XLY8PIu9Kd5hFQFiLN8cf3-CNAI-o/edit?usp=sharing)
+</br>
 
 # [📈 ERD](https://www.erdcloud.com/d/4hBsL2CcK8LnCFWJL)
+</br>
 
 # [🖥 화면설계서](https://www.figma.com/file/J6p1dopme7dCpIH5zSnxHc/Catch?type=design&node-id=0%3A1&mode=design&t=OH7rpExEUxgtSPbR-1)
+</br>
 
+# [🎬API 명세 및 테스트 결과서](https://documenter.getpostman.com/view/32406846/2sA35LTyRZ)
+</br>
+
+# ⛏ 아키텍처 설계도
+<img src=".github/Image/Catch-아키텍처.png" height="100%" width="100%">
+</br>
 
   
