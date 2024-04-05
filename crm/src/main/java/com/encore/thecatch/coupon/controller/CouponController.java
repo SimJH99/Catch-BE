@@ -27,6 +27,8 @@ public class CouponController {
 
     @PostMapping("/create")
     public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto) throws Exception{
+        System.out.println(couponReqDto.getName());
+        System.out.println(couponReqDto.getStartDate());
         Coupon coupon = couponService.create(couponReqDto);
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
