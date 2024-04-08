@@ -1,4 +1,4 @@
-package com.encore.thecatch.mail.service;
+package com.encore.thecatch.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
