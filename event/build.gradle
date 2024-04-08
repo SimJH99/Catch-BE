@@ -25,7 +25,10 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
+
 	implementation 'org.springframework.data:spring-data-redis:2.7.5'
+	implementation 'io.lettuce:lettuce-core:6.2.1.RELEASE'
+
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

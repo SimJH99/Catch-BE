@@ -1,12 +1,15 @@
 package com.encore.event.coupon.application.service;
 
 import com.encore.event.common.UseCase;
+import com.encore.event.common.respone.ResponseCode;
+import com.encore.event.common.respone.ResponseDto;
 import com.encore.event.coupon.application.port.in.ApplyForLimitedCouponIssueCommend;
 import com.encore.event.coupon.application.port.in.ApplyForLimitedCouponIssueUseCase;
 import com.encore.event.coupon.application.port.out.ApplyForLimitedCouponIssueOutPort;
 import com.encore.event.coupon.application.port.out.RedisCouponOutPort;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
@@ -19,30 +22,18 @@ public class ApplyForLimitedCouponIssue implements ApplyForLimitedCouponIssueUse
 
     @Override
     @Synchronized
-    public void applyForLimitedCouponIssue(ApplyForLimitedCouponIssueCommend commend) {
+    public ResponseDto applyForLimitedCouponIssue(ApplyForLimitedCouponIssueCommend commend) {
 
+        Boolean res = redisCouponOutPort.limitedCouponIssue(commend);
+        if(res) {
+            System.out.println("쿠폰 발급쓰");
+            applyForLimitedCouponIssueOutPort.limitedCouponIssue(commend);
+            return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LIMITED_COUPON,null);
+        }
 
+        System.out.println("쿠폰 발급이 끝나버렸어요.");
 
-        Long issuedCouponCount = redisCouponOutPort.count(commend);
-
-
-//        Long count = couponCountOutPort.increment(commend);
-//
-//        if(count > 100)
-//        {
-//            return;
-//        }
-
-        //MULTI - 트랜젝션 시작
-        //set 자료형을 활용한 중복지급 문제 해결
-        //key coupon:limited:{쿠폰정책ID}:issued:users
-        //value userId
-
-        //SCARD coupon:limited:{쿠폰정책ID}:issued:users
-
-        //EXEC - 트랜젝션 종료
-
-        applyForLimitedCouponIssueOutPort.limitedCouponIssue(commend);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.FAIL_LIMITED_COUPON,null);
     }
 
 
