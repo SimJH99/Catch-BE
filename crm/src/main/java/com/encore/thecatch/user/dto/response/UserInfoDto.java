@@ -1,10 +1,11 @@
 package com.encore.thecatch.user.dto.response;
 
-import com.encore.thecatch.user.domain.BirthDate;
 import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.LocalDate;
 
 
 @Data
@@ -12,9 +13,7 @@ import lombok.Data;
 public class UserInfoDto {
     private String name;
     private String email;
-    private int year;
-    private int month;
-    private int day;
+    private LocalDate birthDate;
     private String address;
     private String detailAddress;
     private String zipcode;
@@ -24,12 +23,7 @@ public class UserInfoDto {
         UserInfoDtoBuilder builder = UserInfoDto.builder();
         builder.name(user.getName());
         builder.email(user.getEmail());
-        BirthDate birthDate = user.getBirthDate();
-        if(birthDate != null){
-            builder.year(birthDate.getYear());
-            builder.month(birthDate.getMonth());
-            builder.day(birthDate.getDay());
-        }
+        builder.birthDate(user.getBrithDate());
         TotalAddress totalAddress = user.getTotalAddress();
         if (totalAddress != null) {
             builder.address(totalAddress.getAddress());
