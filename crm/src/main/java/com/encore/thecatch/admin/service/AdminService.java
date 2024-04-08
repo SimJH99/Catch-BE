@@ -3,6 +3,8 @@ package com.encore.thecatch.admin.service;
 import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
+import com.encore.thecatch.admin.dto.response.AdminInfoDto;
+import com.encore.thecatch.admin.dto.response.AdminSearchDto;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
@@ -11,22 +13,33 @@ import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.util.AesUtil;
+import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
+import com.encore.thecatch.complaint.dto.response.MyComplaintRes;
 import com.encore.thecatch.log.domain.AdminLog;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.AdminLogRepository;
 import com.encore.thecatch.mail.service.EmailSendService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class AdminService {
     private final AdminRepository adminRepository;
     private final CompanyRepository companyRepository;
@@ -36,6 +49,7 @@ public class AdminService {
     private final AdminLogRepository adminLogRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AesUtil aesUtil;
+    private final MaskingUtil maskingUtil;
 
     public AdminService(
             AdminRepository adminRepository,
@@ -45,7 +59,8 @@ public class AdminService {
             EmailSendService emailSendService,
             AdminLogRepository adminLogRepository,
             RefreshTokenRepository refreshTokenRepository,
-            AesUtil aesUtil
+            AesUtil aesUtil,
+            MaskingUtil maskingUtil
     ) {
         this.adminRepository = adminRepository;
         this.companyRepository = companyRepository;
@@ -55,15 +70,20 @@ public class AdminService {
         this.adminLogRepository = adminLogRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.aesUtil = aesUtil;
+        this.maskingUtil = maskingUtil;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Transactional
     public Admin adminSignUp(AdminSignUpDto adminSignUpDto) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         if (adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminSignUpDto.getEmployeeNumber())).isPresent()) {
             throw new CatchException(ResponseCode.EXISTING_EMPLOYEE_NUMBER);
         }
-        Company company = companyRepository.findById(adminSignUpDto.getCompanyId()).orElseThrow(
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+        Company company = companyRepository.findById(systemAdmin.getCompany().getId()).orElseThrow(
                 ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
 
         Admin admin = Admin.toEntity(adminSignUpDto, company);
@@ -138,9 +158,16 @@ public class AdminService {
                 return new ResponseDto(HttpStatus.UNAUTHORIZED, ResponseCode.INVALID_VERIFICATION_CODE, null);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR, null);
         }
+    }
+
+    private void toMasking(Admin admin){
+        String maskingName = maskingUtil.nameMasking(admin.getName());
+        String maskingEmployeeNumber = maskingUtil.employeeNumberMasking(admin.getEmployeeNumber());
+        String maskingEmail = maskingUtil.emailMasking(admin.getEmail());
+
+        admin.masking(maskingName, maskingEmployeeNumber, maskingEmail);
     }
 
     private void toEncodeAES(Admin admin) throws Exception {
@@ -157,5 +184,26 @@ public class AdminService {
         String email = aesUtil.aesCBCDecode(admin.getEmail());
 
         admin.dataDecode(name, employeeNumber,email);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<AdminSearchDto> allNonAdmin(Pageable pageable) throws Exception {
+        Page<Admin> allNonAdmins = adminRepository.findAllNonAdmins(pageable);
+        List<AdminSearchDto> maskingAdminList = new ArrayList<>();
+        for (Admin nonAdmin : allNonAdmins) {
+            toDecodeAES(nonAdmin);
+            toMasking(nonAdmin);
+
+            AdminSearchDto adminSearchDto = AdminSearchDto.builder()
+                    .employeeNumber(nonAdmin.getEmployeeNumber())
+                    .name(nonAdmin.getName())
+                    .email(nonAdmin.getEmail())
+                    .role(nonAdmin.getRole())
+                    .build();
+
+            maskingAdminList.add(adminSearchDto);
+        }
+
+        return new PageImpl<>(maskingAdminList, pageable, allNonAdmins.getTotalElements());
     }
 }

@@ -2,7 +2,6 @@ package com.encore.thecatch.common;
 
 import lombok.*;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -35,6 +34,7 @@ public class DefaultResponse<T> {
             this.data = page.getContent();
         }
 
+        @Builder
         public PagedResponse(Long count, List<T> data) {
             this.count = count;
             this.data = data;
