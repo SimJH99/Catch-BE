@@ -1,4 +1,4 @@
-package com.encore.thecatch.publish_coupon.domain;
+package com.encore.thecatch.publishcoupon.domain;
 
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;

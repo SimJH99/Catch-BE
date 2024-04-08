@@ -17,6 +17,7 @@ public class KafkaCouponProducerAdapter implements ApplyForLimitedCouponIssueOut
     public Boolean limitedCouponIssue(ApplyForLimitedCouponIssueCommend commend) {
         ProducerRecord<String,String> record = new ProducerRecord<>("limited-coupon-apply","coupon", commend.toString());
         kafkaTemplate.send(record);
+        System.out.println("[KAFKA] key: "+record.key()+" topic: "+record.topic()+" value: "+record.value());
         return true;
     }
 

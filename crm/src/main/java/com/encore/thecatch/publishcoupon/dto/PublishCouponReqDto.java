@@ -1,4 +1,4 @@
-package com.encore.thecatch.publish_coupon.dto;
+package com.encore.thecatch.publishcoupon.dto;
 
 import com.encore.thecatch.coupon.domain.CouponStatus;
 import lombok.AllArgsConstructor;
