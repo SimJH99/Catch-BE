@@ -9,6 +9,7 @@ import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
+import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
@@ -33,10 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -205,5 +203,61 @@ public class AdminService {
         }
 
         return new PageImpl<>(maskingAdminList, pageable, allNonAdmins.getTotalElements());
+    }
+
+    public List<Admin> createTestAdmins(int count, boolean randomEmployeeNumber) throws Exception {
+        List<Admin> testAdmins = new ArrayList<>();
+        Random random = new Random(); // 랜덤 객체 생성
+        Company company = companyRepository.findById(1L).orElseThrow();
+        Set<String> usedEmployeeNumbers = new HashSet<>(); // 중복된 직원 번호를 체크하기 위한 Set
+
+        for (int i = 0; i < count; i++) {
+            String employeeNumber;
+            // 직원 번호 생성
+            do {
+                if (randomEmployeeNumber) {
+                    // 랜덤한 직원 번호 생성
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("B");
+                    for (int j = 0; j < 5; j++) {
+                        // 랜덤한 숫자를 문자열로 추가합니다.
+                        sb.append(random.nextInt(10));
+                    }
+                    employeeNumber = sb.toString();
+                } else {
+                    // 일련번호 형식의 직원 번호 생성
+                    employeeNumber = "B" + String.format("%05d", i + 1);
+                }
+            } while (!usedEmployeeNumbers.add(employeeNumber)); // 중복된 번호가 발생하면 다시 번호 생성
+
+            // 랜덤한 한글 이름 생성
+            String[] surnames = {"김", "이", "박", "최", "정", "강", "조", "윤", "장", "임"};
+            String[] givenNames = {"민준", "서연", "하준", "지우", "지후", "서준", "서현", "지민", "수빈", "지유", "주원", "지호", "지훈", "예은", "수현", "지원", "다은", "은지", "윤서", "현우"};
+            String surname = surnames[random.nextInt(surnames.length)];
+            String givenName = givenNames[random.nextInt(givenNames.length)];
+            String name = surname + givenName;
+
+            AdminSignUpDto adminSignUpDto = new AdminSignUpDto();
+            adminSignUpDto.setEmployeeNumber(employeeNumber);
+            adminSignUpDto.setName(name);
+            adminSignUpDto.setEmail("testt" + i + "@test.com");
+            adminSignUpDto.setPassword("1234");
+            // 랜덤으로 role 선택
+            String role = (random.nextBoolean()) ? "MARKETER" : "CS";
+            adminSignUpDto.setRole(Role.valueOf(role));
+
+            Admin admin = Admin.toEntity(adminSignUpDto, company);
+
+            // 필요한 경우 데이터 암호화
+            toEncodeAES(admin);
+
+            // 비밀번호 인코딩
+            admin.passwordEncoder(passwordEncoder);
+
+            // Admin 저장
+            testAdmins.add(adminRepository.save(admin));
+        }
+
+        return testAdmins;
     }
 }

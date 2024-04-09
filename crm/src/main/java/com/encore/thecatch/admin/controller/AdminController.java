@@ -59,4 +59,9 @@ public class AdminController {
     public Page<AdminSearchDto> allNonAdmin(@PageableDefault(size = 10, sort = "createdTime", direction = Sort.Direction.DESC) Pageable pageable) throws Exception {
         return adminService.allNonAdmin(pageable);
     }
+
+    @PostMapping("/admin/random/create")
+    public ResponseDto randomAdminCreate() throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.createTestAdmins(150, true));
+    }
 }
