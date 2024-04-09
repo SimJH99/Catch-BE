@@ -6,7 +6,7 @@ spring:
     name: batch
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ${DB_HOST}
+    url: jdbc:mariadb://${DB_HOST}:3306/thecatch
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
