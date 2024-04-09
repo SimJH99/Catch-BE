@@ -17,7 +17,11 @@ import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
+import com.encore.thecatch.user.dto.response.ChartAgeRes;
+import com.encore.thecatch.user.dto.response.ChartGenderRes;
+import com.encore.thecatch.user.dto.response.ChartGradeRes;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
+import com.encore.thecatch.user.repository.UserQueryRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,6 +46,7 @@ public class UserService {
     private final AesUtil aesUtil;
     private final CompanyRepository companyRepository;
     private final RedisService redisService;
+    private final UserQueryRepository userQueryRepository;
 
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
@@ -49,7 +55,7 @@ public class UserService {
                        UserLogRepository userLogRepository,
                        CompanyRepository companyRepository,
                        AesUtil aesUtil,
-                       RedisService redisService
+                       RedisService redisService, UserQueryRepository userQueryRepository
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -59,6 +65,7 @@ public class UserService {
         this.companyRepository = companyRepository;
         this.aesUtil = aesUtil;
         this.redisService = redisService;
+        this.userQueryRepository = userQueryRepository;
     }
 
     @Transactional
@@ -68,6 +75,7 @@ public class UserService {
         }
         Company company = companyRepository.findById(userSignUpDto.getCompanyId()).orElseThrow(
                 ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
+
         User user = User.toEntity(userSignUpDto, company);
 
         user.passwordEncode(passwordEncoder);
@@ -171,5 +179,18 @@ public class UserService {
         redisService.deleteValues(String.valueOf(user.getId()));
 
         return "delete refresh token";
+    }
+
+    public List<ChartGradeRes> chartGrade() {
+        return userQueryRepository.countGrade();
+    }
+
+
+    public List<ChartGenderRes> chartGender() {
+        return userQueryRepository.countGender();
+    }
+
+    public List<ChartAgeRes> chartAge() {
+        return userQueryRepository.countAge();
     }
 }

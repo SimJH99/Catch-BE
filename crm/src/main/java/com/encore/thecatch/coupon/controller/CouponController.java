@@ -4,11 +4,12 @@ import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
-import com.encore.thecatch.coupon.dto.CouponReceiveDto;
-import com.encore.thecatch.coupon.dto.CouponReqDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
+import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class CouponController {
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
-    @PatchMapping("/publish/{id}")
+    @PatchMapping("/{id}/publish")
     public ResponseDto couponPublish(@PathVariable Long id){
         Coupon coupon = couponService.publish(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
@@ -49,6 +50,12 @@ public class CouponController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponResDtos));
     }
 
+    @PostMapping("/search")
+    public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition)throws Exception{
+        System.out.println(searchCouponCondition.getName());
+        Pageable pageable = PageRequest.of(searchCouponCondition.getPageNo(), 10);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Page<CouponFindResDto>>(couponService.searchCoupon(searchCouponCondition, pageable)));
+    }
     @GetMapping("/myList")
     public ResponseDto findMyAll() {
         List<CouponResDto> couponResDtos = couponService.findMyAll();
@@ -72,7 +79,5 @@ public class CouponController {
         couponService.couponDelete(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_COUPON, new DefaultResponse<Long>(id));
     }
-
-
 
 }

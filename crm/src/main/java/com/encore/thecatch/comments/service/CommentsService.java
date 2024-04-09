@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 
 @Service
@@ -32,7 +31,7 @@ public class CommentsService {
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('CS')")
     public CreateCommentsRes createComment(Long id, CreateCommentsReq createCommentsReq) throws Exception {
 
         if (commentsRepository.findByComplaintIdAndActive(id, true).isPresent()) {
@@ -49,7 +48,6 @@ public class CommentsService {
 
         return CreateCommentsRes.from(comments);
     }
-
 
     public DetailCommentRes detailComment(Long id) {
         Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
