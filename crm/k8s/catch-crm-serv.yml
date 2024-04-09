@@ -54,11 +54,11 @@ spec:
                 secretKeyRef:
                   name: db-infos
                   key: GOOGLE_EMAIL
-            - name: GOOGLE_PW
+            - name: GOOGLE_SMTP
               valueFrom:
                 secretKeyRef:
                   name: db-infos
-                  key: GOOGLE_PW
+                  key: GOOGLE_SMTP
             - name: JWT_SECRETKEY
               valueFrom:
                 secretKeyRef:
