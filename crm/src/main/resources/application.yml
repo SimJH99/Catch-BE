@@ -17,9 +17,9 @@ spring:
     name: thecatch
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://thecatch.cv6y6ea869zx.ap-northeast-2.rds.amazonaws.com/thecatch
-    username: root
-    password: catch123~!
+    url: ${DB_HOST}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MariaDBDialect
@@ -28,13 +28,13 @@ spring:
       ddl-auto: update
     show-sql: true
   redis:
-    host: localhost
+    host: ${REDIS_HOST}
     port: 6379
   mail:
     host: smtp.gmail.com
     port: 587
-    username: dlwhdvy3142@gmail.com
-    password: edir urax jmgu whpc
+    username: ${GOOGLE_EMAIL}
+    password: ${GOOGLE_SMTP}
     properties:
       mail:
         smtp:
@@ -46,7 +46,7 @@ logging:
   level:
     root: info
 jwt:
-  secretKey: D59B2D12051FDFE36D27DC7AE65FC69CD761D501D8A058C0EACC9387BA8B9F34
+  secretKey: ${JWT_SECRETKEY}
   issuer: thecatch
   access:
     expiration-minutes: 30
@@ -55,4 +55,4 @@ jwt:
     expiration-hours: 24
 #    리프레시 토큰의 유효시간은 24시간
 
-symmetricKey: a00aa00000aaaaaaafdfdfdf98989889 # 로컬용 운영은 다른 key 적용
+symmetricKey: ${SYMMETRICKEY}
