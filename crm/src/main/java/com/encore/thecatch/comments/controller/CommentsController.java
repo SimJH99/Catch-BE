@@ -50,5 +50,4 @@ public class CommentsController {
                 ResponseCode.SUCCESS_DELETE_COMMENT,
                 new DefaultResponse<String>(commentsService.deleteComment(id)));
     }
-
 }

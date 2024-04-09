@@ -55,7 +55,7 @@ public enum ResponseCode {
     SUCCESS_POST_LIST("SUCCESS_POST_LIST", "게시글 조회 완료"),
     SUCCESS_UPDATE_COMMENT("SUCCESS_UPDATE_COMMENT", "답변 수정 완료"),
     SUCCESS_DELETE_COMMENT("SUCCESS_DELETE_COMMENT", "답변 삭제 완료"),
-    CHECK_EMAIL("CHECK_EMAIL","이메일을 확인해주세요"),
+    CHECK_EMAIL("CHECK_EMAIL","이메일을 확인해주세요")
     ;
 
 
