@@ -28,7 +28,7 @@ jobs:
       ################ build and push #################
       - name: build and push docker image to ecr (catch-crm)
         env:
-          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-crm # ECR주소
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
           REPOSITORY: catch-crm
           IMAGE_TAG: latest
         run: |
@@ -38,7 +38,7 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       - name: build and push docker image to ecr (catch-batch)
         env:
-          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-batch # ECR주소
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
           REPOSITORY: catch-batch
           IMAGE_TAG: latest
         run: |
@@ -48,7 +48,7 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       - name: build and push docker image to ecr (catch-event)
         env:
-          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-event # ECR주소
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
           REPOSITORY: catch-event
           IMAGE_TAG: latest
         run: |
