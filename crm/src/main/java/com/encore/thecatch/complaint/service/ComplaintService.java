@@ -139,7 +139,7 @@ public class ComplaintService {
         s3Service.deleteFile(imageKey);
     }
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('CS')")
     public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
         List<ListComplaintRes> listComplaintRes = complaintQueryRepository.findComplaintList(searchComplaintCondition);
         List<ListComplaintRes> listComplaintRes1 = new ArrayList<>();

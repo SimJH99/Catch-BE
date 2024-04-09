@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -28,11 +29,15 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private BirthDate birthDate; // 년,월,일
+    private LocalDate brithDate;
     @Column(nullable = false)
     private TotalAddress totalAddress; // (주소, 상세주소, 우편번호)
     @Column(nullable = false)
     private boolean consentReceiveMarketing; // 마케팅 수신 동의 여부 (true, false)
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(nullable = false)
     private String phoneNumber; // 전화번호
@@ -41,7 +46,7 @@ public class User extends BaseEntity {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    private com.encore.thecatch.user.domain.Grade grade;
+    private Grade grade;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
@@ -54,6 +59,7 @@ public class User extends BaseEntity {
     public void userActiveToDisable() {
         this.active = false;
     }
+
     // 비밀번호 암호화 메서드
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
@@ -74,13 +80,6 @@ public class User extends BaseEntity {
     }
 
     public static User toEntity(UserSignUpDto userSignUpDto, Company company) {
-
-        BirthDate birthDate = BirthDate.builder()
-                .year(userSignUpDto.getYear())
-                .month(userSignUpDto.getMonth())
-                .day(userSignUpDto.getDay())
-                .build();
-
         TotalAddress totalAddress = TotalAddress.builder()
                 .address(userSignUpDto.getAddress())
                 .detailAddress(userSignUpDto.getDetailAddress())
@@ -91,11 +90,12 @@ public class User extends BaseEntity {
                 .name(userSignUpDto.getName())
                 .email(userSignUpDto.getEmail())
                 .password(userSignUpDto.getPassword())
-                .birthDate(birthDate)
+                .brithDate(userSignUpDto.getBirthDate())
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
                 .grade(Grade.SLIVER)
+                .gender(userSignUpDto.getGender())
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
                 .company(company)
