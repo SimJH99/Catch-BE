@@ -15,3 +15,4 @@ WORKDIR /event
 COPY --from=build /event/build/libs/*.jar event.jar
 # 컨테이너가 시작될 때 애플리케이션을 실행합니다.
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "event.jar"]
+
