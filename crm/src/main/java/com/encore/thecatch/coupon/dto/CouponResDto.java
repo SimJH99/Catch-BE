@@ -4,12 +4,8 @@ import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.coupon.domain.Coupon;
 
 import com.encore.thecatch.coupon.domain.CouponStatus;
-<<<<<<< HEAD
 import com.encore.thecatch.publishcoupon.domain.PublishCoupon;
-=======
-import com.encore.thecatch.publish_coupon.domain.PublishCoupon;
-import com.querydsl.core.annotations.QueryProjection;
->>>>>>> origin/dev
+
 import lombok.Builder;
 import lombok.Getter;
 
