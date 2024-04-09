@@ -1,0 +1,58 @@
+cloud:
+  aws:
+    credentials:
+      access-key:
+      secret-key:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: catch-s3
+    stack:
+      auto: false
+
+server:
+  port: 8001
+spring:
+  application:
+    name: thecatch
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://thecatch.cv6y6ea869zx.ap-northeast-2.rds.amazonaws.com/thecatch
+    username: root
+    password: catch123~!
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  redis:
+    host: localhost
+    port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dlwhdvy3142@gmail.com
+    password: edir urax jmgu whpc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    root: info
+jwt:
+  secretKey: D59B2D12051FDFE36D27DC7AE65FC69CD761D501D8A058C0EACC9387BA8B9F34
+  issuer: thecatch
+  access:
+    expiration-minutes: 30
+  #    액세스 토큰의 유효 시간은 30분
+  refresh:
+    expiration-hours: 24
+#    리프레시 토큰의 유효시간은 24시간
+
+symmetricKey: a00aa00000aaaaaaafdfdfdf98989889 # 로컬용 운영은 다른 key 적용
