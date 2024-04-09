@@ -26,12 +26,9 @@ public class ApplyForLimitedCouponIssue implements ApplyForLimitedCouponIssueUse
 
         Boolean res = redisCouponOutPort.limitedCouponIssue(commend);
         if(res) {
-            System.out.println("쿠폰 발급쓰");
             applyForLimitedCouponIssueOutPort.limitedCouponIssue(commend);
             return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LIMITED_COUPON,null);
         }
-
-        System.out.println("쿠폰 발급이 끝나버렸어요.");
 
         return new ResponseDto(HttpStatus.OK, ResponseCode.FAIL_LIMITED_COUPON,null);
     }

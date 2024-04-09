@@ -14,11 +14,9 @@ public class LimitedCouponIssueOperation implements RedisOperation<ApplyForLimit
 
     public Long count(RedisOperations<String, Object> operations, ApplyForLimitedCouponIssueCommend commend) {
         //key 가져와서
-        String key = commend.getKey();
+        String key = "limited:coupon:"+commend.getCouponId()+"userIssue";
         //key의 카운트를 셈
         Long size = operations.opsForSet().size(key);
-
-
 
         log.info("[LimitedCouponIssueOperation] [count] key ::: {}, size ::: {}", key, size);
         return size;
@@ -26,7 +24,7 @@ public class LimitedCouponIssueOperation implements RedisOperation<ApplyForLimit
 
 
     public Long add(RedisOperations<String, Object> operations, ApplyForLimitedCouponIssueCommend commend) {
-        String key = commend.getKey();
+        String key = "limited:coupon:"+commend.getCouponId()+"userIssue";
         String value = this.generateValue(commend);
         Long result = operations.opsForSet().add(key, value);
         log.info(
@@ -35,7 +33,7 @@ public class LimitedCouponIssueOperation implements RedisOperation<ApplyForLimit
     }
 
     public Long remove(RedisOperations<String, Object> operations, ApplyForLimitedCouponIssueCommend commend) {
-        String key = commend.getKey();
+        String key = "limited:coupon:"+commend.getCouponId()+"userIssue";
         String value = this.generateValue(commend);
         Long result = operations.opsForSet().remove(key, value);
         log.info(
@@ -47,14 +45,14 @@ public class LimitedCouponIssueOperation implements RedisOperation<ApplyForLimit
     }
 
     public Boolean delete(RedisOperations<String, Object> operations, ApplyForLimitedCouponIssueCommend commend) {
-        String key = commend.getKey();
+        String key = "limited:coupon:"+commend.getCouponId()+"userIssue";
         Boolean result = operations.delete(key);
         log.info("[LimitedCouponIssueOperation] [delete] key ::: {}, result ::: {}", key, result);
         return result;
     }
 
     public Boolean expire(RedisOperations<String, Object> operations, ApplyForLimitedCouponIssueCommend commend, Duration duration) {
-        String key = commend.getKey();
+        String key = "limited:coupon:"+commend.getCouponId()+"userIssue";
         Boolean result = operations.expire(key, duration);
         log.info(
                 "[LimitedCouponIssueOperation] [expire] key ::: {}, expire ::: {}, result ::: {}",

@@ -9,15 +9,14 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = false) //자신 클래스의 필드 값만 고려한다.
 public class ApplyForLimitedCouponIssueCommend {
     private String userId;
-    private String key;
-    private String status;
+    private String couponId;
+    private Long limit;
 
     @Override
     public String toString() {
         return "{" +
-                "memberId='" + userId + '\'' +
-                ", couponId='" + key + '\'' +
-                ", status='" + status + '\'' +
+                "userId='" + userId + '\'' +
+                ", couponId='" + couponId + '\'' +
                 '}';
     }
 }

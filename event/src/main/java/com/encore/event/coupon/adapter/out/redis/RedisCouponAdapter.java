@@ -33,7 +33,7 @@ public class RedisCouponAdapter implements RedisCouponOutPort {
         List<Long> result = (List) redisTransaction.execute(redisOperations, limitedCouponIssueOperation, commend);
         Long currentCnt = result.get(0);
 
-        Long limitCnt = 2L;
+        Long limitCnt = commend.getLimit() -1L;
 
         if(currentCnt <= limitCnt) {
             return true;
