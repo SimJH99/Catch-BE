@@ -2,9 +2,10 @@ package com.encore.thecatch.coupon.dto;
 
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.coupon.domain.Coupon;
+
 import com.encore.thecatch.coupon.domain.CouponStatus;
-import com.encore.thecatch.publish_coupon.domain.PublishCoupon;
-import com.querydsl.core.annotations.QueryProjection;
+import com.encore.thecatch.publishcoupon.domain.PublishCoupon;
+
 import lombok.Builder;
 import lombok.Getter;
 

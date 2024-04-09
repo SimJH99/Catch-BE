@@ -12,21 +12,19 @@ import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.repository.CouponQueryRepository;
 import com.encore.thecatch.coupon.repository.CouponRepository;
-import com.encore.thecatch.publish_coupon.domain.PublishCoupon;
-import com.encore.thecatch.publish_coupon.repository.PublishCouponRepository;
+import com.encore.thecatch.publishcoupon.domain.PublishCoupon;
+import com.encore.thecatch.publishcoupon.repository.PublishCouponRepository;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +58,6 @@ public class CouponService {
         if(admin.getRole().equals(Role.USER)){
             throw new CatchException(ResponseCode.ACCESS_DENIED);
         }
-
         // UUID(Universally Unique Identifier)란?
         //범용 고유 식별자를 의미하며 중복이 되지 않는 유일한 값을 구성하고자 할때 주로 사용됨(ex)세션 식별자, 쿠키 값, 무작위 데이터베이스값 )
         String code = UUID.randomUUID().toString();

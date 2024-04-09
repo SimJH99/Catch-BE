@@ -1,6 +1,6 @@
-package com.encore.thecatch.publish_coupon.repository;
+package com.encore.thecatch.publishcoupon.repository;
 
-import com.encore.thecatch.publish_coupon.domain.PublishCoupon;
+import com.encore.thecatch.publishcoupon.domain.PublishCoupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -9,13 +9,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class KafkaLimitedCouponProducerAdapter implements ApplyForLimitedCouponIssueOutPort {
+public class KafkaCouponProducerAdapter implements ApplyForLimitedCouponIssueOutPort {
 
     private final KafkaTemplate<String,String> kafkaTemplate;
+
     @Override
-    public Boolean apply(ApplyForLimitedCouponIssueCommend commend) {
+    public Boolean limitedCouponIssue(ApplyForLimitedCouponIssueCommend commend) {
         ProducerRecord<String,String> record = new ProducerRecord<>("limited-coupon-apply","coupon", commend.toString());
         kafkaTemplate.send(record);
+        System.out.println("[KAFKA] couponId: "+record.key()+" topic: "+record.topic()+" value: "+record.value());
         return true;
     }
+
 }
