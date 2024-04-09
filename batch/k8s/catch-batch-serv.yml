@@ -15,6 +15,7 @@ spec:
       containers:
         - name: batch-backend
           image: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-batch:latest # ecr 주소 # 변경되면 수정 필요
+          imagePullPolicy: Always
           ports:
             - containerPort: 8003
           resources:
