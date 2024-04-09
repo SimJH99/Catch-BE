@@ -7,12 +7,16 @@ import com.encore.thecatch.common.util.IPUtil;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
+import com.encore.thecatch.user.dto.response.ChartAgeRes;
+import com.encore.thecatch.user.dto.response.ChartGenderRes;
+import com.encore.thecatch.user.dto.response.ChartGradeRes;
 import com.encore.thecatch.user.dto.response.UserInfoDto;
 import com.encore.thecatch.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 public class UserController {
@@ -44,8 +48,28 @@ public class UserController {
         return responseDto;
     }
 
-    @PostMapping("user/doLogout")
+    @PostMapping("/user/doLogout")
     public ResponseDto userLogin(){
         return new ResponseDto(HttpStatus.OK,ResponseCode.SUCCESS,new DefaultResponse<>(userService.doLogout()));
+    }
+
+    @GetMapping("/user/grade")
+    public ResponseDto chartGrade(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartGradeRes>>(userService.chartGrade()));
+    }
+    @GetMapping("/user/gender")
+    public ResponseDto chartGender(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartGenderRes>>(userService.chartGender()));
+    }
+
+    @GetMapping("/user/age")
+    public ResponseDto chartAge(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartAgeRes>>(userService.chartAge()));
     }
 }

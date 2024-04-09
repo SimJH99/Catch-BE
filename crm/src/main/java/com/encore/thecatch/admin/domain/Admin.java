@@ -61,4 +61,10 @@ public class Admin extends BaseEntity {
         this.employeeNumber = employeeNumber;
         this.email = email;
     }
+
+    public void masking(String maskingName, String maskingEmployeeNumber, String maskingEmail) {
+        this.name = maskingName;
+        this.employeeNumber = maskingEmployeeNumber;
+        this.email = maskingEmail;
+    }
 }

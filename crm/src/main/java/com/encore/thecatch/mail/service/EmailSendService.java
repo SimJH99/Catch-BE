@@ -5,6 +5,7 @@ import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.RsData;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.log.domain.EmailLog;
