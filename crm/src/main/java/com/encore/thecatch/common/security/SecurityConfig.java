@@ -40,9 +40,15 @@ public class SecurityConfig{
             // jwt 인증 하므로 무연결 상태
             .and()
             .authorizeHttpRequests(req -> req
-                .antMatchers("/user/signUp","/user/doLogin",
-                        "/system/admin/signUp","/admin/doLogin",
-                        "/mailSend","/admin/mailAuthCheck","/admin/random/create")
+                .antMatchers("/user/signUp",
+                        "/user/doLogin",
+                        "/system/admin/signUp",
+                        "/admin/doLogin",
+                        "/mailSend",
+                        "/admin/mailAuthCheck",
+                        "/admin/random/create",
+                        "/admin/test"
+                )
                     .permitAll()
                     // 해당 url은 인증 필요 x
                 .anyRequest().authenticated()
