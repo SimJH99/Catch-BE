@@ -57,6 +57,6 @@ jwt:
 
 symmetricKey: ${SYMMETRICKEY}
 
-kafka:
-  topic: "limited-coupon-apply"
-  groupId: "catchevent"
+#kafka:
+#  topic: "limited-coupon-apply"
+#  groupId: "catchevent"
