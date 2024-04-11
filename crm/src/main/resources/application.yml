@@ -56,3 +56,7 @@ jwt:
 #    리프레시 토큰의 유효시간은 24시간
 
 symmetricKey: ${SYMMETRICKEY}
+
+kafka:
+  topic: "limited-coupon-apply"
+  groupId: "catchevent"
