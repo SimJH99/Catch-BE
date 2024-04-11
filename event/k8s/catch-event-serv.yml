@@ -17,7 +17,7 @@ spec:
           image: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-crm:latest # ecr 주소 # 변경되면 수정 필요
           imagePullPolicy: Always
           ports:
-            - containerPort: 8001
+            - containerPort: 8003
           resources:
             # container가 사용할 수 있는 리소스의 최대치
             limits:

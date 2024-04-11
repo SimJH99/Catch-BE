@@ -1,6 +1,8 @@
 HELP.md
 .gradle
 build
+*.yml
+!application-dev.yml
 
 ### STS ###
 .apt_generated
