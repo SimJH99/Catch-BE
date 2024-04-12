@@ -28,7 +28,8 @@ public class ExpirationCouponScheduler {
         this.job = job;
     }
     //60000 1분
-    @Scheduled(fixedDelay = 60000)
+//    @Scheduled(fixedDelay = 60000)
+    @Scheduled(cron = "0 0 0 * * *") //매일 자정
     public void startJob() {
         try {
             Map<String, JobParameter> jobParametersMap = new HashMap<>();
