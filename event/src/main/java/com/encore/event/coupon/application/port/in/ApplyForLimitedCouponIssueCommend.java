@@ -15,8 +15,8 @@ public class ApplyForLimitedCouponIssueCommend {
     @Override
     public String toString() {
         return "{" +
-                "userId='" + userId + '\'' +
-                ", couponId='" + couponId + '\'' +
-                '}';
+                "\"userId\":\"" + userId + "\"," +
+                "\"couponId\":\"" + couponId + "\"" +
+                "}";
     }
 }
