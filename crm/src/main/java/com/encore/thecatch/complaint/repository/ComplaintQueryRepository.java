@@ -39,9 +39,10 @@ public class ComplaintQueryRepository {
                 .where(
                         eqPostId(searchComplaintCondition.getComplaintId()),
                         eqName(searchComplaintCondition.getName()),
-                        eqTitle(searchComplaintCondition.getTitle()),
+                        containsTitle(searchComplaintCondition.getTitle()),
                         eqStatus(searchComplaintCondition.getStatus()),
                         complaint.active.eq(true))
+                .orderBy(complaint.status.asc(), complaint.createdTime.asc())
                 .fetch();
     }
 
@@ -57,8 +58,8 @@ public class ComplaintQueryRepository {
         return hasText(name) ? user.name.eq(aesUtil.aesCBCEncode(name)) : null;
     }
 
-    private BooleanExpression eqTitle(String title) {
-        return hasText(title) ? complaint.title.eq(title) : null;
+    private BooleanExpression containsTitle(String title) {
+        return hasText(title) ? complaint.title.contains(title) : null;
     }
 
     private BooleanExpression eqStatus(Status status) {

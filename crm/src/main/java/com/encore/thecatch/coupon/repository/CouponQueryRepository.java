@@ -4,7 +4,6 @@ package com.encore.thecatch.coupon.repository;
 import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.encore.thecatch.coupon.domain.QCoupon;
 import com.encore.thecatch.coupon.dto.CouponFindResDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.coupon.dto.QCouponFindResDto;
 import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -12,7 +11,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
