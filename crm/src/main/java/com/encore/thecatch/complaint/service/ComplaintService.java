@@ -4,6 +4,7 @@ import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.s3.S3Service;
 import com.encore.thecatch.common.util.AesUtil;
+import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.common.util.S3UrlUtil;
 import com.encore.thecatch.complaint.dto.request.AddImageReq;
 import com.encore.thecatch.complaint.dto.request.CreateComplaintReq;
@@ -42,18 +43,20 @@ public class ComplaintService {
     private final S3Service s3Service;
     private final S3UrlUtil s3UrlUtil;
     private final AesUtil aesUtil;
+    private final MaskingUtil maskingUtil;
+
 
     @PreAuthorize("hasAuthority('USER')")
     public Complaint createComplaint(CreateComplaintReq createComplaintReq) {
         List<String> imgkeys = null;
-        try{
+        try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
             Complaint newComplaint = createComplaintReq.toEntity(user);
             complaintRepository.save(newComplaint);
 
-            if (createComplaintReq.getImages() != null  && !createComplaintReq.getImages().isEmpty()) {
+            if (createComplaintReq.getImages() != null && !createComplaintReq.getImages().isEmpty()) {
                 imgkeys = s3Service.uploadList("complaint", createComplaintReq.getImages());
             }
 
@@ -65,12 +68,12 @@ public class ComplaintService {
             }
             return newComplaint;
         } catch (CatchException e) {
-            if(imgkeys != null && !imgkeys.isEmpty()){
-                for (String keys : imgkeys){
+            if (imgkeys != null && !imgkeys.isEmpty()) {
+                for (String keys : imgkeys) {
                     s3Service.deleteFile(keys);
                 }
             }
-            throw new  CatchException(ResponseCode.S3_UPLOAD_ERROR);
+            throw new CatchException(ResponseCode.S3_UPLOAD_ERROR);
         }
     }
 
@@ -139,19 +142,32 @@ public class ComplaintService {
         s3Service.deleteFile(imageKey);
     }
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
         List<ListComplaintRes> listComplaintRes = complaintQueryRepository.findComplaintList(searchComplaintCondition);
         List<ListComplaintRes> listComplaintRes1 = new ArrayList<>();
         for (ListComplaintRes listPost : listComplaintRes) {
             listPost = com.encore.thecatch.complaint.dto.response.ListComplaintRes.builder()
                     .complaintId(listPost.getComplaintId())
-                    .name(aesUtil.aesCBCDecode(listPost.getName()))
+                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(listPost.getName())))
                     .title(listPost.getTitle())
                     .status(listPost.getStatus())
                     .build();
             listComplaintRes1.add(listPost);
         }
-        return new PageImpl<>(listComplaintRes1, pageable, listComplaintRes.size());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), listComplaintRes1.size());
+
+        return new PageImpl<>(listComplaintRes1.subList(start, end), pageable, listComplaintRes.size());
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CS') or hasAuthority('MARKETER')")
+    public Long countAllComplaint() {
+        return complaintQueryRepository.countAllComplaint();
+    }
+
+    public List<CountStatusComplaintRes> countStatusComplaint() {
+        return  complaintQueryRepository.countStatusComplaint();
     }
 }

@@ -110,4 +110,8 @@ public class AdminController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_ACTIVATION, adminService.adminActivation(id, IPUtil.getClientIP(request)));
     }
 
+    @GetMapping("/admin/test")
+    public ResponseDto test(){
+        return new ResponseDto(HttpStatus.OK, "OK", "OK");
+    }
 }

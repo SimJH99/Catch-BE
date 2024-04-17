@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 
 @Service
@@ -32,7 +31,7 @@ public class CommentsService {
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('CS')")
     public CreateCommentsRes createComment(Long id, CreateCommentsReq createCommentsReq) throws Exception {
 
         if (commentsRepository.findByComplaintIdAndActive(id, true).isPresent()) {
@@ -40,8 +39,9 @@ public class CommentsService {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String employeeNumber = aesUtil.aesCBCEncode(authentication.getName());
-        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+//        String employeeNumber = aesUtil.aesCBCEncode(authentication.getName());
+        System.out.println(authentication.getName());
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         Comments comments = createCommentsReq.toEntity(complaint, admin);
         complaint.isReply();
@@ -49,7 +49,6 @@ public class CommentsService {
 
         return CreateCommentsRes.from(comments);
     }
-
 
     public DetailCommentRes detailComment(Long id) {
         Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));

@@ -28,7 +28,7 @@ public class SecurityConfig{
                 // rest api, jwt 사용해서 csrf 방어 x
             .cors().configurationSource(request -> {
                 CorsConfiguration corsConfiguration = new CorsConfiguration();
-                corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+                corsConfiguration.setAllowedOrigins(List.of("https://www.catch-crm.shop","http://www.catch-crm.shop", "http://localhost:3000"));
                 corsConfiguration.setAllowedMethods(List.of("GET","POST", "PUT","PATCH", "DELETE", "OPTIONS"));
                 corsConfiguration.setAllowedHeaders(List.of("*"));
                 corsConfiguration.addExposedHeader("New-Access-Token");
@@ -40,9 +40,15 @@ public class SecurityConfig{
             // jwt 인증 하므로 무연결 상태
             .and()
             .authorizeHttpRequests(req -> req
-                .antMatchers("/user/signUp","/user/doLogin",
-                        "/system/admin/signUp","/admin/doLogin",
-                        "/mailSend","/admin/mailAuthCheck","/admin/random/create")
+                .antMatchers("/user/signUp",
+                        "/user/doLogin",
+                        "/system/admin/signUp",
+                        "/admin/doLogin",
+                        "/mailSend",
+                        "/admin/mailAuthCheck",
+                        "/admin/random/create",
+                        "/admin/test"
+                )
                     .permitAll()
                     // 해당 url은 인증 필요 x
                 .anyRequest().authenticated()
