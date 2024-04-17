@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Configuration
 public class ExpirationCouponConfiguration {
     public static final String JOB_NAME = "expirationCouponJob";
-    public static final Integer CHUNK_SIZE = 1;
+    public static final Integer CHUNK_SIZE = 1000;
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
