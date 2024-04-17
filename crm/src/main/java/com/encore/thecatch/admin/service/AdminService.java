@@ -143,7 +143,7 @@ public class AdminService {
                 String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", admin.getEmployeeNumber(), admin.getRole())); // 토큰 생성
                 String refreshToken = jwtTokenProvider.createRefreshToken(admin.getRole(), admin.getId()); // 리프레시 토큰 생성
                 // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
-                refreshTokenRepository.findByAdmin_Id(admin.getId())
+                refreshTokenRepository.findByAdminId(admin.getId())
                         .ifPresentOrElse(
                                 it -> it.updateRefreshToken(refreshToken),
                                 () -> refreshTokenRepository.save(new RefreshToken(admin, refreshToken))
@@ -366,8 +366,8 @@ public class AdminService {
         Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
                 () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
         );
-        log.info(String.valueOf(refreshTokenRepository.findByAdmin_Id(admin.getId())));
-        RefreshToken refreshToken = refreshTokenRepository.findByAdmin_Id(admin.getId()).orElseThrow(
+        log.info(String.valueOf(refreshTokenRepository.findByAdminId(admin.getId())));
+        RefreshToken refreshToken = refreshTokenRepository.findByAdminId(admin.getId()).orElseThrow(
                 () -> new CatchException(ResponseCode.REFRESH_TOKEN_NOT_FOUND)
         );
         refreshTokenRepository.delete(refreshToken);
