@@ -22,24 +22,24 @@ public class CouponController {
     private final CouponService couponService;
 
     @Autowired
-    public CouponController(CouponService couponService){
+    public CouponController(CouponService couponService) {
         this.couponService = couponService;
     }
 
     @PostMapping("/create")
-    public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto) throws Exception{
+    public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto) throws Exception {
         Coupon coupon = couponService.create(couponReqDto);
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
     @PatchMapping("/{id}/publish")
-    public ResponseDto couponPublish(@PathVariable Long id){
+    public ResponseDto couponPublish(@PathVariable Long id) {
         Coupon coupon = couponService.publish(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
     @PatchMapping("/receive")
-    public ResponseDto couponReceive(@RequestBody CouponReceiveDto couponReceiveDto){
+    public ResponseDto couponReceive(@RequestBody CouponReceiveDto couponReceiveDto) {
         Coupon coupon = couponService.receive(couponReceiveDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_RECEIVE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
@@ -51,11 +51,12 @@ public class CouponController {
     }
 
     @PostMapping("/search")
-    public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition)throws Exception{
+    public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition) throws Exception {
         System.out.println(searchCouponCondition.getName());
         Pageable pageable = PageRequest.of(searchCouponCondition.getPageNo(), 10);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Page<CouponFindResDto>>(couponService.searchCoupon(searchCouponCondition, pageable)));
     }
+
     @GetMapping("/myList")
     public ResponseDto findMyAll() {
         List<CouponResDto> couponResDtos = couponService.findMyAll();
@@ -63,21 +64,25 @@ public class CouponController {
     }
 
     @GetMapping("/{id}")
-    public ResponseDto couponRead(@PathVariable Long id){
+    public ResponseDto couponRead(@PathVariable Long id) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<CouponResDto>(couponService.findById(id)));
     }
 
 
     @PatchMapping("/{id}/update")
-    public ResponseDto couponUpdate(@PathVariable Long id, @RequestBody CouponReqDto couponReqDto){
+    public ResponseDto couponUpdate(@PathVariable Long id, @RequestBody CouponReqDto couponReqDto) {
         Coupon coupon = couponService.couponUpdate(id, couponReqDto);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS , new DefaultResponse<Long>(coupon.getId()));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(coupon.getId()));
     }
 
     @PatchMapping("/{id}/delete")
-    public ResponseDto couponDelete(@PathVariable Long id){
+    public ResponseDto couponDelete(@PathVariable Long id) {
         couponService.couponDelete(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_COUPON, new DefaultResponse<Long>(id));
     }
 
+    @GetMapping("/publish/count")
+    public ResponseDto couponPublishCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(couponService.couponPublishCount()));
+    }
 }

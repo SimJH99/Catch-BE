@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/complaints")
 @RequiredArgsConstructor
@@ -82,5 +84,17 @@ public class ComplaintController {
     public ResponseDto deleteComplaint(@PathVariable Long id) {
         Complaint complaint = complaintService.deletePost(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_MY_POST, new DefaultResponse<Long>(complaint.getId()));
+    }
+
+    @GetMapping("/countAll")
+    public ResponseDto countAllComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<Long>(complaintService.countAllComplaint()));
+    }
+
+    @GetMapping("/countStatus")
+    public ResponseDto countStatusComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountStatusComplaintRes>>(complaintService.countStatusComplaint()));
     }
 }

@@ -142,7 +142,7 @@ public class ComplaintService {
         s3Service.deleteFile(imageKey);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CS') or hasAuthority('MARKETER')")
     public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
         List<ListComplaintRes> listComplaintRes = complaintQueryRepository.findComplaintList(searchComplaintCondition);
         List<ListComplaintRes> listComplaintRes1 = new ArrayList<>();
@@ -160,5 +160,14 @@ public class ComplaintService {
         int end = Math.min((start + pageable.getPageSize()), listComplaintRes1.size());
 
         return new PageImpl<>(listComplaintRes1.subList(start, end), pageable, listComplaintRes.size());
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CS') or hasAuthority('MARKETER')")
+    public Long countAllComplaint() {
+        return complaintQueryRepository.countAllComplaint();
+    }
+
+    public List<CountStatusComplaintRes> countStatusComplaint() {
+        return  complaintQueryRepository.countStatusComplaint();
     }
 }
