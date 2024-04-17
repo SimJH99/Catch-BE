@@ -17,6 +17,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Admin extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,8 @@ public class Admin extends BaseEntity {
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
+    private boolean active;
+
     @Enumerated(EnumType.STRING)
     private Role role;
     public void passwordEncoder(PasswordEncoder passwordEncoder) {
@@ -47,6 +50,7 @@ public class Admin extends BaseEntity {
                 .email(adminSignUpDto.getEmail())
                 .role(adminSignUpDto.getRole())
                 .company(company)
+                .active(true)
                 .build();
     }
 
@@ -67,4 +71,18 @@ public class Admin extends BaseEntity {
         this.employeeNumber = maskingEmployeeNumber;
         this.email = maskingEmail;
     }
+
+    public void adminUpdate(String name, String email, Role role) {
+        this.name = name;
+        this.email = email;
+        this.role = role;
+    }
+
+    public void adminActiveToDisable() {
+        this.active = false;
+    }
+    public void adminActiveToActivation(){
+        this.active = true;
+    }
+
 }
