@@ -3,8 +3,7 @@ package com.encore.thecatch.complaint.repository;
 
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.response.ListComplaintRes;
-import com.encore.thecatch.complaint.dto.response.QListComplaintRes;
+import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
 import com.encore.thecatch.user.domain.QUser;
@@ -43,6 +42,25 @@ public class ComplaintQueryRepository {
                         eqStatus(searchComplaintCondition.getStatus()),
                         complaint.active.eq(true))
                 .orderBy(complaint.status.asc(), complaint.createdTime.asc())
+                .fetch();
+    }
+
+    public Long countAllComplaint() {
+        return queryFactory
+                .select(new QCountAllComplaintRes(
+                        complaint.count()))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .fetchCount();
+    }
+
+    public List<CountStatusComplaintRes> countStatusComplaint() {
+        return queryFactory
+                .select(new QCountStatusComplaintRes(
+                        complaint.count()).as("count"))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .groupBy(complaint.status)
                 .fetch();
     }
 

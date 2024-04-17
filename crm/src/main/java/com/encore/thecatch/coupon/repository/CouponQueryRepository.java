@@ -5,6 +5,7 @@ import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.encore.thecatch.coupon.domain.QCoupon;
 import com.encore.thecatch.coupon.dto.CouponFindResDto;
 import com.encore.thecatch.coupon.dto.QCouponFindResDto;
+import com.encore.thecatch.coupon.dto.QCouponPublishCountRes;
 import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -44,6 +45,17 @@ public class CouponQueryRepository {
                         eqStatus(searchCouponCondition.getCouponStatus()))
                 .fetch();
     }
+
+    public Long couponPublishCount() {
+        return queryFactory
+                .select(new QCouponPublishCountRes(
+                        coupon.count().as("count")
+                ))
+                .from(coupon)
+                .where(coupon.couponStatus.eq(CouponStatus.PUBLISH))
+                .fetchCount();
+    }
+
         private BooleanExpression eqName(String name) throws Exception {
         return hasText(name) ? coupon.name.eq(name) : null;
     }
