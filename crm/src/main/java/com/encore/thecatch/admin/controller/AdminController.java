@@ -2,8 +2,11 @@ package com.encore.thecatch.admin.controller;
 
 import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
+import com.encore.thecatch.admin.dto.response.AdminInfoDto;
 import com.encore.thecatch.admin.dto.response.AdminSearchDto;
+import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
 import com.encore.thecatch.admin.service.AdminService;
+import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
@@ -13,11 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,8 +59,55 @@ public class AdminController {
         return adminService.allNonAdmin(pageable);
     }
 
+    @PostMapping("/admin/emailCheck")
+    public ResponseDto adminEmailCheck(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, adminService.emailCheck(adminSignUpDto));
+    }
+
+    @PostMapping("/admin/employeeNumberCheck")
+    public ResponseDto employeeNumberCheck(@RequestBody AdminSignUpDto adminSignUpDto) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMPLOYEE_NUMBER, adminService.employeeNumberCheck(adminSignUpDto));
+    }
+
     @PostMapping("/admin/random/create")
     public ResponseDto randomAdminCreate() throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.createTestAdmins(150, true));
     }
+
+    @PostMapping("/admin/searchList")
+    public ResponseDto searchComplaint(@RequestBody AdminSearchDto adminSearchDto, @PageableDefault(size = 10) Pageable pageable) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_LIST,
+                new DefaultResponse<Page<AdminInfoDto>>(adminService.searchComplaint(adminSearchDto, pageable)));
+    }
+
+    @GetMapping("/admin/{id}/detail")
+    public ResponseDto adminDetail(@PathVariable Long id,HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_DETAIL, adminService.adminDetail(id,IPUtil.getClientIP(request)));
+    }
+
+    @GetMapping("/admin/profile")
+    public ResponseDto adminProfile() throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN_ADMIN_PROFILE, adminService.adminProfile());
+    }
+
+    @PostMapping("/admin/doLogout")
+    public ResponseDto adminLogout(HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGOUT,adminService.adminLogout(IPUtil.getClientIP(request)));
+    }
+
+    @PatchMapping("/admin/{id}/update")
+    public ResponseDto adminUpdate(@PathVariable Long id, @RequestBody AdminUpdateDto adminUpdateDto, HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_UPDATE, adminService.adminUpdate(id, adminUpdateDto, IPUtil.getClientIP(request)));
+    }
+
+    @PatchMapping("/admin/{id}/disabled")
+    public ResponseDto adminDisabled(@PathVariable Long id, HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_DISABLED, adminService.adminDisabled(id, IPUtil.getClientIP(request)));
+    }
+
+    @PatchMapping("/admin/{id}/activation")
+    public ResponseDto adminActivation(@PathVariable Long id, HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_ACTIVATION, adminService.adminActivation(id, IPUtil.getClientIP(request)));
+    }
+
 }

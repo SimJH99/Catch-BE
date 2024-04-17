@@ -4,8 +4,11 @@ import com.encore.thecatch.common.dto.Role;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @Builder
+@NoArgsConstructor
 public class AdminInfoDto {
     private String name;
     private String employeeNumber;

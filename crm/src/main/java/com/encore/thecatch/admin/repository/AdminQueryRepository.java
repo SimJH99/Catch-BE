@@ -33,28 +33,32 @@ public class AdminQueryRepository {
                         admin.role))
                 .from(admin)
                 .where(
-                        eqName(adminSearchDto.getName()),
-                        eqEmployeeNumber(adminSearchDto.getEmployeeNumber()),
-                        eqEmail(adminSearchDto.getEmail()),
+                        containsName(adminSearchDto.getName()),
+                        containsEmployeeNumber(adminSearchDto.getEmployeeNumber()),
+                        containsEmail(adminSearchDto.getEmail()),
                         eqRole(adminSearchDto.getRole())
                 ).fetch();
     }
 
 
-    private BooleanExpression eqName(String name) throws Exception {
-        return hasText(name) ? admin.name.eq(aesUtil.aesCBCEncode(name)) : null;
+    private BooleanExpression containsName(String name) throws Exception {
+        return hasText(name) ? admin.name.contains(aesUtil.aesCBCEncode(name)) : null;
     }
 
-    private BooleanExpression eqEmployeeNumber(String employeeNumber) throws Exception {
-        return hasText(employeeNumber) ? admin.employeeNumber.eq(aesUtil.aesCBCEncode(employeeNumber)) : null;
+    private BooleanExpression containsEmployeeNumber(String employeeNumber) throws Exception {
+        return hasText(employeeNumber) ? admin.employeeNumber.contains(aesUtil.aesCBCEncode(employeeNumber)) : null;
     }
 
-    private BooleanExpression eqEmail(String email) throws Exception {
-        return hasText(email)? admin.email.eq(aesUtil.aesCBCEncode(email)) : null;
+    private BooleanExpression containsEmail(String email) throws Exception {
+        return hasText(email)? admin.email.contains(aesUtil.aesCBCEncode(email)) : null;
     }
 
     private BooleanExpression eqRole(Role role) {
-        return role != null ? admin.role.eq(role) : null;
+        return role != null ? admin.role.ne(Role.ADMIN).and(admin.role.eq(role)) : admin.role.ne(Role.ADMIN);
     }
+
+
+
+
 
 }

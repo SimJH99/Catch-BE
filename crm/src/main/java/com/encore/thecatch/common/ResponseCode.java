@@ -8,8 +8,11 @@ import lombok.Getter;
 public enum ResponseCode {
 
     SUCCESS("SUCCESS", "성공"),
+    SUCCESS_ADMIN_UPDATE("SUCCESS_ADMIN_UPDATE", "관리자 계정 수정 성공"),
     SUCCESS_EMAIL_CHECK("SUCCESS_EMAIL_CHECK", "이메일 인증 성공"),
     SUCCESS_LOGIN("SUCCESS_LOGIN", "로그인 성공"),
+    SUCCESS_LOGOUT("SUCCESS_LOGOUT", "로그아웃 성공"),
+    IS_BLANK("IS_BLANK","공백은 입력할 수 없습니다."),
     SUCCESS_CREATE_MEMBER("SUCCESS_CREATE_MEMBER","계정 생성 성공"),
     SUCCESS_CHANGE_MEMBER_PASSWORD("SUCCESS_CREATE_MEMBER","비밀번호 변경 성공"),
     EXISTING_EMPLOYEE_NUMBER("EXISTING_EMPLOYEE_NUMBER", "이미 존재하는 사원 번호입니다."),
@@ -53,11 +56,17 @@ public enum ResponseCode {
     SUCCESS_DETAIL_COMMENT("SUCCESS_DETAIL_COMMENT", "답변 조회 완료"),
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "찾을 수 없는 답변입니다."),
     SUCCESS_POST_LIST("SUCCESS_POST_LIST", "게시글 조회 완료"),
+    SUCCESS_ADMIN_LIST("SUCCESS_ADMIN_LIST", "관리자 계정 조회 완료"),
     SUCCESS_UPDATE_COMMENT("SUCCESS_UPDATE_COMMENT", "답변 수정 완료"),
     SUCCESS_DELETE_COMMENT("SUCCESS_DELETE_COMMENT", "답변 삭제 완료"),
     CHECK_EMAIL("CHECK_EMAIL","이메일을 확인해주세요"),
-    ;
-
+    CHECK_EMPLOYEE_NUMBER("CHECK_EMPLOYEE_NUMBER","사원번호를 확인해주세요"),
+    SUCCESS_ADMIN_DETAIL("SUCCESS_ADMIN_DETAIL","상세정보 확인 완료"),
+    SUCCESS_LOGIN_ADMIN_PROFILE("SUCCESS_LOGIN_ADMIN_PROFILE","로그인한 관리자 정보 확인 완료"),
+    REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "리프레시 토큰을 찾을수 없습니다."),
+    SUCCESS_ADMIN_DISABLED("SUCCESS_ADMIN_DISABLED","관리자 계정 비활성화 완료." ),
+    SUCCESS_ADMIN_ACTIVATION("SUCCESS_ADMIN_ACTIVATION","관리자 계정 활성화 완료." ),
+    DISABLED_ACCOUNT("DISABLED_ACCOUNT","비활성화된 계정입니다.");
 
     private final String code;
     private final String label;

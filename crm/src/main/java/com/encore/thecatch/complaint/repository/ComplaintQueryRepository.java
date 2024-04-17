@@ -54,7 +54,7 @@ public class ComplaintQueryRepository {
     }
 
     private BooleanExpression eqName(String name) throws Exception {
-        return hasText(name) ? user.name.eq(aesUtil.aesCBCEncode(name)) : null;
+        return hasText(name) ? user.name.contains(aesUtil.aesCBCEncode(name)) : null;
     }
 
     private BooleanExpression eqTitle(String title) {
