@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Long> {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByIdAndReissueCountLessThan(String email, long count);
-    Optional<RefreshToken> findByAdmin_Id(Long adminId);
+    Optional<RefreshToken> findByAdminId(Long adminId);
 
 }
