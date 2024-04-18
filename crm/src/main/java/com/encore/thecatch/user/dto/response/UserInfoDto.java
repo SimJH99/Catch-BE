@@ -1,6 +1,5 @@
 package com.encore.thecatch.user.dto.response;
 
-import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.TotalAddress;
@@ -36,7 +35,7 @@ public class UserInfoDto {
         builder.email(user.getEmail());
         builder.phoneNumber(user.getPhoneNumber());
         builder.active(user.isActive());
-        builder.birthDate(user.getBrithDate());
+        builder.birthDate(user.getBirthDate());
         TotalAddress totalAddress = user.getTotalAddress();
         if (totalAddress != null) {
             builder.address(totalAddress.getAddress());

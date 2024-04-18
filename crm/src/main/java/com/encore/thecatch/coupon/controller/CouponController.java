@@ -6,13 +6,9 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.service.CouponService;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -58,9 +54,8 @@ public class CouponController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/search")
-
     public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition, Pageable pageable)throws Exception{
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponFindResDto>(couponService.searchCoupon(searchCouponCondition, pageable)));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Page<CouponFindResDto>>(couponService.searchCoupon(searchCouponCondition, pageable)));
     }
 
     @GetMapping("/myList")

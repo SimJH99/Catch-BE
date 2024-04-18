@@ -14,6 +14,7 @@ public class CreateCommentsReq {
     public Comments toEntity(Complaint complaint, Admin admin) {
         return Comments.builder()
                 .complaint(complaint)
+
                 .admin(admin)
                 .comment(comment)
                 .build();

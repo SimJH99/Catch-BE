@@ -4,20 +4,14 @@ import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
-import com.encore.thecatch.coupon.dto.CouponFindResDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
-import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
+import com.encore.thecatch.user.dto.request.UserSearchDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
-import com.encore.thecatch.user.dto.response.ChartAgeRes;
-import com.encore.thecatch.user.dto.response.ChartGenderRes;
-import com.encore.thecatch.user.dto.response.ChartGradeRes;
-import com.encore.thecatch.user.dto.response.UserInfoDto;
+import com.encore.thecatch.user.dto.response.*;
 import com.encore.thecatch.user.service.UserService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,6 +75,12 @@ public class UserController {
     @GetMapping("/user/list")
     public ResponseDto findAll(Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<UserInfoDto>(userService.findAll(pageable)));
+    }
+
+    @PostMapping("/user/search")
+    public ResponseDto searchUser(@RequestBody UserSearchDto userSearchDto, Pageable pageable) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse.PagedResponse<UserListRes>(userService.searchUser(userSearchDto, pageable)));
     }
 
 }

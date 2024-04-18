@@ -146,14 +146,14 @@ public class ComplaintService {
     public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
         List<ListComplaintRes> listComplaintRes = complaintQueryRepository.findComplaintList(searchComplaintCondition);
         List<ListComplaintRes> listComplaintRes1 = new ArrayList<>();
-        for (ListComplaintRes listPost : listComplaintRes) {
-            listPost = com.encore.thecatch.complaint.dto.response.ListComplaintRes.builder()
-                    .complaintId(listPost.getComplaintId())
-                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(listPost.getName())))
-                    .title(listPost.getTitle())
-                    .status(listPost.getStatus())
+        for (ListComplaintRes ListComplaint : listComplaintRes) {
+            ListComplaint = ListComplaintRes.builder()
+                    .complaintId(ListComplaint.getComplaintId())
+                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(ListComplaint.getName())))
+                    .title(ListComplaint.getTitle())
+                    .status(ListComplaint.getStatus())
                     .build();
-            listComplaintRes1.add(listPost);
+            listComplaintRes1.add(ListComplaint);
         }
 
         int start = (int) pageable.getOffset();

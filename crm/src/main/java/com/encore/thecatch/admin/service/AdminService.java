@@ -5,6 +5,7 @@ import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
 import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
 import com.encore.thecatch.admin.dto.response.*;
+import com.encore.thecatch.admin.dto.response.AdminInfoDto;
 import com.encore.thecatch.admin.repository.AdminQueryRepository;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,8 +53,6 @@ public class AdminService {
     private final AdminQueryRepository adminQueryRepository;
     private final RedisService redisService;
 
-    //webPush Test
-
     public AdminService(
             AdminRepository adminRepository,
             CompanyRepository companyRepository,
@@ -61,9 +61,9 @@ public class AdminService {
             EmailSendService emailSendService,
             AdminLogRepository adminLogRepository,
             RefreshTokenRepository refreshTokenRepository,
+            AdminQueryRepository adminQueryRepository,
             AesUtil aesUtil,
             MaskingUtil maskingUtil,
-            AdminQueryRepository adminQueryRepository,
             RedisService redisService
     ) {
         this.adminRepository = adminRepository;
@@ -90,7 +90,7 @@ public class AdminService {
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND)
         );
         Company company = companyRepository.findById(systemAdmin.getCompany().getId()).orElseThrow(
-                ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
+                () -> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
 
         Admin admin = Admin.toEntity(adminSignUpDto, company);
         toEncodeAES(admin);
@@ -105,7 +105,7 @@ public class AdminService {
             throw new CatchException(ResponseCode.EXISTING_EMPLOYEE_NUMBER);
         }
         Company company = companyRepository.findById(adminSignUpDto.getCompanyId()).orElseThrow(
-                ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
+                () -> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
 
         Admin admin = Admin.toEntity(adminSignUpDto, company);
         toEncodeAES(admin);
@@ -125,14 +125,14 @@ public class AdminService {
             throw new CatchException(ResponseCode.DISABLED_ACCOUNT);
         }
 
-        if(!passwordEncoder.matches(adminLoginDto.getPassword(),admin.getPassword())){
+        if (!passwordEncoder.matches(adminLoginDto.getPassword(), admin.getPassword())) {
             throw new CatchException(ResponseCode.USER_NOT_FOUND);
         }
 
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");
     }
 
-    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip ) {
+    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip) {
         try {
             Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
                     .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
@@ -165,7 +165,7 @@ public class AdminService {
 
                 adminLogRepository.save(adminLog);
                 return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN, result);
-            }else {
+            } else {
                 return new ResponseDto(HttpStatus.UNAUTHORIZED, ResponseCode.INVALID_VERIFICATION_CODE, null);
             }
         } catch (Exception e) {
@@ -174,7 +174,7 @@ public class AdminService {
         }
     }
 
-    private void toMasking(Admin admin){
+    private void toMasking(Admin admin) {
         String maskingName = maskingUtil.nameMasking(admin.getName());
         String maskingEmployeeNumber = maskingUtil.employeeNumberMasking(admin.getEmployeeNumber());
         String maskingEmail = maskingUtil.emailMasking(admin.getEmail());
@@ -195,29 +195,31 @@ public class AdminService {
         String employeeNumber = aesUtil.aesCBCDecode(admin.getEmployeeNumber());
         String email = aesUtil.aesCBCDecode(admin.getEmail());
 
-        admin.dataDecode(name, employeeNumber,email);
+        admin.dataDecode(name, employeeNumber, email);
     }
 
+    @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Page<AdminSearchDto> allNonAdmin(Pageable pageable) throws Exception {
-        Page<Admin> allNonAdmins = adminRepository.findAllNonAdmins(pageable);
-        List<AdminSearchDto> maskingAdminList = new ArrayList<>();
-        for (Admin nonAdmin : allNonAdmins) {
-            toDecodeAES(nonAdmin);
-            toMasking(nonAdmin);
+    public Page<AdminInfoDto> searchAdmin(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        List<AdminInfoDto> adminInfoDtos = adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany());
+        List<AdminInfoDto> maskingAdminList = new ArrayList<>();
 
-            AdminSearchDto adminSearchDto = AdminSearchDto.builder()
-                    .id(nonAdmin.getId())
-                    .employeeNumber(nonAdmin.getEmployeeNumber())
-                    .name(nonAdmin.getName())
-                    .email(nonAdmin.getEmail())
-                    .role(nonAdmin.getRole())
+        for (AdminInfoDto infoDto : adminInfoDtos) {
+            AdminInfoDto adminInfoDto = AdminInfoDto.builder()
+                    .name(aesUtil.aesCBCDecode(infoDto.getName()))
+                    .employeeNumber(aesUtil.aesCBCDecode(infoDto.getEmployeeNumber()))
+                    .email(aesUtil.aesCBCDecode(infoDto.getEmail()))
+                    .role(infoDto.getRole())
                     .build();
-
-            maskingAdminList.add(adminSearchDto);
+            maskingAdminList.add(adminInfoDto);
         }
 
-        return new PageImpl<>(maskingAdminList, pageable, allNonAdmins.getTotalElements());
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), adminInfoDtos.size());
+
+        return new PageImpl<>(maskingAdminList.subList(start, end), pageable, adminInfoDtos.size());
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -308,7 +310,9 @@ public class AdminService {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
-        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany());
         List<AdminInfoDto> adminInfoDtoList = new ArrayList<>();
         for (AdminInfoDto adminInfoDto : allAdmin) {
             String name = aesUtil.aesCBCDecode(adminInfoDto.getName());
@@ -326,7 +330,7 @@ public class AdminService {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), adminInfoDtoList.size());
 
-        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, adminInfoDtoList.size());
+        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, allAdmin.size());
     }
 
     @Transactional
@@ -354,7 +358,7 @@ public class AdminService {
                 .ip(ip)
                 .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
                 .method("GET")
-                .data("view at adminId:"+ admin.getId() + " detail")
+                .data("view at adminId:" + admin.getId() + " detail")
                 .build();
 
         adminLogRepository.save(adminLog);
@@ -384,7 +388,7 @@ public class AdminService {
                 () -> new CatchException(ResponseCode.REFRESH_TOKEN_NOT_FOUND)
         );
         refreshTokenRepository.delete(refreshToken);
-        redisService.deleteValues(admin.getRole() +""+ admin.getId());
+        redisService.deleteValues(admin.getRole() + "" + admin.getId());
 
         AdminLog adminLog = AdminLog.builder()
                 .type(LogType.ADMIN_LOGOUT) // DB로 나눠 관리하지 않고 LogType으로 구별
@@ -413,21 +417,21 @@ public class AdminService {
         String name = adminUpdateDto.getName();
         String email = adminUpdateDto.getEmail();
         Role role = adminUpdateDto.getRole();
-        if ( !email.equals(aesUtil.aesCBCDecode(admin.getEmail())) && adminRepository.findByEmail(aesUtil.aesCBCEncode(email)).isPresent()) {
+        if (!email.equals(aesUtil.aesCBCDecode(admin.getEmail())) && adminRepository.findByEmail(aesUtil.aesCBCEncode(email)).isPresent()) {
             throw new CatchException(ResponseCode.EXISTING_EMAIL);
         }
 
         if (name.isBlank() || email.isBlank()) {
             throw new CatchException(ResponseCode.IS_BLANK);
         }
-        admin.adminUpdate(aesUtil.aesCBCEncode(name), aesUtil.aesCBCEncode(email), role );
+        admin.adminUpdate(aesUtil.aesCBCEncode(name), aesUtil.aesCBCEncode(email), role);
 
         AdminLog adminLog = AdminLog.builder()
                 .type(LogType.ADMIN_UPDATE) // DB로 나눠 관리하지 않고 LogType으로 구별
                 .ip(ip)
                 .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
                 .method("PATCH")
-                .data("update at adminId:"+ admin.getId())
+                .data("update at adminId:" + admin.getId())
                 .build();
 
         adminLogRepository.save(adminLog);
@@ -459,7 +463,7 @@ public class AdminService {
                 .ip(ip)
                 .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
                 .method("PATCH")
-                .data("disabled at adminId:"+ admin.getId())
+                .data("disabled at adminId:" + admin.getId())
                 .build();
 
         adminLogRepository.save(adminLog);
@@ -486,7 +490,7 @@ public class AdminService {
                 .ip(ip)
                 .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
                 .method("PATCH")
-                .data("activation at adminId:"+ admin.getId())
+                .data("activation at adminId:" + admin.getId())
                 .build();
 
         adminLogRepository.save(adminLog);
