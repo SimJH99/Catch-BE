@@ -1,6 +1,5 @@
 package com.encore.thecatch.admin.dto.response;
 
-import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.common.dto.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class AdminSearchDto {
     private Long id;
     private String name;

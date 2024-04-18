@@ -81,19 +81,19 @@ public class CouponQueryRepository {
                 .fetchCount();
     }
 
-        private BooleanExpression eqName(String name) throws Exception {
+    private BooleanExpression eqName(String name) throws Exception {
         return hasText(name) ? coupon.name.eq(name) : null;
     }
-
     private BooleanExpression eqCode(String code) throws Exception {
         return hasText(code) ? coupon.name.eq(code) : null;
     }
 
     private BooleanExpression eqStartDate(String startDate) {
-        return hasText(startDate) ? coupon.startDate.eq(LocalDate.parse(startDate)) : null;
+        return hasText(startDate) ? coupon.startDate.eq(LocalDate.from(LocalDate.parse(startDate).atStartOfDay())) : null;
+
     }
     private BooleanExpression eqEndDate(String endDate) {
-        return hasText(endDate) ? coupon.startDate.eq(LocalDate.parse(endDate)) : null;
+        return hasText(endDate) ? coupon.startDate.eq(LocalDate.from(LocalDate.parse(endDate).atStartOfDay())) : null;
     }
     private BooleanExpression eqStatus(String couponStatus) {
         return hasText(couponStatus) ? coupon.couponStatus.eq(CouponStatus.fromValue(couponStatus)) : null;

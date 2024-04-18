@@ -5,6 +5,8 @@ import com.encore.thecatch.comments.dto.request.UpdateCommentsReq;
 import com.encore.thecatch.comments.dto.response.CreateCommentsRes;
 import com.encore.thecatch.comments.dto.response.DetailCommentRes;
 import com.encore.thecatch.comments.dto.response.UpdateCommentsRes;
+import com.encore.thecatch.comments.dto.response.CreateCommentsRes;
+import com.encore.thecatch.comments.entity.Comments;
 import com.encore.thecatch.comments.service.CommentsService;
 import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
@@ -12,6 +14,10 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/comments")

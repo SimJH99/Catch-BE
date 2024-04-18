@@ -2,9 +2,9 @@ package com.encore.thecatch.admin.controller;
 
 import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
+import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
 import com.encore.thecatch.admin.dto.response.AdminInfoDto;
 import com.encore.thecatch.admin.dto.response.AdminSearchDto;
-import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
 import com.encore.thecatch.admin.service.AdminService;
 import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
@@ -14,7 +14,6 @@ import com.encore.thecatch.mail.dto.EmailCheckDto;
 import com.encore.thecatch.notification.dto.PushTokenDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -55,9 +54,10 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/admin/all")
-    public Page<AdminSearchDto> allNonAdmin(@PageableDefault(size = 10, sort = "createdTime", direction = Sort.Direction.DESC) Pageable pageable) throws Exception {
-        return adminService.allNonAdmin(pageable);
+    @PostMapping("/admin/all")
+    public ResponseDto searchAdmin(@RequestBody AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_POST_LIST,
+                new DefaultResponse<Page<AdminInfoDto>>(adminService.searchAdmin(adminSearchDto, pageable)));
     }
 
     @PostMapping("/admin/emailCheck")
@@ -76,7 +76,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/searchList")
-    public ResponseDto searchComplaint(@RequestBody AdminSearchDto adminSearchDto, @PageableDefault(size = 10) Pageable pageable) throws Exception {
+    public ResponseDto searchComplaint(@RequestBody AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_LIST,
                 new DefaultResponse<Page<AdminInfoDto>>(adminService.searchComplaint(adminSearchDto, pageable)));
     }

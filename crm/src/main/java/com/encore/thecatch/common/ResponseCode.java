@@ -68,8 +68,8 @@ public enum ResponseCode {
     REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", "리프레시 토큰을 찾을수 없습니다."),
     SUCCESS_ADMIN_DISABLED("SUCCESS_ADMIN_DISABLED","관리자 계정 비활성화 완료." ),
     SUCCESS_ADMIN_ACTIVATION("SUCCESS_ADMIN_ACTIVATION","관리자 계정 활성화 완료." ),
-    DISABLED_ACCOUNT("DISABLED_ACCOUNT","비활성화된 계정입니다.");
-
+    DISABLED_ACCOUNT("DISABLED_ACCOUNT","비활성화된 계정입니다."),
+    ;
     private final String code;
     private final String label;
 

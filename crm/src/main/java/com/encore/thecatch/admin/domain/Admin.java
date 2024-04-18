@@ -30,6 +30,7 @@ public class Admin extends BaseEntity {
     private String email;
     @Column(nullable = false)
     private String password;
+
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;

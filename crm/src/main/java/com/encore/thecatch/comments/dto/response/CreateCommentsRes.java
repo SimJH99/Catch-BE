@@ -9,7 +9,6 @@ import lombok.Getter;
 @Builder
 public class CreateCommentsRes {
     private Long id;
-
     private String comment;
 
     public static CreateCommentsRes from(Comments comments) {

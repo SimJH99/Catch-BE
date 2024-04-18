@@ -5,7 +5,6 @@ import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.Role;
-//import com.encore.thecatch.common.firebase.FirebaseMessagingService;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.company.domain.Company;
@@ -20,16 +19,17 @@ import com.encore.thecatch.receivecoupon.domain.ReceiveCoupon;
 import com.encore.thecatch.receivecoupon.repository.ReceiveCouponRepository;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.repository.UserRepository;
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -99,13 +99,6 @@ public class CouponService {
         return coupons.map(CouponResDto::toCouponResDto);
     }
 
-    public Page<CouponFindResDto> searchCoupon(SearchCouponCondition searchCouponCondition, Pageable pageable) throws Exception{
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
-        Company company = admin.getCompany();
-        return couponQueryRepository.findCouponList(searchCouponCondition, company, pageable);
-    }
-
     public List<CouponResDto> findMyAll(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
@@ -122,7 +115,12 @@ public class CouponService {
         return CouponResDto.toCouponResDto(coupon);
     }
 
-//
+    public Page<CouponFindResDto> searchCoupon(SearchCouponCondition searchCouponCondition, Pageable pageable) throws Exception{
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        return couponQueryRepository.findCouponList(searchCouponCondition, admin.getCompany(), pageable);
+    }
+
     @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
     public Coupon publish(Long id) throws Exception {

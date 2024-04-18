@@ -1,7 +1,6 @@
 package com.encore.thecatch.user.service;
 
 import com.encore.thecatch.admin.domain.Admin;
-import com.encore.thecatch.admin.dto.response.AdminSearchDto;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
@@ -14,19 +13,15 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
-import com.encore.thecatch.coupon.domain.Coupon;
-import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.domain.UserLog;
 import com.encore.thecatch.log.repository.UserLogRepository;
 import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
+import com.encore.thecatch.user.dto.request.UserSearchDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
-import com.encore.thecatch.user.dto.response.ChartAgeRes;
-import com.encore.thecatch.user.dto.response.ChartGenderRes;
-import com.encore.thecatch.user.dto.response.ChartGradeRes;
-import com.encore.thecatch.user.dto.response.UserInfoDto;
+import com.encore.thecatch.user.dto.response.*;
 import com.encore.thecatch.user.repository.UserQueryRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +36,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +85,7 @@ public class UserService {
             throw new CatchException(ResponseCode.EXISTING_EMAIL);
         }
         Company company = companyRepository.findById(userSignUpDto.getCompanyId()).orElseThrow(
-                ()-> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
+                () -> new CatchException(ResponseCode.COMPANY_NOT_FOUND));
 
         User user = User.toEntity(userSignUpDto, company);
 
@@ -121,7 +115,7 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public UserInfoDto userDetail(Long id) throws Exception {
         User user = userRepository.findById(id).orElseThrow(
-                ()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
         decodeToUser(user);
 
         UserInfoDto userInfoDto = UserInfoDto.toUserInfoDto(user);
@@ -150,7 +144,7 @@ public class UserService {
 
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        if(!passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword())){
+        if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             throw new CatchException(ResponseCode.USER_NOT_FOUND);
         }
         String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", user.getEmail(), user.getRole())); // 토큰 생성
@@ -214,7 +208,7 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Page<UserInfoDto> findAll(Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Company company = admin.getCompany();
         Page<User> users = userRepository.findByCompany(company, pageable);
         List<UserInfoDto> maskingUserList = new ArrayList<>();
@@ -239,8 +233,29 @@ public class UserService {
 //        String maskingDetailAddress = maskingUtil.addressMasking(user.getTotalAddress().getDetailAddress());
 //        String maskingZipcode = maskingUtil.addressMasking(user.getTotalAddress().getZipcode());
 
-        user.masking(maskingName, maskingEmail,maskingPhoneNumber);
+        user.masking(maskingName, maskingEmail, maskingPhoneNumber);
         // maskingBirthDate,maskingTotalAddress, maskingAddress, maskingDetailAddress, maskingZipcode
     }
 
+    public Page<UserListRes> searchUser(UserSearchDto userSearchDto, Pageable pageable) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        List<UserListRes> userListRes = userQueryRepository.UserList(userSearchDto, admin.getCompany());
+        List<UserListRes> userListRes1 = new ArrayList<>();
+        for(UserListRes user : userListRes){
+            user = UserListRes.builder()
+                    .id(user.getId())
+                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(user.getName())))
+                    .gender(user.getGender())
+                    .email(maskingUtil.emailMasking(aesUtil.aesCBCDecode(user.getEmail())))
+                    .grade(user.getGrade())
+                    .build();
+            userListRes1.add(user);
+        }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), userListRes1.size());
+
+        return new PageImpl<>(userListRes1.subList(start, end), pageable, userListRes1.size());
+    }
 }

@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private LocalDate brithDate;
+    private LocalDate birthDate;
     @Column(nullable = false)
     private TotalAddress totalAddress; // (주소, 상세주소, 우편번호)
     @Column(nullable = false)
@@ -90,7 +90,7 @@ public class User extends BaseEntity {
                 .name(userSignUpDto.getName())
                 .email(userSignUpDto.getEmail())
                 .password(userSignUpDto.getPassword())
-                .brithDate(userSignUpDto.getBirthDate())
+                .birthDate(userSignUpDto.getBirthDate())
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
