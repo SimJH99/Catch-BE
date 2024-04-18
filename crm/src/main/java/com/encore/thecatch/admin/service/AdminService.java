@@ -51,6 +51,8 @@ public class AdminService {
     private final AdminQueryRepository adminQueryRepository;
     private final RedisService redisService;
 
+    //webPush Test
+
     public AdminService(
             AdminRepository adminRepository,
             CompanyRepository companyRepository,
@@ -130,7 +132,7 @@ public class AdminService {
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");
     }
 
-    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip) {
+    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip ) {
         try {
             Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
                     .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
@@ -142,6 +144,7 @@ public class AdminService {
             if (isAuthValid) {
                 String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", admin.getEmployeeNumber(), admin.getRole())); // 토큰 생성
                 String refreshToken = jwtTokenProvider.createRefreshToken(admin.getRole(), admin.getId()); // 리프레시 토큰 생성
+
                 // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
                 refreshTokenRepository.findByAdminId(admin.getId())
                         .ifPresentOrElse(
@@ -292,6 +295,16 @@ public class AdminService {
         return testAdmins;
     }
 
+    //webPush Test
+    public ResponseDto savePushToken(String employeeNumber, String pushToken) throws Exception {
+        System.out.println(pushToken);
+        Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
+                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        redisService.setValues(String.format("%s:%s", "PushToken", admin.getEmployeeNumber()), pushToken);
+        Map<String, String> result = new HashMap<>();
+        result.put("pushToken", pushToken);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
+    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {

@@ -8,6 +8,7 @@ import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.RsData;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
+import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.mail.Entity.EmailTask;
@@ -96,6 +97,19 @@ public class EmailSendService {
                 "<p>3분 내로 인증 번호를 제대로 입력해주세요.</p>" +
                 "</div>" +
                 "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+
+        mailSend(username, toMail, title, content);
+    }
+
+    @Async
+    public void createCouponEmail(Coupon coupon, String toMail) throws Exception {
+        String title = coupon.getName(); // 이메일 제목
+        String content =
+                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
+                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
+                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
+                        "</div>" +
+                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
 
         mailSend(username, toMail, title, content);
     }

@@ -64,6 +64,9 @@ dependencies {
 	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 	implementation "com.querydsl:querydsl-core:${queryDslVersion}"
 	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+	//fcm 관련
+	implementation 'com.google.firebase:firebase-admin:8.1.0'
 }
 
 def querydslDir = "$buildDir/generated/querydsl" //QueryDSL로 생성된 소스가 저장되는 위치

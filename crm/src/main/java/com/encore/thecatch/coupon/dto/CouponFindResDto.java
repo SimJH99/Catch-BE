@@ -1,11 +1,13 @@
 package com.encore.thecatch.coupon.dto;
 
 import com.encore.thecatch.company.domain.Company;
+import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,8 +18,8 @@ public class CouponFindResDto {
     private String code;
     private CouponStatus status;
     private int quantity;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Company company;
 
 
@@ -28,8 +30,8 @@ public class CouponFindResDto {
             String code,
             CouponStatus status,
             int quantity,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
+            LocalDate startDate,
+            LocalDate endDate,
             Company company){
         this.id = id;
         this.name = name;
@@ -39,6 +41,6 @@ public class CouponFindResDto {
         this.startDate =startDate;
         this.endDate = endDate;
         this.company = company;
-
     }
+
 }

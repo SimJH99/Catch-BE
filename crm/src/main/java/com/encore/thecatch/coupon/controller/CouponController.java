@@ -6,11 +6,15 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.service.CouponService;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/coupon")
 public class CouponController {
+
 
     private final CouponService couponService;
 
@@ -27,13 +32,15 @@ public class CouponController {
     }
 
     @PostMapping("/create")
-    public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto) throws Exception {
-        Coupon coupon = couponService.create(couponReqDto);
+
+    public ResponseDto couponCreate(@RequestBody CouponReqDto couponReqDto){
+        Coupon coupon = couponService.createCoupon(couponReqDto);
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
     @PatchMapping("/{id}/publish")
-    public ResponseDto couponPublish(@PathVariable Long id) {
+
+    public ResponseDto couponPublish(@PathVariable Long id) throws Exception {
         Coupon coupon = couponService.publish(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
@@ -43,18 +50,17 @@ public class CouponController {
         Coupon coupon = couponService.receive(couponReceiveDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_RECEIVE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/list")
-    public ResponseDto findAll() {
-        List<CouponResDto> couponResDtos = couponService.findAll();
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponResDtos));
+    public ResponseDto findAll(Pageable pageable) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponResDto>(couponService.findAll(pageable)));
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/search")
-    public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition) throws Exception {
-        System.out.println(searchCouponCondition.getName());
-        Pageable pageable = PageRequest.of(searchCouponCondition.getPageNo(), 10);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Page<CouponFindResDto>>(couponService.searchCoupon(searchCouponCondition, pageable)));
+
+    public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition, Pageable pageable)throws Exception{
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponFindResDto>(couponService.searchCoupon(searchCouponCondition, pageable)));
     }
 
     @GetMapping("/myList")

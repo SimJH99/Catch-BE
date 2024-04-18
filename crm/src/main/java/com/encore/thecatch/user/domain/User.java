@@ -103,4 +103,21 @@ public class User extends BaseEntity {
 
         return user;
     }
+
+    public void masking(
+            String maskingName,
+            String maskingEmail,
+            String maskingPhoneNumber
+//            String maskingBirthDate
+//            String maskingTotalAddress,
+//            String maskingAddress,
+//            String maskingDetailAddress,
+//            String maskingZipcode,
+            ) {
+        this.name = maskingName;
+        this.email = maskingEmail;
+        this.phoneNumber = maskingPhoneNumber;
+//        this.brithDate = maskingBirthDate;
+
+    }
 }

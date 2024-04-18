@@ -11,6 +11,7 @@ import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
 import com.encore.thecatch.mail.dto.EmailCheckDto;
+import com.encore.thecatch.notification.dto.PushTokenDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -113,5 +114,11 @@ public class AdminController {
     @GetMapping("/admin/test")
     public ResponseDto test(){
         return new ResponseDto(HttpStatus.OK, "OK", "OK");
+    }
+
+
+    @PostMapping("/admin/pushToken")
+    public ResponseDto savePushToken(@RequestBody PushTokenDto pushTokenDto) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, adminService.savePushToken(pushTokenDto.getEmployeeNumber() ,pushTokenDto.getPushToken()));
     }
 }

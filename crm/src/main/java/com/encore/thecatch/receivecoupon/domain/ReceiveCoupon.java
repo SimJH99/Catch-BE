@@ -1,4 +1,4 @@
-package com.encore.thecatch.publishcoupon.domain;
+package com.encore.thecatch.receivecoupon.domain;
 
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
@@ -16,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class PublishCoupon {
+public class ReceiveCoupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

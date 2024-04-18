@@ -4,7 +4,7 @@ import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.coupon.domain.Coupon;
 
 import com.encore.thecatch.coupon.domain.CouponStatus;
-import com.encore.thecatch.publishcoupon.domain.PublishCoupon;
+import com.encore.thecatch.receivecoupon.domain.ReceiveCoupon;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,27 +15,28 @@ public class CouponResDto {
     private Long id;
     private String name;
     private String code;
-    private CouponStatus status;
+    private String status;
     private int quantity;
     private String startDate;
     private String endDate;
     private Company company;
 
     public static CouponResDto toCouponResDto(Coupon coupon){
-        CouponResDtoBuilder builder = CouponResDto.builder();
-        builder.id(coupon.getId());
-        builder.name(coupon.getName());
-        builder.code(coupon.getCode());
-        builder.status(coupon.getCouponStatus());
-        builder.quantity(coupon.getQuantity());
-        builder.startDate(String.valueOf(coupon.getStartDate()));
-        builder.endDate(String.valueOf(coupon.getEndDate()));
-        builder.company(coupon.getCompanyId());
-        return builder.build();
+        CouponResDto couponResDto = CouponResDto.builder()
+                .id(coupon.getId())
+                .name(coupon.getName())
+                .code(coupon.getCode())
+                .status(coupon.getCouponStatus().getValue())
+                .quantity(coupon.getQuantity())
+                .startDate(String.valueOf(coupon.getStartDate()))
+                .endDate(String.valueOf(coupon.getEndDate()))
+                .company(coupon.getCompanyId())
+                .build();
+        return couponResDto;
     }
 
-    public static CouponResDto publishToCouponDto(PublishCoupon publishCoupon){
-        Coupon coupon = publishCoupon.getCoupon();
+    public static CouponResDto publishToCouponDto(ReceiveCoupon receiveCoupon){
+        Coupon coupon = receiveCoupon.getCoupon();
         return CouponResDto.toCouponResDto(coupon);
     }
 
