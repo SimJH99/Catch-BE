@@ -12,6 +12,5 @@ public class SearchCouponCondition {
     private String code;
     private String startDate;
     private String endDate;
-    private CouponStatus couponStatus;
-    private int pageNo;
+    private String couponStatus;
 }

@@ -13,6 +13,7 @@ import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.jwt.JwtTokenProvider;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
+import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.company.domain.Company;
@@ -49,6 +50,9 @@ public class AdminService {
     private final AesUtil aesUtil;
     private final MaskingUtil maskingUtil;
 
+    //webPush Test
+    private final RedisService redisService;
+
     public AdminService(
             AdminRepository adminRepository,
             CompanyRepository companyRepository,
@@ -58,7 +62,7 @@ public class AdminService {
             AdminLogRepository adminLogRepository,
             RefreshTokenRepository refreshTokenRepository,
             AesUtil aesUtil,
-            MaskingUtil maskingUtil
+            MaskingUtil maskingUtil, RedisService redisService
     ) {
         this.adminRepository = adminRepository;
         this.companyRepository = companyRepository;
@@ -69,6 +73,7 @@ public class AdminService {
         this.refreshTokenRepository = refreshTokenRepository;
         this.aesUtil = aesUtil;
         this.maskingUtil = maskingUtil;
+        this.redisService = redisService;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -120,7 +125,7 @@ public class AdminService {
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");
     }
 
-    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip) {
+    public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip ) {
         try {
             Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
                     .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
@@ -132,6 +137,7 @@ public class AdminService {
             if (isAuthValid) {
                 String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", admin.getEmployeeNumber(), admin.getRole())); // 토큰 생성
                 String refreshToken = jwtTokenProvider.createRefreshToken(admin.getRole(), admin.getId()); // 리프레시 토큰 생성
+
                 // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
                 refreshTokenRepository.findById(admin.getId())
                         .ifPresentOrElse(
@@ -259,5 +265,16 @@ public class AdminService {
         }
 
         return testAdmins;
+    }
+
+    //webPush Test
+    public ResponseDto savePushToken(String employeeNumber, String pushToken) throws Exception {
+        System.out.println(pushToken);
+        Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
+                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        redisService.setValues(String.format("%s:%s", "PushToken", admin.getEmployeeNumber()), pushToken);
+        Map<String, String> result = new HashMap<>();
+        result.put("pushToken", pushToken);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS ,result );
     }
 }

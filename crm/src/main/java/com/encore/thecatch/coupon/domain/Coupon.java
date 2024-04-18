@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -34,9 +35,9 @@ public class Coupon extends BaseEntity {
     private int quantity;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     @Column(nullable = false)
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     private CouponStatus couponStatus;
@@ -49,8 +50,8 @@ public class Coupon extends BaseEntity {
     public void updateCoupon(CouponReqDto couponReqDto){
         this.name = couponReqDto.getName();
         this.quantity = couponReqDto.getQuantity();
-        this.startDate = LocalDateTime.parse(couponReqDto.getStartDate());
-        this.endDate = LocalDateTime.parse(couponReqDto.getEndDate());
+        this.startDate = LocalDate.parse(couponReqDto.getStartDate());
+        this.endDate = LocalDate.parse(couponReqDto.getEndDate());
     }
 
     public void publishCoupon(){

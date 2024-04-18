@@ -1,5 +1,8 @@
 package com.encore.thecatch.user.service;
 
+import com.encore.thecatch.admin.domain.Admin;
+import com.encore.thecatch.admin.dto.response.AdminSearchDto;
+import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
@@ -8,8 +11,11 @@ import com.encore.thecatch.common.jwt.RefreshToken.RefreshToken;
 import com.encore.thecatch.common.jwt.RefreshToken.RefreshTokenRepository;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
+import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
+import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.domain.UserLog;
 import com.encore.thecatch.log.repository.UserLogRepository;
@@ -24,13 +30,20 @@ import com.encore.thecatch.user.dto.response.UserInfoDto;
 import com.encore.thecatch.user.repository.UserQueryRepository;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +60,8 @@ public class UserService {
     private final CompanyRepository companyRepository;
     private final RedisService redisService;
     private final UserQueryRepository userQueryRepository;
+    private final AdminRepository adminRepository;
+    private final MaskingUtil maskingUtil;
 
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
@@ -55,7 +70,7 @@ public class UserService {
                        UserLogRepository userLogRepository,
                        CompanyRepository companyRepository,
                        AesUtil aesUtil,
-                       RedisService redisService, UserQueryRepository userQueryRepository
+                       RedisService redisService, UserQueryRepository userQueryRepository, AdminRepository adminRepository, MaskingUtil maskingUtil
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -66,6 +81,8 @@ public class UserService {
         this.aesUtil = aesUtil;
         this.redisService = redisService;
         this.userQueryRepository = userQueryRepository;
+        this.adminRepository = adminRepository;
+        this.maskingUtil = maskingUtil;
     }
 
     @Transactional
@@ -193,4 +210,36 @@ public class UserService {
     public List<ChartAgeRes> chartAge() {
         return userQueryRepository.countAge();
     }
+
+    public Page<UserInfoDto> findAll(Pageable pageable) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Company company = admin.getCompany();
+        Page<User> users = userRepository.findByCompany(company, pageable);
+        List<UserInfoDto> maskingUserList = new ArrayList<>();
+        for (User nonUser : users) {
+            decodeToUser(nonUser);
+            toMasking(nonUser);
+            UserInfoDto userInfoDto = UserInfoDto.toUserInfoDto(nonUser);
+            maskingUserList.add(userInfoDto);
+        }
+        return new PageImpl<>(maskingUserList, pageable, users.getTotalElements());
+//        return users.map(UserInfoDto::toUserInfoDto);
+    }
+
+    private void toMasking(User user) throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String maskingName = maskingUtil.nameMasking(user.getName());
+        String maskingEmail = maskingUtil.emailMasking(user.getEmail());
+        String maskingPhoneNumber = maskingUtil.phoneMasking(user.getPhoneNumber());
+//        String maskingBirthDate = maskingUtil.birthMasking(user.getBrithDate().format(formatter));
+//        String maskingTotalAddress = maskingUtil.addressMasking(String.valueOf(user.getTotalAddress()));
+//        String maskingAddress = maskingUtil.addressMasking(user.getTotalAddress().getAddress());
+//        String maskingDetailAddress = maskingUtil.addressMasking(user.getTotalAddress().getDetailAddress());
+//        String maskingZipcode = maskingUtil.addressMasking(user.getTotalAddress().getZipcode());
+
+        user.masking(maskingName, maskingEmail,maskingPhoneNumber);
+        // maskingBirthDate,maskingTotalAddress, maskingAddress, maskingDetailAddress, maskingZipcode
+    }
+
 }
