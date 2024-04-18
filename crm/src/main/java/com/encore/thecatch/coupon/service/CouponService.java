@@ -86,7 +86,7 @@ public class CouponService {
             Coupon coupon = couponRepository.save(new_coupon);
             return coupon;
         }catch(CatchException e){
-            throw new CatchException(ResponseCode.EXISTING_COUPON);
+            throw new CatchException(ResponseCode.EXISTING_COUPON_NAME);
         }
     }
 
@@ -134,7 +134,7 @@ public class CouponService {
             throw new CatchException(ResponseCode.ACCESS_DENIED);
         }
         if(coupon.getCouponStatus() == CouponStatus.PUBLISH){
-            throw new IllegalArgumentException("이미 발행된 쿠폰입니다.");
+            throw new CatchException(ResponseCode.ALREADY_PUBLISH_COUPON);
         }
         // user 로그인이 완성되면 redis에서 유저 정보와 토큰 저장하고 그값을 가져오기
         //일단 webPush  확인을 위해 저장된 Admin 값을 가져오기
@@ -167,7 +167,7 @@ public class CouponService {
     public Coupon receive(CouponReceiveDto couponReceiveDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 쿠폰입니다."));
+        Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
         if(!coupon.getCompanyId().equals(user.getCompany())){
             throw new CatchException(ResponseCode.NON_RECEIVABLE_COUPON);
         }

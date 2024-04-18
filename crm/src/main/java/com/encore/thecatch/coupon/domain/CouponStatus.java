@@ -5,12 +5,12 @@ import org.springframework.util.StringUtils;
 
 @Getter
 public enum CouponStatus {
-        ISSUANCE("발급"), //발급
-        DELETE("삭제"), // 삭제
-        PUBLISH("발행"), // 발행
-        EXPIRATION("만료"), //만료
-        RECEIVE("수령"),  //수령
-        USED("사용된"); //사용된
+        ISSUANCE("발급"),
+        DELETE("삭제"),
+        PUBLISH("발행"),
+        EXPIRATION("만료"),
+        RECEIVE("수령"),
+        USED("사용된");
         private final String value;
 
         CouponStatus(String value){

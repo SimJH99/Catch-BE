@@ -62,7 +62,8 @@ public class AdminService {
             AdminLogRepository adminLogRepository,
             RefreshTokenRepository refreshTokenRepository,
             AesUtil aesUtil,
-            MaskingUtil maskingUtil, RedisService redisService
+            MaskingUtil maskingUtil,
+            RedisService redisService
     ) {
         this.adminRepository = adminRepository;
         this.companyRepository = companyRepository;

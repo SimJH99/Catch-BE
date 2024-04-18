@@ -211,6 +211,7 @@ public class UserService {
         return userQueryRepository.countAge();
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<UserInfoDto> findAll(Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));

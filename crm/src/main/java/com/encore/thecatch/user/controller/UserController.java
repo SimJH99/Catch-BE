@@ -78,7 +78,6 @@ public class UserController {
                 new DefaultResponse<List<ChartAgeRes>>(userService.chartAge()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/user/list")
     public ResponseDto findAll(Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<UserInfoDto>(userService.findAll(pageable)));
