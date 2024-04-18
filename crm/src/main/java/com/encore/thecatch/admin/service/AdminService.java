@@ -3,8 +3,9 @@ package com.encore.thecatch.admin.service;
 import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
-import com.encore.thecatch.admin.dto.response.AdminInfoDto;
-import com.encore.thecatch.admin.dto.response.AdminSearchDto;
+import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
+import com.encore.thecatch.admin.dto.response.*;
+import com.encore.thecatch.admin.repository.AdminQueryRepository;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
@@ -18,7 +19,6 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
-import com.encore.thecatch.complaint.dto.response.MyComplaintRes;
 import com.encore.thecatch.log.domain.AdminLog;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.AdminLogRepository;
@@ -29,7 +29,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,9 +48,10 @@ public class AdminService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AesUtil aesUtil;
     private final MaskingUtil maskingUtil;
+    private final AdminQueryRepository adminQueryRepository;
+    private final RedisService redisService;
 
     //webPush Test
-    private final RedisService redisService;
 
     public AdminService(
             AdminRepository adminRepository,
@@ -63,6 +63,7 @@ public class AdminService {
             RefreshTokenRepository refreshTokenRepository,
             AesUtil aesUtil,
             MaskingUtil maskingUtil,
+            AdminQueryRepository adminQueryRepository,
             RedisService redisService
     ) {
         this.adminRepository = adminRepository;
@@ -74,6 +75,7 @@ public class AdminService {
         this.refreshTokenRepository = refreshTokenRepository;
         this.aesUtil = aesUtil;
         this.maskingUtil = maskingUtil;
+        this.adminQueryRepository = adminQueryRepository;
         this.redisService = redisService;
     }
 
@@ -119,6 +121,10 @@ public class AdminService {
         Admin admin = adminRepository.findByEmployeeNumber(employeeNum).orElseThrow(
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
+        if (!admin.isActive()) {
+            throw new CatchException(ResponseCode.DISABLED_ACCOUNT);
+        }
+
         if(!passwordEncoder.matches(adminLoginDto.getPassword(),admin.getPassword())){
             throw new CatchException(ResponseCode.USER_NOT_FOUND);
         }
@@ -140,7 +146,7 @@ public class AdminService {
                 String refreshToken = jwtTokenProvider.createRefreshToken(admin.getRole(), admin.getId()); // 리프레시 토큰 생성
 
                 // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
-                refreshTokenRepository.findById(admin.getId())
+                refreshTokenRepository.findByAdminId(admin.getId())
                         .ifPresentOrElse(
                                 it -> it.updateRefreshToken(refreshToken),
                                 () -> refreshTokenRepository.save(new RefreshToken(admin, refreshToken))
@@ -163,6 +169,7 @@ public class AdminService {
                 return new ResponseDto(HttpStatus.UNAUTHORIZED, ResponseCode.INVALID_VERIFICATION_CODE, null);
             }
         } catch (Exception e) {
+            log.info(String.valueOf(e));
             return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR, null);
         }
     }
@@ -200,6 +207,7 @@ public class AdminService {
             toMasking(nonAdmin);
 
             AdminSearchDto adminSearchDto = AdminSearchDto.builder()
+                    .id(nonAdmin.getId())
                     .employeeNumber(nonAdmin.getEmployeeNumber())
                     .name(nonAdmin.getName())
                     .email(nonAdmin.getEmail())
@@ -211,6 +219,25 @@ public class AdminService {
 
         return new PageImpl<>(maskingAdminList, pageable, allNonAdmins.getTotalElements());
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseCode emailCheck(AdminSignUpDto adminSignUpDto) throws Exception {
+        if (adminRepository.findByEmail(aesUtil.aesCBCEncode(adminSignUpDto.getEmail())).isPresent()) {
+            return ResponseCode.EXISTING_EMAIL;
+        } else {
+            return ResponseCode.SUCCESS;
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseCode employeeNumberCheck(AdminSignUpDto adminSignUpDto) throws Exception {
+        if (adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminSignUpDto.getEmployeeNumber())).isPresent()) {
+            return ResponseCode.EXISTING_EMPLOYEE_NUMBER;
+        } else {
+            return ResponseCode.SUCCESS;
+        }
+    }
+
 
     public List<Admin> createTestAdmins(int count, boolean randomEmployeeNumber) throws Exception {
         List<Admin> testAdmins = new ArrayList<>();
@@ -276,6 +303,194 @@ public class AdminService {
         redisService.setValues(String.format("%s:%s", "PushToken", admin.getEmployeeNumber()), pushToken);
         Map<String, String> result = new HashMap<>();
         result.put("pushToken", pushToken);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS ,result );
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
+        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto);
+        List<AdminInfoDto> adminInfoDtoList = new ArrayList<>();
+        for (AdminInfoDto adminInfoDto : allAdmin) {
+            String name = aesUtil.aesCBCDecode(adminInfoDto.getName());
+            String employeeNumber = aesUtil.aesCBCDecode(adminInfoDto.getEmployeeNumber());
+            String email = aesUtil.aesCBCDecode(adminInfoDto.getEmail());
+
+            adminInfoDto = AdminInfoDto.builder()
+                    .name(maskingUtil.nameMasking(name))
+                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
+                    .email(maskingUtil.emailMasking(email))
+                    .role(adminInfoDto.getRole())
+                    .build();
+            adminInfoDtoList.add(adminInfoDto);
+        }
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), adminInfoDtoList.size());
+
+        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, adminInfoDtoList.size());
+    }
+
+    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public AdminDetailDto adminDetail(Long id, String ip) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+
+        Admin admin = adminRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+
+        AdminDetailDto adminDetailDto = AdminDetailDto.builder()
+                .name(aesUtil.aesCBCDecode(admin.getName()))
+                .email(aesUtil.aesCBCDecode(admin.getEmail()))
+                .employeeNumber(aesUtil.aesCBCDecode(admin.getEmployeeNumber()))
+                .role(admin.getRole())
+                .active(admin.isActive())
+                .build();
+
+        AdminLog adminLog = AdminLog.builder()
+                .type(LogType.ADMIN_DETAIL_VIEW) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .ip(ip)
+                .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
+                .method("GET")
+                .data("view at adminId:"+ admin.getId() + " detail")
+                .build();
+
+        adminLogRepository.save(adminLog);
+        return adminDetailDto;
+    }
+
+    public AdminProfileDto adminProfile() throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        return AdminProfileDto.builder()
+                .name(aesUtil.aesCBCDecode(admin.getName()))
+                .employeeNumber(aesUtil.aesCBCDecode(admin.getEmployeeNumber()))
+                .role(admin.getRole())
+                .build();
+    }
+
+    @Transactional
+    public String adminLogout(String ip) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        log.info(String.valueOf(refreshTokenRepository.findByAdminId(admin.getId())));
+        RefreshToken refreshToken = refreshTokenRepository.findByAdminId(admin.getId()).orElseThrow(
+                () -> new CatchException(ResponseCode.REFRESH_TOKEN_NOT_FOUND)
+        );
+        refreshTokenRepository.delete(refreshToken);
+        redisService.deleteValues(admin.getRole() +""+ admin.getId());
+
+        AdminLog adminLog = AdminLog.builder()
+                .type(LogType.ADMIN_LOGOUT) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .ip(ip)
+                .employeeNumber(aesUtil.aesCBCDecode(admin.getEmployeeNumber()))
+                .method("POST")
+                .data("admin logout")
+                .build();
+
+        adminLogRepository.save(adminLog);
+        return "success logout";
+    }
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public AdminDetailDto adminUpdate(Long id, AdminUpdateDto adminUpdateDto, String ip) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+
+        Admin admin = adminRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+        String name = adminUpdateDto.getName();
+        String email = adminUpdateDto.getEmail();
+        Role role = adminUpdateDto.getRole();
+        if ( !email.equals(aesUtil.aesCBCDecode(admin.getEmail())) && adminRepository.findByEmail(aesUtil.aesCBCEncode(email)).isPresent()) {
+            throw new CatchException(ResponseCode.EXISTING_EMAIL);
+        }
+
+        if (name.isBlank() || email.isBlank()) {
+            throw new CatchException(ResponseCode.IS_BLANK);
+        }
+        admin.adminUpdate(aesUtil.aesCBCEncode(name), aesUtil.aesCBCEncode(email), role );
+
+        AdminLog adminLog = AdminLog.builder()
+                .type(LogType.ADMIN_UPDATE) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .ip(ip)
+                .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
+                .method("PATCH")
+                .data("update at adminId:"+ admin.getId())
+                .build();
+
+        adminLogRepository.save(adminLog);
+
+        return AdminDetailDto.builder()
+                .name(aesUtil.aesCBCDecode(admin.getName()))
+                .email(aesUtil.aesCBCDecode(admin.getEmail()))
+                .employeeNumber(aesUtil.aesCBCDecode(admin.getEmployeeNumber()))
+                .role(admin.getRole())
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public String adminDisabled(Long id, String ip) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+
+        Admin admin = adminRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+
+        admin.adminActiveToDisable();
+
+        AdminLog adminLog = AdminLog.builder()
+                .type(LogType.ADMIN_DISABLED) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .ip(ip)
+                .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
+                .method("PATCH")
+                .data("disabled at adminId:"+ admin.getId())
+                .build();
+
+        adminLogRepository.save(adminLog);
+
+        return "SUCCESS_ADMIN_DISABLED";
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public String adminActivation(Long id, String ip) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin systemAdmin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+
+        Admin admin = adminRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND)
+        );
+
+        admin.adminActiveToActivation();
+
+        AdminLog adminLog = AdminLog.builder()
+                .type(LogType.ADMIN_ACTIVATION) // DB로 나눠 관리하지 않고 LogType으로 구별
+                .ip(ip)
+                .employeeNumber(aesUtil.aesCBCDecode(systemAdmin.getEmployeeNumber()))
+                .method("PATCH")
+                .data("activation at adminId:"+ admin.getId())
+                .build();
+
+        adminLogRepository.save(adminLog);
+
+        return "SUCCESS_ADMIN_ACTIVATION";
     }
 }

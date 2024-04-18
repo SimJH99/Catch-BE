@@ -6,10 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class AdminDetailDto {
     private String name;
     private String employeeNumber;
     private String email;
-    private String password;
     private Role role;
+    private boolean active;
 }

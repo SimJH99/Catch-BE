@@ -12,15 +12,15 @@ import java.util.regex.Pattern;
 public class MaskingUtil {
     // 이름 마스킹 (이름 가운데)
     public String nameMasking(String name) {
-        String regex = "(^[가-힣]+)$";
+        String regex = "^(.)(.*)$"; // 첫 글자 그룹, 나머지 모든 문자 그룹
         Matcher matcher = Pattern.compile(regex).matcher(name);
 
         if (matcher.find()) {
-            int length = name.length();
-            String middleMask = length > 2 ? name.substring(1, length - 1) : name.substring(1);
-            String maskedMiddle = "*".repeat(middleMask.length());
+            String firstChar = matcher.group(1); // 첫 글자 추출
+            String rest = matcher.group(2); // 나머지 문자 추출
+            String maskedRest = "*".repeat(rest.length()); // 나머지 문자 마스킹
 
-            return name.substring(0, 1) + maskedMiddle + name.substring(length - 1);
+            return firstChar + maskedRest;
         }
 
         return name;

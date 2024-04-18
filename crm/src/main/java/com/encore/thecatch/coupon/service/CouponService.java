@@ -209,4 +209,8 @@ public class CouponService {
         }
         return coupon;
     }
+
+    public Long couponPublishCount() {
+        return couponQueryRepository.couponPublishCount();
+    }
 }

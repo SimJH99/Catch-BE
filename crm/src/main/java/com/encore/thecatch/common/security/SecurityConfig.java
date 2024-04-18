@@ -28,7 +28,7 @@ public class SecurityConfig{
                 // rest api, jwt 사용해서 csrf 방어 x
             .cors().configurationSource(request -> {
                 CorsConfiguration corsConfiguration = new CorsConfiguration();
-                corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+                corsConfiguration.setAllowedOrigins(List.of("https://www.catch-crm.shop","http://www.catch-crm.shop", "http://localhost:3000"));
                 corsConfiguration.setAllowedMethods(List.of("GET","POST", "PUT","PATCH", "DELETE", "OPTIONS"));
                 corsConfiguration.setAllowedHeaders(List.of("*"));
                 corsConfiguration.addExposedHeader("New-Access-Token");

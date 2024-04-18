@@ -39,8 +39,9 @@ public class CommentsService {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String employeeNumber = aesUtil.aesCBCEncode(authentication.getName());
-        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+//        String employeeNumber = aesUtil.aesCBCEncode(authentication.getName());
+        System.out.println(authentication.getName());
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         Comments comments = createCommentsReq.toEntity(complaint, admin);
         complaint.isReply();

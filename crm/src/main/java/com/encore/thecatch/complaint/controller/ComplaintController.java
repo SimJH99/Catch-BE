@@ -12,10 +12,11 @@ import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.service.ComplaintService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/complaints")
@@ -51,8 +52,7 @@ public class ComplaintController {
 
     // 게시글 리스트 보기 (검색 로직)
     @PostMapping("/list")
-    public ResponseDto searchComplaint(@RequestBody SearchComplaintCondition searchComplaintCondition) throws Exception {
-        Pageable pageable = PageRequest.of(searchComplaintCondition.getPageNo(), 10);
+    public ResponseDto searchComplaint(@RequestBody SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_POST_LIST,
                 new DefaultResponse<Page<ListComplaintRes>>(complaintService.searchComplaint(searchComplaintCondition, pageable)));
     }
@@ -84,5 +84,17 @@ public class ComplaintController {
     public ResponseDto deleteComplaint(@PathVariable Long id) {
         Complaint complaint = complaintService.deletePost(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_MY_POST, new DefaultResponse<Long>(complaint.getId()));
+    }
+
+    @GetMapping("/countAll")
+    public ResponseDto countAllComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<Long>(complaintService.countAllComplaint()));
+    }
+
+    @GetMapping("/countStatus")
+    public ResponseDto countStatusComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountStatusComplaintRes>>(complaintService.countStatusComplaint()));
     }
 }

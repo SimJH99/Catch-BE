@@ -3,8 +3,7 @@ package com.encore.thecatch.complaint.repository;
 
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.response.ListComplaintRes;
-import com.encore.thecatch.complaint.dto.response.QListComplaintRes;
+import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
 import com.encore.thecatch.user.domain.QUser;
@@ -39,9 +38,29 @@ public class ComplaintQueryRepository {
                 .where(
                         eqPostId(searchComplaintCondition.getComplaintId()),
                         eqName(searchComplaintCondition.getName()),
-                        eqTitle(searchComplaintCondition.getTitle()),
+                        containsTitle(searchComplaintCondition.getTitle()),
                         eqStatus(searchComplaintCondition.getStatus()),
                         complaint.active.eq(true))
+                .orderBy(complaint.status.asc(), complaint.createdTime.asc())
+                .fetch();
+    }
+
+    public Long countAllComplaint() {
+        return queryFactory
+                .select(new QCountAllComplaintRes(
+                        complaint.count()))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .fetchCount();
+    }
+
+    public List<CountStatusComplaintRes> countStatusComplaint() {
+        return queryFactory
+                .select(new QCountStatusComplaintRes(
+                        complaint.count()).as("count"))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .groupBy(complaint.status)
                 .fetch();
     }
 
@@ -54,11 +73,11 @@ public class ComplaintQueryRepository {
     }
 
     private BooleanExpression eqName(String name) throws Exception {
-        return hasText(name) ? user.name.eq(aesUtil.aesCBCEncode(name)) : null;
+        return hasText(name) ? user.name.contains(aesUtil.aesCBCEncode(name)) : null;
     }
 
-    private BooleanExpression eqTitle(String title) {
-        return hasText(title) ? complaint.title.eq(title) : null;
+    private BooleanExpression containsTitle(String title) {
+        return hasText(title) ? complaint.title.contains(title) : null;
     }
 
     private BooleanExpression eqStatus(Status status) {

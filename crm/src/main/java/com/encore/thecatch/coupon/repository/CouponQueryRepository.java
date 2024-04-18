@@ -7,8 +7,8 @@ import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.encore.thecatch.coupon.domain.QCoupon;
 import com.encore.thecatch.coupon.dto.CouponFindResDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
 import com.encore.thecatch.coupon.dto.QCouponFindResDto;
+import com.encore.thecatch.coupon.dto.QCouponPublishCountRes;
 import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -19,9 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -70,7 +70,18 @@ public class CouponQueryRepository {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
     }
-    private BooleanExpression eqName(String name) throws Exception {
+
+    public Long couponPublishCount() {
+        return queryFactory
+                .select(new QCouponPublishCountRes(
+                        coupon.count().as("count")
+                ))
+                .from(coupon)
+                .where(coupon.couponStatus.eq(CouponStatus.PUBLISH))
+                .fetchCount();
+    }
+
+        private BooleanExpression eqName(String name) throws Exception {
         return hasText(name) ? coupon.name.eq(name) : null;
     }
 
