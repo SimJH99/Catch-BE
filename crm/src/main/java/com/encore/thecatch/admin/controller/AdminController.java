@@ -70,10 +70,10 @@ public class AdminController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMPLOYEE_NUMBER, adminService.employeeNumberCheck(adminSignUpDto));
     }
 
-    @PostMapping("/admin/random/create")
-    public ResponseDto randomAdminCreate() throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.createTestAdmins(150, true));
-    }
+//    @PostMapping("/admin/random/create")
+//    public ResponseDto randomAdminCreate() throws Exception {
+//        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, adminService.createTestAdmins(150, true));
+//    }
 
     @PostMapping("/admin/searchList")
     public ResponseDto searchComplaint(@RequestBody AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
