@@ -44,10 +44,17 @@ public class ComplaintController {
 
 
     //내 글 보기
-    @GetMapping("/myPosts")
+    @GetMapping("/myComplaints")
     public ResponseDto myComplaintList(Pageable pageable) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_FOUND_MY_POSTS,
-                new DefaultResponse<Page<MyComplaintRes>>(complaintService.myComplaintList(pageable)));
+                new DefaultResponse<Page<MyComplaints>>(complaintService.myComplaintList(pageable)));
+    }
+
+    //my page 내 글 보기
+    @GetMapping("/myPage")
+    public ResponseDto myPageComplaints(Pageable pageable) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_FOUND_MY_POSTS,
+                new DefaultResponse<List<MyPageComplaints>>(complaintService.myPageComplaints()));
     }
 
     // 게시글 리스트 보기 (검색 로직)
@@ -59,7 +66,7 @@ public class ComplaintController {
 
     //게시글 글 내용, 제목 수정
     @PatchMapping("/{id}/update")
-    public ResponseDto updateComplaint(@PathVariable Long id, UpdateComplaintReq updateComplaintReq) {
+    public ResponseDto updateComplaint(@PathVariable Long id, @RequestBody UpdateComplaintReq updateComplaintReq) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_UPDATE_MY_POST,
                 new DefaultResponse<UpdateComplaintRes>(complaintService.updateComplaint(id, updateComplaintReq)));
     }
