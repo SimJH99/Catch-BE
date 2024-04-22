@@ -4,12 +4,18 @@ package com.encore.thecatch.complaint.repository;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
 import com.encore.thecatch.complaint.dto.response.*;
+import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
 import com.encore.thecatch.user.domain.QUser;
+import com.encore.thecatch.user.domain.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -42,6 +48,40 @@ public class ComplaintQueryRepository {
                         eqStatus(searchComplaintCondition.getStatus()),
                         complaint.active.eq(true))
                 .orderBy(complaint.status.asc(), complaint.createdTime.asc())
+                .fetch();
+    }
+
+    public Page<MyComplaintRes> findMyComplaintList(User user, Pageable pageable) {
+        List<MyComplaintRes> content = queryFactory
+                .select(new QMyComplaintRes(
+                        complaint.id,
+                        complaint.title,
+                        complaint.createdTime,
+                        complaint.status))
+                .from(complaint)
+                .where(complaint.user.eq(user),complaint.active.eq(true))
+                .orderBy(complaint.createdTime.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        JPAQuery<Complaint> countQuery = queryFactory
+                .selectFrom(complaint)
+                .where(
+                        complaint.user.eq(user),complaint.active.eq(true)
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    public List<MyPageComplaints> myPageComplaints() {
+        return queryFactory
+                .select(new QMyPageComplaints(
+                        complaint.title,
+                        complaint.status))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .orderBy(complaint.createdTime.desc())
+                .limit(5)
                 .fetch();
     }
 

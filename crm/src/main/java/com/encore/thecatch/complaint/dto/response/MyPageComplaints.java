@@ -6,22 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @Builder
-public class MyComplaintRes {
-    private Long id;
-    private String title;
-    private LocalDateTime createdTime;
-    private Status status;
+public class MyPageComplaints {
+    String title;
+    Status status;
 
     @QueryProjection
-    public MyComplaintRes(Long id, String title, LocalDateTime createdTime, Status status) {
-        this.id = id;
+    public MyPageComplaints(String title, Status status) {
         this.title = title;
-        this.createdTime = createdTime;
         this.status = status;
     }
 }
