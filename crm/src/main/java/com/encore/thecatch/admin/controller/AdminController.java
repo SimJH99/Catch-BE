@@ -117,9 +117,4 @@ public class AdminController {
         return new ResponseDto(HttpStatus.OK, "OK", "OK");
     }
 
-
-    @PostMapping("/admin/pushToken")
-    public ResponseDto savePushToken(@RequestBody PushTokenDto pushTokenDto) throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, adminService.savePushToken(pushTokenDto.getEmployeeNumber() ,pushTokenDto.getPushToken()));
-    }
 }

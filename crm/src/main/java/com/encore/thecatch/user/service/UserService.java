@@ -219,6 +219,29 @@ public class UserService {
         return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
     }
 
+<<<<<<< Updated upstream
+=======
+    @Transactional
+    public String userDisable() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        user.userActiveToDisable();
+        return "user Disable";
+    }
+
+    @Transactional
+    public String doLogout() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        redisService.deleteValues(String.valueOf(user.getId()));
+        redisService.deleteValues("PushToken : " + user.getEmail());
+
+        return "delete refresh token";
+    }
+
+>>>>>>> Stashed changes
     public List<ChartGradeRes> chartGrade() {
         return userQueryRepository.countGrade();
     }
@@ -246,6 +269,7 @@ public class UserService {
         // maskingBirthDate,maskingTotalAddress, maskingAddress, maskingDetailAddress, maskingZipcode
     }
 
+<<<<<<< Updated upstream
     public Page<UserListRes> searchUser(UserSearchDto userSearchDto, Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
@@ -467,4 +491,39 @@ public class UserService {
 
         return "SUCCESS";
     }
+=======
+
+    //webPush Test
+    public ResponseDto savePushToken(String email, String pushToken) throws Exception {
+        User user = userRepository.findByEmail(aesUtil.aesCBCEncode(email))
+                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        if(user.isConsentReceiveMarketing()){
+            redisService.setValues(String.format("%s:%s", "PushToken", user.getEmail()), pushToken);
+            Map<String, String> result = new HashMap<>();
+            result.put("pushToken", pushToken);
+            return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
+        }else{
+            return new ResponseDto(HttpStatus.OK, ResponseCode.NOT_RECEIVE_MARKETING_USER, null);
+        }
+
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<UserInfoDto> findMarketing(Pageable pageable) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Company company = admin.getCompany();
+        Page<User> users = userRepository.findByCompanyAndConsentReceiveMarketing(company, pageable, true);
+        List<UserInfoDto> maskingUserList = new ArrayList<>();
+        for (User nonUser : users) {
+            decodeToUser(nonUser);
+            toMasking(nonUser);
+            UserInfoDto userInfoDto = UserInfoDto.toUserInfoDto(nonUser);
+            maskingUserList.add(userInfoDto);
+        }
+        return new PageImpl<>(maskingUserList, pageable, users.getTotalElements());
+//        return users.map(UserInfoDto::toUserInfoDto);
+    }
+
+>>>>>>> Stashed changes
 }

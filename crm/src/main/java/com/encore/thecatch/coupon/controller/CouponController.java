@@ -6,14 +6,16 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.service.CouponService;
+<<<<<<< Updated upstream
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+=======
+import com.encore.thecatch.user.dto.request.PublishUserDto;
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> Stashed changes
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/coupon")
@@ -35,9 +37,8 @@ public class CouponController {
     }
 
     @PatchMapping("/{id}/publish")
-
-    public ResponseDto couponPublish(@PathVariable Long id) throws Exception {
-        Coupon coupon = couponService.publish(id);
+    public ResponseDto couponPublish(@PathVariable Long id, @RequestBody PublishUserDto publishUserDto) throws Exception {
+        Coupon coupon = couponService.publish(id, publishUserDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
@@ -46,22 +47,29 @@ public class CouponController {
         Coupon coupon = couponService.receive(couponReceiveDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_RECEIVE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
-    @PreAuthorize("hasAuthority('ADMIN')")
+
     @GetMapping("/list")
     public ResponseDto findAll(Pageable pageable) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponResDto>(couponService.findAll(pageable)));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/search")
     public ResponseDto searchCoupon(@RequestBody SearchCouponCondition searchCouponCondition, Pageable pageable)throws Exception{
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Page<CouponFindResDto>>(couponService.searchCoupon(searchCouponCondition, pageable)));
     }
 
     @GetMapping("/myList")
-    public ResponseDto findMyAll() {
-        List<CouponResDto> couponResDtos = couponService.findMyAll();
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponResDtos));
+    public ResponseDto findMyAll(Pageable pageable) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponResDto>(couponService.findMyAll(pageable)));
+    }
+    @GetMapping("/myCouponCount")
+    public ResponseDto findMyCouponCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Integer>(couponService.findMyCouponCount()));
+    }
+
+    @GetMapping("/receivable")
+    public ResponseDto findReceivable() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponService.findReceivable()));
     }
 
     @GetMapping("/{id}")

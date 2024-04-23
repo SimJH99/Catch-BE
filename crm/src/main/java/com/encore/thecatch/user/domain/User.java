@@ -99,7 +99,11 @@ public class User extends BaseEntity {
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
+<<<<<<< Updated upstream
                 .grade(userSignUpDto.getGrade())
+=======
+                .grade(Grade.SILVER)
+>>>>>>> Stashed changes
                 .gender(userSignUpDto.getGender())
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
