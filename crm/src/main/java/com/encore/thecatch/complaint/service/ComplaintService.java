@@ -29,7 +29,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -51,7 +53,7 @@ public class ComplaintService {
         List<String> imgkeys = null;
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+            User user = userRepository.findByEmail((authentication.getName())).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
             Complaint newComplaint = createComplaintReq.toEntity(user);
             complaintRepository.save(newComplaint);
@@ -88,12 +90,14 @@ public class ComplaintService {
         activeComplaint(id);
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         List<Image> imgList = imageRepository.findAllByComplaintId(complaint.getId());
-        List<String> imgUrls = new ArrayList<>();
+        Map<Long, String> imgUrls = new HashMap<>();
+
 
         for (Image image : imgList) {
             String key = image.getKeyValue();
             String url = s3UrlUtil.setUrl();
-            imgUrls.add(url + key);
+            Long imgId = image.getId();
+            imgUrls.put(imgId, url + key);
         }
 
         return DetailComplaintRes.from(complaint, imgUrls);
@@ -108,10 +112,15 @@ public class ComplaintService {
 
 
     @PreAuthorize("hasAuthority('USER')")
-    public Page<MyComplaintRes> myComplaintList(Pageable pageable) {
+    public Page<MyComplaints> myComplaintList(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        return complaintRepository.findAllByUserIdAndActive(user.getId(), pageable, true).map(MyComplaintRes::toDto);
+        return complaintQueryRepository.findMyComplaintList(user, pageable).map(MyComplaints::toDto);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    public List<MyPageComplaints> myPageComplaints() {
+        return complaintQueryRepository.myPageComplaints();
     }
 
     // 삭제된 게시글 확인
@@ -168,6 +177,6 @@ public class ComplaintService {
     }
 
     public List<CountStatusComplaintRes> countStatusComplaint() {
-        return  complaintQueryRepository.countStatusComplaint();
+        return complaintQueryRepository.countStatusComplaint();
     }
 }

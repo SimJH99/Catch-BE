@@ -4,6 +4,7 @@ import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
+
 import lombok.Builder;
 import lombok.Data;
 
