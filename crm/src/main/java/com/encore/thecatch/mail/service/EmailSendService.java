@@ -88,15 +88,29 @@ public class EmailSendService {
                 .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
         makeRandomNumber();
-        String toMail = aesUtil.aesCBCDecode(admin.getEmail()); // 넘겨받은 보낼 메일 주소
-        String title = "Catch 로그인 인증 메일 입니다."; // 이메일 제목
+        String toMail = aesUtil.aesCBCDecode(admin.getEmail()); // 보낼 이메일 주소
+        String title = "Catch 로그인 인증 메일"; // 이메일 제목
         String content =
-                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
-                "<h2 style='margin-bottom: 20px;'>Catch 로그인 인증 메일입니다.</h2>" +
-                "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + authNumber + "</strong>입니다.</p>" +
-                "<p>3분 내로 인증 번호를 제대로 입력해주세요.</p>" +
-                "</div>" +
-                "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+                "<!DOCTYPE html>" +
+                        "<html lang=\"en\">" +
+                        "<head>" +
+                        "<meta charset=\"UTF-8\">" +
+                        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+                        "<title>Catch 로그인 인증 코드</title>" +
+                        "</head>" +
+                        "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 20px 0;\">" +
+                        "<table align=\"center\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\">" +
+                        "<tr>" +
+                        "<td style=\"padding: 20px;\">" +
+                        "<h2 style=\"color: #f5a742; margin-bottom: 50px;\">Catch 로그인 인증 코드</h2>" +
+                        "<p style=\"margin-bottom: 10px; font-size: 16px; color: #555555;\">안녕하세요, Catch에 로그인하려고 하시는군요!</p>" +
+                        "<p style=\"margin-bottom: 10px; font-size: 16px; color: #555555;\">인증 번호: <span style=\"font-size: 24px; color: #f5a742;\">" + authNumber + "</span></p>" +
+                        "<p style=\"margin-bottom: 0; font-size: 14px; color: #999999;\">이 인증 번호는 3분 동안 유효합니다. 로그인 화면에 입력해주세요.</p>" +
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+                        "</body>" +
+                        "</html>";
 
         mailSend(username, toMail, title, content);
     }

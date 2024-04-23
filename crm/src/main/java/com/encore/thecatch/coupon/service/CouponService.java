@@ -103,19 +103,7 @@ public class CouponService {
         return coupons.map(CouponResDto::toCouponResDto);
     }
 
-<<<<<<< Updated upstream
-    public List<CouponResDto> findMyAll(){
-=======
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Page<CouponFindResDto> searchCoupon(SearchCouponCondition searchCouponCondition, Pageable pageable) throws Exception{
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
-        Company company = admin.getCompany();
-        return couponQueryRepository.findCouponList(searchCouponCondition, company, pageable);
-    }
-
     public List<CouponResDto> findReceivable() {
->>>>>>> Stashed changes
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         Company company =  user.getCompany();

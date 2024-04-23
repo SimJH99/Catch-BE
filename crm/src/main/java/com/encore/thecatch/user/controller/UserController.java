@@ -1,17 +1,10 @@
 package com.encore.thecatch.user.controller;
 
-import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
 import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
-<<<<<<< Updated upstream
-=======
-import com.encore.thecatch.coupon.dto.CouponFindResDto;
-import com.encore.thecatch.coupon.dto.CouponResDto;
-import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.encore.thecatch.notification.dto.PushTokenDto;
->>>>>>> Stashed changes
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSearchDto;
@@ -24,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.List;
 
 @RestController
@@ -86,7 +78,6 @@ public class UserController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_USER_DETAIL, userService.userDetail(id,IPUtil.getClientIP(request)));
     }
 
-<<<<<<< Updated upstream
     @PostMapping("/user/random/create")
     public ResponseDto randomAdminCreate() throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_CREATE_MEMBER, userService.createTestUsers(555));
@@ -106,7 +97,7 @@ public class UserController {
     public ResponseDto adminActivation(@PathVariable Long id, HttpServletRequest request) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_USER_ACTIVATION, userService.userActivation(id, IPUtil.getClientIP(request)));
     }
-=======
+
     @GetMapping("/user/marketing")
     public ResponseDto findMarketing(Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<UserInfoDto>(userService.findMarketing(pageable)));
@@ -118,5 +109,4 @@ public class UserController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, userService.savePushToken(pushTokenDto.getEmail() ,pushTokenDto.getPushToken()));
     }
 
->>>>>>> Stashed changes
 }

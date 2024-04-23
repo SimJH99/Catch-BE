@@ -1,8 +1,6 @@
 package com.encore.thecatch.user.service;
 
 import com.encore.thecatch.admin.domain.Admin;
-import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
-import com.encore.thecatch.admin.dto.response.AdminDetailDto;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
@@ -48,7 +46,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.encore.thecatch.admin.domain.QAdmin.admin;
 
 @Service
 @Slf4j
@@ -219,16 +216,15 @@ public class UserService {
         return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
     }
 
-<<<<<<< Updated upstream
-=======
-    @Transactional
-    public String userDisable() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        user.userActiveToDisable();
-        return "user Disable";
-    }
+
+//    @Transactional
+//    public String userDisable() {
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User user = userRepository.findByEmail(email).orElseThrow(
+//                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
+//        user.userActiveToDisable();
+//        return "user Disable";
+//    }
 
     @Transactional
     public String doLogout() {
@@ -241,7 +237,6 @@ public class UserService {
         return "delete refresh token";
     }
 
->>>>>>> Stashed changes
     public List<ChartGradeRes> chartGrade() {
         return userQueryRepository.countGrade();
     }
@@ -269,7 +264,6 @@ public class UserService {
         // maskingBirthDate,maskingTotalAddress, maskingAddress, maskingDetailAddress, maskingZipcode
     }
 
-<<<<<<< Updated upstream
     public Page<UserListRes> searchUser(UserSearchDto userSearchDto, Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
@@ -491,8 +485,6 @@ public class UserService {
 
         return "SUCCESS";
     }
-=======
-
     //webPush Test
     public ResponseDto savePushToken(String email, String pushToken) throws Exception {
         User user = userRepository.findByEmail(aesUtil.aesCBCEncode(email))
@@ -525,5 +517,4 @@ public class UserService {
 //        return users.map(UserInfoDto::toUserInfoDto);
     }
 
->>>>>>> Stashed changes
 }
