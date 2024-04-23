@@ -302,6 +302,7 @@ public class AdminService {
 //        return testAdmins;
 //    }
 
+<<<<<<< Updated upstream
     //webPush Test
     public ResponseDto savePushToken(String employeeNumber, String pushToken) throws Exception {
         System.out.println(pushToken);
@@ -311,6 +312,29 @@ public class AdminService {
         Map<String, String> result = new HashMap<>();
         result.put("pushToken", pushToken);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
+=======
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
+        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto);
+        List<AdminInfoDto> adminInfoDtoList = new ArrayList<>();
+        for (AdminInfoDto adminInfoDto : allAdmin) {
+            String name = aesUtil.aesCBCDecode(adminInfoDto.getName());
+            String employeeNumber = aesUtil.aesCBCDecode(adminInfoDto.getEmployeeNumber());
+            String email = aesUtil.aesCBCDecode(adminInfoDto.getEmail());
+
+            adminInfoDto = AdminInfoDto.builder()
+                    .name(maskingUtil.nameMasking(name))
+                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
+                    .email(maskingUtil.emailMasking(email))
+                    .role(adminInfoDto.getRole())
+                    .build();
+            adminInfoDtoList.add(adminInfoDto);
+        }
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), adminInfoDtoList.size());
+
+        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, adminInfoDtoList.size());
+>>>>>>> Stashed changes
     }
 
     @Transactional

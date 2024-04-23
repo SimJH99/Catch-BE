@@ -1,4 +1,4 @@
-//package com.encore.thecatch.notification.repository;
+package com.encore.thecatch.notification.repository;
 //
 //import com.encore.thecatch.admin.domain.Admin;
 //import com.encore.thecatch.notification.domain.Notification;
@@ -8,7 +8,12 @@
 //
 //import java.util.Optional;
 //
-//@Repository
-//public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
+import com.encore.thecatch.notification.domain.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
 //    Optional<Notification> findByAdmin(Admin admin);
-//}
+}

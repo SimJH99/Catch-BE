@@ -1,6 +1,9 @@
 HELP.md
 .gradle
 build
+*.yml
+!application-dev.yml
+catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json
 
 ### STS ###
 .apt_generated

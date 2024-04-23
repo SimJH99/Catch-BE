@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class PushTokenDto {
-    private String employeeNumber;
+    private String email;
     private String pushToken;
 }

@@ -1,4 +1,4 @@
-//package com.encore.thecatch.notification.service;
+package com.encore.thecatch.notification.service;
 //
 //import com.encore.thecatch.admin.domain.Admin;
 //import com.encore.thecatch.admin.repository.AdminRepository;
@@ -22,31 +22,36 @@
 //import javax.transaction.Transactional;
 //import java.util.concurrent.ExecutionException;
 //
-//@Service
+
+import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.notification.domain.Notification;
+import com.encore.thecatch.notification.repository.NotificationRepository;
+import com.encore.thecatch.user.domain.User;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+
+@Service
 //@RequiredArgsConstructor
 //@Slf4j
-//public class NotificationService {
-//
-//    private final NotificationRepository notificationRepository;
-//    private final UserRepository userRepository;
-//    private final AdminRepository adminRepository;
-//
-//    @Transactional
-//    public void saveNotification(String token){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-//
-////        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-//        System.out.println("로그인 후 알람 세이브");
-//        Notification notification = Notification.builder()
-//                .token(token)
-//                .build();
-//
-//        notification.confirmUser(admin);
-//        notificationRepository.save(notification);
-//
-//    }
-//
+public class NotificationService {
+
+    private final NotificationRepository notificationRepository;
+
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
+
+    @Transactional
+    public void saveNotification(User user, Boolean confirm, Coupon coupon){
+        Notification notification = Notification.builder()
+                .user(user)
+                .notificationTitle(coupon.getName())
+                .notificationContent(coupon.getCode())
+                .confirm(confirm)
+                .build();
+        notificationRepository.save(notification);
+    }
 //    public String getNotificationToken() {
 ////        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 ////        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
@@ -85,4 +90,4 @@
 //
 //        notificationRepository.delete(notification);
 //    }
-//}
+}

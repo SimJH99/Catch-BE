@@ -15,7 +15,7 @@
 //@Component
 //@Slf4j
 //public class FCMInitializer {
-//    private static final String FIREBASE_CONFIG_PAHT = "catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json";
+//    private static final String FIREBASE_CONFIG_PAHT = "catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json";
 //
 //    @PostConstruct
 //    public void initialize(){
