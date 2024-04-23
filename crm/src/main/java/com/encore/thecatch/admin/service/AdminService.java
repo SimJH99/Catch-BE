@@ -207,12 +207,17 @@ public class AdminService {
         List<AdminInfoDto> maskingAdminList = new ArrayList<>();
 
         for (AdminInfoDto infoDto : adminInfoDtos) {
+            String name = aesUtil.aesCBCDecode(infoDto.getName());
+            String employeeNumber = aesUtil.aesCBCDecode(infoDto.getEmployeeNumber());
+            String email = aesUtil.aesCBCDecode(infoDto.getEmail());
             AdminInfoDto adminInfoDto = AdminInfoDto.builder()
-                    .name(aesUtil.aesCBCDecode(infoDto.getName()))
-                    .employeeNumber(aesUtil.aesCBCDecode(infoDto.getEmployeeNumber()))
-                    .email(aesUtil.aesCBCDecode(infoDto.getEmail()))
+                    .id(infoDto.getId())
+                    .name(maskingUtil.nameMasking(name))
+                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
+                    .email(maskingUtil.emailMasking(email))
                     .role(infoDto.getRole())
                     .build();
+
             maskingAdminList.add(adminInfoDto);
         }
 
@@ -308,31 +313,6 @@ public class AdminService {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany());
-        List<AdminInfoDto> adminInfoDtoList = new ArrayList<>();
-        for (AdminInfoDto adminInfoDto : allAdmin) {
-            String name = aesUtil.aesCBCDecode(adminInfoDto.getName());
-            String employeeNumber = aesUtil.aesCBCDecode(adminInfoDto.getEmployeeNumber());
-            String email = aesUtil.aesCBCDecode(adminInfoDto.getEmail());
-
-            adminInfoDto = AdminInfoDto.builder()
-                    .name(maskingUtil.nameMasking(name))
-                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
-                    .email(maskingUtil.emailMasking(email))
-                    .role(adminInfoDto.getRole())
-                    .build();
-            adminInfoDtoList.add(adminInfoDto);
-        }
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), adminInfoDtoList.size());
-
-        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, allAdmin.size());
-    }
-
     @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
     public AdminDetailDto adminDetail(Long id, String ip) throws Exception {
@@ -378,7 +358,7 @@ public class AdminService {
     }
 
     @Transactional
-    public String adminLogout(String ip) throws Exception {
+    public void adminLogout(String ip) throws Exception {
         String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
                 () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
@@ -399,7 +379,6 @@ public class AdminService {
                 .build();
 
         adminLogRepository.save(adminLog);
-        return "success logout";
     }
 
 

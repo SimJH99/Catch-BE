@@ -11,19 +11,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 public class AdminInfoResDto {
     private String name;
     private String employeeNumber;
     private String email;
     private Role role;
 
-    public static AdminInfoResDto toDto(AdminInfoDto adminInfoDto) {
-        return AdminInfoResDto.builder()
-                .name(adminInfoDto.getName())
-                .employeeNumber(adminInfoDto.getEmployeeNumber())
-                .email(adminInfoDto.getEmail())
-                .role(adminInfoDto.getRole())
-                .build();
+    public AdminInfoResDto(String name, String employeeNumber, String email, Role role) {
+        this.name = name;
+        this.employeeNumber = employeeNumber;
+        this.email = email;
+        this.role = role;
     }
 }

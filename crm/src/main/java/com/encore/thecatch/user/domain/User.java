@@ -42,9 +42,11 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String phoneNumber; // 전화번호
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Grade grade;
 
@@ -56,6 +58,9 @@ public class User extends BaseEntity {
 
     private String userNotice;
 
+    public void userActiveToActivation(){
+        this.active = true;
+    }
     public void userActiveToDisable() {
         this.active = false;
     }
@@ -94,7 +99,7 @@ public class User extends BaseEntity {
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
-                .grade(Grade.SLIVER)
+                .grade(userSignUpDto.getGrade())
                 .gender(userSignUpDto.getGender())
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())
@@ -118,6 +123,9 @@ public class User extends BaseEntity {
         this.email = maskingEmail;
         this.phoneNumber = maskingPhoneNumber;
 //        this.brithDate = maskingBirthDate;
+    }
 
+    public void userUpdate(String userNotice) {
+        this.userNotice = userNotice;
     }
 }

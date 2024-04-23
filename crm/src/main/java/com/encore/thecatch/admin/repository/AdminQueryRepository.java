@@ -27,6 +27,7 @@ public class AdminQueryRepository {
     public List<AdminInfoDto> findAdminList(AdminSearchDto adminSearchDto, Company company) throws Exception {
         return queryFactory
                 .select(new QAdminInfoDto(
+                        admin.id,
                         admin.name,
                         admin.employeeNumber,
                         admin.email,

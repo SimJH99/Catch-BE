@@ -7,26 +7,34 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
 public class UserListRes {
     private Long id;
     private String name;
-    private Gender gender;
     private String email;
+    private LocalDate birthDate;
+    private String phoneNumber;
+    private Gender gender;
     private Grade grade;
 
     @QueryProjection
     public UserListRes(Long id,
                        String name,
-                       Gender gender,
                        String email,
+                       LocalDate birthDate,
+                       String phoneNumber,
+                       Gender gender,
                        Grade grade) {
         this.id = id;
         this.name = name;
-        this.gender = gender;
         this.email = email;
+        this.birthDate = birthDate;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
         this.grade = grade;
     }
 }

@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByIdAndReissueCountLessThan(String email, long count);
     Optional<RefreshToken> findByAdminId(Long adminId);
+    Optional<RefreshToken> findByUserId(Long userId);
 
 }

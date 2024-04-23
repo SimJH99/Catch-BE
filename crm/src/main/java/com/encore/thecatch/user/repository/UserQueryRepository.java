@@ -79,16 +79,19 @@ public class UserQueryRepository {
                 .select(new QUserListRes(
                         user.id,
                         user.name,
-                        user.gender,
                         user.email,
+                        user.birthDate,
+                        user.phoneNumber,
+                        user.gender,
                         user.grade))
                 .from(user)
                 .where(
                         containsName(userSearchDto.getName()),
-                        containsEmail(userSearchDto.getEmail()),
+                        eqEmail(userSearchDto.getEmail()),
+                        eqBrithDate(userSearchDto.getBirthDate()),
+                        containsPhoneNumber(userSearchDto.getPhoneNumber()),
                         eqGender(userSearchDto.getGender()),
                         eqGrade(userSearchDto.getGrade()),
-                        eqBrithDate(userSearchDto.getBrithDate()),
                         user.company.eq(company))
                 .orderBy(user.active.asc(), user.name.asc())
                 .fetch();
@@ -97,8 +100,8 @@ public class UserQueryRepository {
     private BooleanExpression containsName(String name) throws Exception {
         return hasText(name) ? user.name.contains(aesUtil.aesCBCEncode(name)) : null;
     }
-    private BooleanExpression containsEmail(String email) throws Exception {
-        return hasText(email) ? user.email.contains(aesUtil.aesCBCEncode(email)) : null;
+    private BooleanExpression eqEmail(String email) throws Exception {
+        return hasText(email) ? user.email.eq(aesUtil.aesCBCEncode(email)) : null;
     }
 
     private BooleanExpression eqGender(Gender gender) {
@@ -111,5 +114,8 @@ public class UserQueryRepository {
 
     private BooleanExpression eqBrithDate(LocalDate birthDate) {
         return birthDate != null ? user.birthDate.eq(birthDate) : null;
+    }
+    private BooleanExpression containsPhoneNumber (String phoneNumber) throws Exception {
+        return hasText(phoneNumber) ? user.email.contains(aesUtil.aesCBCEncode(phoneNumber)) : null;
     }
 }
