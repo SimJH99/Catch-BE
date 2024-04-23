@@ -56,7 +56,7 @@ public class AdminController {
 
     @PostMapping("/admin/all")
     public ResponseDto searchAdmin(@RequestBody AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_POST_LIST,
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_LIST,
                 new DefaultResponse<Page<AdminInfoDto>>(adminService.searchAdmin(adminSearchDto, pageable)));
     }
 
@@ -78,7 +78,7 @@ public class AdminController {
     @PostMapping("/admin/searchList")
     public ResponseDto searchComplaint(@RequestBody AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_ADMIN_LIST,
-                new DefaultResponse<Page<AdminInfoDto>>(adminService.searchComplaint(adminSearchDto, pageable)));
+                new DefaultResponse<Page<AdminInfoDto>>(adminService.searchAdmin(adminSearchDto, pageable)));
     }
 
     @GetMapping("/admin/{id}/detail")
@@ -93,7 +93,8 @@ public class AdminController {
 
     @PostMapping("/admin/doLogout")
     public ResponseDto adminLogout(HttpServletRequest request) throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGOUT,adminService.adminLogout(IPUtil.getClientIP(request)));
+        adminService.adminLogout(IPUtil.getClientIP(request));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGOUT,"success");
     }
 
     @PatchMapping("/admin/{id}/update")

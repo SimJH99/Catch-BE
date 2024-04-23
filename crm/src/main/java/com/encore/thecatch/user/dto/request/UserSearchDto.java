@@ -12,7 +12,8 @@ import java.time.LocalDate;
 public class UserSearchDto {
     private String name;
     private String email;
-    private LocalDate brithDate;
+    private LocalDate birthDate;
+    private String phoneNumber;
     private Gender gender;
     private Grade grade;
 }

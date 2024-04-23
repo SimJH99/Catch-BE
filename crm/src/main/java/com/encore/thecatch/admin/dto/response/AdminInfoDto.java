@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class AdminInfoDto {
+    private Long id;
     private String name;
     private String employeeNumber;
     private String email;
@@ -17,10 +18,12 @@ public class AdminInfoDto {
 
     @QueryProjection
     public AdminInfoDto(
+            Long id,
             String name,
             String employeeNumber,
             String email,
             Role role) {
+        this.id = id;
         this.name = name;
         this.employeeNumber = employeeNumber;
         this.email = email;
