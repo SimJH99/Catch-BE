@@ -8,10 +8,13 @@ import lombok.Getter;
 @Builder
 public class DetailCommentRes {
 
+    private String adminEmployeeNumber;
     private String comment;
+
 
     public static DetailCommentRes from(Comments comments) {
         return DetailCommentRes.builder()
+                .adminEmployeeNumber(comments.getAdmin().getEmployeeNumber())
                 .comment(comments.getComment())
                 .build();
     }

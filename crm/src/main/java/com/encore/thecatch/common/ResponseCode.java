@@ -55,6 +55,7 @@ public enum ResponseCode {
     COUPON_CAN_NOT_UPDATE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 수정 불가합니다."),
     ADMIN_NOT_FOUND("ADMIN_NOT_FOUND", "찾을 수 없는 관리자입니다."),
     ALREADY_BEEN_COMMENTS("ALREADY_BEEN_COMMENTS", "답변완료 된 게시글입니다."),
+    COMMENT_CAN_NOT_UPDATE("ALREADY_BEEN_COMMENTS", "본인이 작성한 답변만 수정가능합니다."),
     SUCCESS_DETAIL_COMMENT("SUCCESS_DETAIL_COMMENT", "답변 조회 완료"),
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "찾을 수 없는 답변입니다."),
     SUCCESS_POST_LIST("SUCCESS_POST_LIST", "게시글 조회 완료"),

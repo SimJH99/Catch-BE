@@ -85,7 +85,7 @@ public class ComplaintService {
         return complaint;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS', 'MARKETER', 'USER')")
     public DetailComplaintRes detailComplaint(Long id) {
         activeComplaint(id);
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
@@ -171,7 +171,7 @@ public class ComplaintService {
         return new PageImpl<>(listComplaintRes1.subList(start, end), pageable, listComplaintRes.size());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CS') or hasAuthority('MARKETER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Long countAllComplaint() {
         return complaintQueryRepository.countAllComplaint();
     }
