@@ -70,15 +70,12 @@ public enum ResponseCode {
     SUCCESS_ADMIN_DISABLED("SUCCESS_ADMIN_DISABLED","관리자 계정 비활성화 완료." ),
     SUCCESS_ADMIN_ACTIVATION("SUCCESS_ADMIN_ACTIVATION","관리자 계정 활성화 완료." ),
     DISABLED_ACCOUNT("DISABLED_ACCOUNT","비활성화된 계정입니다."),
-<<<<<<< Updated upstream
     SUCCESS_USER_DETAIL("SUCCESS_USER_DETAIL","상세정보 확인 완료" ),
     SUCCESS_USER_UPDATE("SUCCESS_USER_UPDATE","유저 정보 수정 완료" ),
     SUCCESS_USER_DISABLED("SUCCESS_USER_DISABLED","유저 비활성화 완료"),
-    SUCCESS_USER_ACTIVATION("SUCCESS_USER_ACTIVATION","유저 활성화 완료" );
-=======
+    SUCCESS_USER_ACTIVATION("SUCCESS_USER_ACTIVATION","유저 활성화 완료" ),
     NOT_RECEIVE_MARKETING_USER("NOT_RECEIVE_MARKETING_USER", "마케팅 수신 미동의 계정입니다.")
     ;
->>>>>>> Stashed changes
 
     private final String code;
     private final String label;

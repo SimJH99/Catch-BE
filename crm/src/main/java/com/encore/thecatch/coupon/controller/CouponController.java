@@ -6,13 +6,10 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.dto.*;
 import com.encore.thecatch.coupon.service.CouponService;
-<<<<<<< Updated upstream
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-=======
 import com.encore.thecatch.user.dto.request.PublishUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> Stashed changes
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
