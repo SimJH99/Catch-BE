@@ -23,10 +23,18 @@ package com.encore.thecatch.notification.service;
 //import java.util.concurrent.ExecutionException;
 //
 
+import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.notification.domain.Notification;
+import com.encore.thecatch.notification.dto.NotificationResDto;
 import com.encore.thecatch.notification.repository.NotificationRepository;
 import com.encore.thecatch.user.domain.User;
+import com.encore.thecatch.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,9 +45,11 @@ import javax.transaction.Transactional;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -51,6 +61,13 @@ public class NotificationService {
                 .confirm(confirm)
                 .build();
         notificationRepository.save(notification);
+    }
+
+    public Page<NotificationResDto> findNonReceive(Pageable pageable){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Page<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), false , pageable);
+        return notifications.map(NotificationResDto::toNotificationResDto);
     }
 //    public String getNotificationToken() {
 ////        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

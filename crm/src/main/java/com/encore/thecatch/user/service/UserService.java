@@ -232,7 +232,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND));
         redisService.deleteValues(String.valueOf(user.getId()));
-        redisService.deleteValues("PushToken : " + user.getEmail());
+        redisService.deleteValues("PushToken:" + user.getEmail());
 
         return "delete refresh token";
     }
@@ -312,7 +312,7 @@ public class UserService {
         );
         refreshTokenRepository.delete(refreshToken);
         redisService.deleteValues(user.getRole() + "" + user.getId());
-
+        redisService.deleteValues("PushToken" + user.getId());
         UserLog userLogoutLog = UserLog.builder()
                 .type(LogType.USER_LOGOUT) // DB로 나눠 관리하지 않고 LogType으로 구별
                 .ip(ip)
@@ -490,7 +490,7 @@ public class UserService {
         User user = userRepository.findByEmail(aesUtil.aesCBCEncode(email))
                 .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
         if(user.isConsentReceiveMarketing()){
-            redisService.setValues(String.format("%s:%s", "PushToken", user.getEmail()), pushToken);
+            redisService.setValues("PushToken"+user.getId(), pushToken);
             Map<String, String> result = new HashMap<>();
             result.put("pushToken", pushToken);
             return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
