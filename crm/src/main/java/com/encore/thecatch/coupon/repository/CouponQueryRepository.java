@@ -2,7 +2,6 @@ package com.encore.thecatch.coupon.repository;
 
 
 import com.encore.thecatch.company.domain.Company;
-import com.encore.thecatch.company.domain.QCompany;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
 import com.encore.thecatch.coupon.domain.QCoupon;
@@ -19,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -85,7 +82,7 @@ public class CouponQueryRepository {
         return hasText(name) ? coupon.name.eq(name) : null;
     }
     private BooleanExpression eqCode(String code) throws Exception {
-        return hasText(code) ? coupon.name.eq(code) : null;
+        return hasText(code) ? coupon.code.eq(code) : null;
     }
 
     private BooleanExpression eqStartDate(String startDate) {
@@ -93,7 +90,7 @@ public class CouponQueryRepository {
 
     }
     private BooleanExpression eqEndDate(String endDate) {
-        return hasText(endDate) ? coupon.startDate.eq(LocalDate.from(LocalDate.parse(endDate).atStartOfDay())) : null;
+        return hasText(endDate) ? coupon.endDate.eq(LocalDate.from(LocalDate.parse(endDate).atStartOfDay())) : null;
     }
     private BooleanExpression eqStatus(String couponStatus) {
         return hasText(couponStatus) ? coupon.couponStatus.eq(CouponStatus.fromValue(couponStatus)) : null;
