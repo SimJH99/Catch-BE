@@ -139,79 +139,79 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <img src=".github/Image/Catch-아키텍처.png" height="100%" width="100%">
 </br>
 
+
+# UI/UX 단위 결과서
+
 <details>
-<summary> <h1> UI/UX 단위 결과서 </h1> </summary>
+<summary> <h2> 고객: 문의 게시글 </h3> </summary>
 
-
-<details>
-<summary> <h3> 고객: 마이페이지 → 나의 게시글 보기 </h3> </summary>
-
+<h3> 고객: 마이페이지 → 나의 게시글 보기 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/84c1298f-3d77-4b10-99a4-224c32c5fad3" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 고객: 문의글 작성하기 </h3> </summary>
-
+<h3> 고객: 문의글 작성하기 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/6e5d7d10-514a-4a93-95b1-d7ca532f8015" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 고객: 문의글 수정하기 </h3> </summary>
-
+<h3> 고객: 문의글 수정하기 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/44cec826-9ad5-4579-b8b5-f8a814677c04" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 고객: 문의글 삭제하기 </h3> </summary>
-
+<h3> 고객: 문의글 삭제하기 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/f06d9790-3231-47f7-a60a-7208ffdbdd86" height="100%" width="100%">
+</br>
 
 </details>
 
 
 
 <details>
-<summary> <h3> 관리자: 대시보드(메인화면) </h3> </summary>
+<summary> <h2> 관리자: 문의게시글 </h3> </summary>
 
+<h3> 관리자: 대시보드(메인화면) </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/1578f984-b3ae-4f70-b7c1-7d9671c53f78" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 관리자: 문의게시글 리스트(검색) </h3> </summary>
-
+<h3> 관리자: 문의게시글 리스트(검색) </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/63e91407-1932-40ab-a79f-c7d4de7f60b3" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 관리자: 게시글 상세보기 및 답변 달기 </h3> </summary>
-
+<h3> 관리자: 게시글 상세보기 및 답변 달기 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/0450ac7d-be9b-4410-a58c-6591c03a8ff3" height="100%" width="100%">
+</br>
 
-</details>
-
-<details>
-<summary> <h3> 관리자: 게시글 답변 수정 </h3> </summary>
-
+<h3> 관리자: 게시글 답변 수정 </h3>
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/cedd0d4b-27d6-4ed4-ae10-351c12d0c2a2" height="100%" width="100%">
+</br>
+
+<h3> 관리자: 게시글 답변 삭제 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ab27b64b-33fc-4b06-81e4-71d90157972a" height="100%" width="100%">
+</br>
 
 </details>
 
 <details>
-<summary> <h3> 관리자: 게시글 답변 삭제 </h3> </summary>
+<summary> <h2> 쿠폰 </h3> </summary>
 
-<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ab27b64b-33fc-4b06-81e4-71d90157972a" height="100%" width="100%">
+<h3> 관리자: 쿠폰리스트 및 검색 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/75c840d5-aac0-4482-a728-4a0d2158ef39" height="100%" width="100%">
+</br>
 
-</details>
+<h3> 관리자: 쿠폰생성 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/7c767138-d67c-4fc2-9a41-e043dc0a1769" height="100%" width="100%">
+</br>
 
+<h3> 고객: 쿠폰수령 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/4ff26c38-cee9-433f-98b7-383bde22e4b7" height="100%" width="100%">
+</br>
 
+<h3> 고객: 수령 가능 쿠폰 및 내 쿠폰 보기 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/a51ddba4-7726-4330-acff-a8e200815574" height="100%" width="100%">
+</br>
 
-
-
+<h3> 쿠폰 발행 및 알람 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/3471778f-dfda-492c-9d1a-aa5d15584099" height="100%" width="100%">
+</br>
 
 
 
