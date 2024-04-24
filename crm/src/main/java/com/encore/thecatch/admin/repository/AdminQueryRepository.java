@@ -39,6 +39,7 @@ public class AdminQueryRepository {
                         containsEmail(adminSearchDto.getEmail()),
                         eqRole(adminSearchDto.getRole()),
                         admin.company.eq(company))
+                .orderBy(admin.createdTime.desc())
                 .fetch();
     }
 

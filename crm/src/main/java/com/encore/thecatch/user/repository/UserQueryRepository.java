@@ -93,7 +93,7 @@ public class UserQueryRepository {
                         eqGender(userSearchDto.getGender()),
                         eqGrade(userSearchDto.getGrade()),
                         user.company.eq(company))
-                .orderBy(user.active.asc(), user.name.asc())
+                .orderBy(user.active.asc(), user.createdTime.desc(), user.name.asc())
                 .fetch();
     }
 

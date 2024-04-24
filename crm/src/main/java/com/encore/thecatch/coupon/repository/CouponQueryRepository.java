@@ -50,6 +50,7 @@ public class CouponQueryRepository {
                         eqEndDate(searchCouponCondition.getEndDate()),
                         eqStatus(searchCouponCondition.getCouponStatus()),
                         coupon.companyId.eq(company))
+                .orderBy(coupon.createdTime.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
