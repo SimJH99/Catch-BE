@@ -6,12 +6,11 @@ import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.mail.dto.EmailCheckDto;
 import com.encore.thecatch.mail.dto.EmailReqDto;
+import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.mail.service.EmailSendService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class EmailController {
@@ -23,14 +22,16 @@ public class EmailController {
 
     @PostMapping("/mailSend")
     public ResponseDto mailSend(@RequestBody AdminLoginDto adminLoginDto) throws Exception {
-        emailSendService.createEmailAuthNumber(adminLoginDto);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, null);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEmailAuthNumber(adminLoginDto));
     }
 
     @PostMapping("/groupMailSend")
     public ResponseDto mailSend(@RequestBody GroupEmailReqDto groupEmailReqDto){
-        String result = emailSendService.createGroupEmail(groupEmailReqDto);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createGroupEmail(groupEmailReqDto));
     }
 
+    @PostMapping("/event/{id}/mailSend")
+    public ResponseDto mailSend(@PathVariable Long id, @RequestBody EventEmailReqDto eventEmailReqDto) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEventEmail(id, eventEmailReqDto));
+    }
 }
