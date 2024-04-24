@@ -143,6 +143,20 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 # UI/UX 단위 결과서
 
 <details>
+<summary> <h2> 로그인 & 로그아웃 </h3> </summary>
+
+<h3> 고객: 로그인 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/2be05d62-8230-4f3c-bc67-be698040c72c" height="100%" width="100%">
+</br>
+
+<h3> 고객: 로그아웃 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ef05e457-a500-4431-8489-0a14a18e49aa" height="100%" width="100%">
+</br>
+
+</details>
+
+
+<details>
 <summary> <h2> 고객: 문의 게시글 </h3> </summary>
 
 <h3> 고객: 마이페이지 → 나의 게시글 보기 </h3>
@@ -213,8 +227,62 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/3471778f-dfda-492c-9d1a-aa5d15584099" height="100%" width="100%">
 </br>
 
+</details>
 
 
+<details>
+<summary> <h2> 관리자: 고객리스트 </h3> </summary>
+
+<h3> 관리자: 고객리스트 검색 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/1d8f70d6-def3-44a9-8605-5a13d3394f74" height="100%" width="100%">
+</br>
+
+<h3> 관리자: 고객 상세보기, 메모, 활성화, 비활성화 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/45dbf2c9-46cc-4b5f-992d-3cc60ba248be" height="100%" width="100%">
+</br>
 
 </details>
-  
+
+<details>
+<summary> <h2> 관리자: 회사 계정 관리 </h3> </summary>
+
+<h3> 관리자: 회사 계정 검색 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ea86d4c3-a85a-44bd-b46b-2b39162079f9" height="100%" width="100%">
+</br>
+
+<h3> 관리자: 회사 계정 생성 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/09f58a17-c684-4751-86e8-a816a77c018f" height="100%" width="100%">
+</br>
+
+<h3> 관리자: 회사 계정 수정, 계정 활성화, 비활성화 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/58584e76-5598-4fcd-873e-adbe4d3ba328" height="100%" width="100%">
+</br>
+
+</details>
+
+
+<details>
+<summary> <h2> 관리자: 이벤트 </h3> </summary>
+
+<h3> 관리자: 이벤트 생성 </h3>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/788c2bd1-c6c5-45bf-b8eb-234d5c7c893f" height="100%" width="100%">
+</br>
+
+</details>
+
+
+<details>
+<summary> <h2> 접근 권한 및 페이지 없음 (404, 403) </h3> </summary>
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/452f7462-eb5b-4c8b-a06e-90e0c5271089" height="100%" width="100%">
+</br>
+
+</details>
+
+
+<details>
+<summary> <h2> 관리자: 리스트 화면 페이징 처리 </h3> </summary>
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/088ec497-6511-47a9-b90b-fe4a7115a51b" height="100%" width="100%">
+</br>
+
+</details>
