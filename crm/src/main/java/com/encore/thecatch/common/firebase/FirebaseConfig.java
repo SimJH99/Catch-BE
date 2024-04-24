@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Configuration
 public class FirebaseConfig {
-    private static final String FIREBASE_CONFIG_PAHT = "catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json";
+    private static final String FIREBASE_CONFIG_PAHT = "catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json";
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         ClassPathResource resource = new ClassPathResource(FIREBASE_CONFIG_PAHT);

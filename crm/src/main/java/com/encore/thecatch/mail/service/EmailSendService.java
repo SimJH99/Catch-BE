@@ -9,9 +9,12 @@ import com.encore.thecatch.common.RsData;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.event.domain.Event;
+import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.mail.Entity.EmailTask;
+import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.mail.repository.EmailTaskRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class EmailSendService {
     private final EmailTaskRepository emailTaskRepository;
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
+    private final EventRepository eventRepository;
     private int authNumber;
 
     public EmailSendService(
@@ -49,7 +53,8 @@ public class EmailSendService {
             EmailLogRepository emailLogRepository,
             EmailTaskRepository emailTaskRepository,
             AdminRepository adminRepository,
-            AesUtil aesUtil
+            AesUtil aesUtil,
+            EventRepository eventRepository
     ) {
         this.javaMailSender = javaMailSender;
         this.username = username;
@@ -58,6 +63,7 @@ public class EmailSendService {
         this.emailTaskRepository = emailTaskRepository;
         this.adminRepository = adminRepository;
         this.aesUtil = aesUtil;
+        this.eventRepository = eventRepository;
     }
 
     public boolean checkAuthNum(String email, String authNum) {
@@ -83,7 +89,7 @@ public class EmailSendService {
     }
 
     @Async
-    public void createEmailAuthNumber(AdminLoginDto adminLoginDto) throws Exception {
+    public String createEmailAuthNumber(AdminLoginDto adminLoginDto) throws Exception {
         Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminLoginDto.getEmployeeNumber()))
                 .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
@@ -113,6 +119,8 @@ public class EmailSendService {
                         "</html>";
 
         mailSend(username, toMail, title, content);
+
+        return "success";
     }
 
     @Async
@@ -137,10 +145,31 @@ public class EmailSendService {
                 .build();
         emailTaskRepository.save(task);
 
-        for (String email : emailList) {
+        for (String toMail : emailList) {
             String title = groupEmailReqDto.getTitle(); // 이메일 제목
             String content = groupEmailReqDto.getContents(); // 이메일 내용
-            GroupSend(task, username, email, title, content);
+            GroupSend(task, username, toMail, title, content);
+        }
+        return "전송 완료";
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) {
+        List<String> emailList = eventEmailReqDto.getEmailList();
+
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+
+        EmailTask task = EmailTask.builder()
+                .title(event.getName())
+                .build();
+        emailTaskRepository.save(task);
+
+        for (String toMail : emailList) {
+            String title = event.getName(); // 이메일 제목
+            String content = event.getContents(); // 이메일 내용
+            GroupSend(task, username, toMail, title, content);
         }
         return "전송 완료";
     }
