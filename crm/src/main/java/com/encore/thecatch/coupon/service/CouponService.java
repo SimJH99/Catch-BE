@@ -185,10 +185,10 @@ public class CouponService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
-        if(!coupon.getCompanyId().equals(user.getCompany())){
+        if(!coupon.getCompanyId().equals(user.getCompany()) && !coupon.getCouponStatus().equals(CouponStatus.PUBLISH)){
             throw new CatchException(ResponseCode.NON_RECEIVABLE_COUPON);
         }
-        if(receiveCouponRepository.findByCouponIdAndUserId(coupon.getId(), user.getId()) != null){
+        if(!receiveCouponRepository.findByCouponIdAndUserId(coupon.getId(), user.getId()).isEmpty()){
             throw new CatchException(ResponseCode.ALREADY_RECEIVED_COUPON);
         }
         if(coupon.getCouponStatus().equals(CouponStatus.PUBLISH)){
@@ -198,6 +198,7 @@ public class CouponService {
                     .couponStatus(CouponStatus.RECEIVE)
                     .build();
             receiveCouponRepository.save(receiveCoupon);
+            coupon.receiveCoupon();
         }
         return coupon;
     }
