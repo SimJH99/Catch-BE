@@ -152,7 +152,7 @@ public class CouponService {
             users.add(userRepository.findById(userId).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND)));
         }
         for(User user : users){
-            String fcmToken = redisService.getValues(String.format("%s:%s", "PushToken", user.getEmail()));
+            String fcmToken = redisService.getValues("PushToken"+ user.getId());
             if(fcmToken.equals("false")){
                 boolean confirm = false;
                 notificationService.saveNotification(user, confirm, coupon);
