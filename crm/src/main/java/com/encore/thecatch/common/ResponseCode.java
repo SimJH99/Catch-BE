@@ -76,7 +76,8 @@ public enum ResponseCode {
     SUCCESS_USER_ACTIVATION("SUCCESS_USER_ACTIVATION","유저 활성화 완료" ),
     NOT_RECEIVE_MARKETING_USER("NOT_RECEIVE_MARKETING_USER", "마케팅 수신 미동의 계정입니다."),
     SUCCESS_EVENT_CREATE("SUCCESS_EVENT_CREATE","이벤트를 생성했습니다" ),
-    EVENT_NOT_FOUND("EVENT_NOT_FOUND","이벤트를 찾을 수 없습니다." );
+    EVENT_NOT_FOUND("EVENT_NOT_FOUND","이벤트를 찾을 수 없습니다." ),
+    SUCCESS_EVENT_DETAIL("SUCCESS_EVENT_DETAIL","상세정보 확인 완료" );
 
     private final String code;
     private final String label;

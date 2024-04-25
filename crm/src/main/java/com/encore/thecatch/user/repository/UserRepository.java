@@ -14,6 +14,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Page<User> findByCompany(Company company, Pageable pageable);
-
     Page<User> findByCompanyAndConsentReceiveMarketing(Company company, Pageable pageable , Boolean consentReceiveMarketing);
 }

@@ -3,7 +3,7 @@ HELP.md
 build
 *.yml
 !application-dev.yml
-catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json
+catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json
 
 ### STS ###
 .apt_generated
