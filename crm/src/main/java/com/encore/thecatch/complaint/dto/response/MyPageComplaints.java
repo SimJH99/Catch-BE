@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class MyPageComplaints {
+    Long id;
     String title;
     Status status;
 
     @QueryProjection
-    public MyPageComplaints(String title, Status status) {
+    public MyPageComplaints(Long id, String title, Status status) {
+        this.id = id;
         this.title = title;
         this.status = status;
     }
