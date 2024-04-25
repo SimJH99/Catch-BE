@@ -76,6 +76,7 @@ public class ComplaintQueryRepository {
     public List<MyPageComplaints> myPageComplaints() {
         return queryFactory
                 .select(new QMyPageComplaints(
+                        complaint.id,
                         complaint.title,
                         complaint.status))
                 .from(complaint)
