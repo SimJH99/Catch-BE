@@ -1,6 +1,7 @@
 package com.encore.thecatch.coupon.repository;
 
 
+import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.domain.CouponStatus;
@@ -10,68 +11,60 @@ import com.encore.thecatch.coupon.dto.QCouponFindResDto;
 import com.encore.thecatch.coupon.dto.QCouponPublishCountRes;
 import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
-@RequiredArgsConstructor
-public class CouponQueryRepository {
+public class CouponQueryRepository extends Querydsl4RepositorySupport {
 
     QCoupon coupon = QCoupon.coupon;
 
-    private final JPAQueryFactory queryFactory;
-
-    public Page<CouponFindResDto> findCouponList(SearchCouponCondition searchCouponCondition, Company company, Pageable pageable) throws Exception {
-        List<CouponFindResDto> content = queryFactory
-                .select(new QCouponFindResDto(
-                        coupon.id,
-                        coupon.name,
-                        coupon.code,
-                        coupon.couponStatus,
-                        coupon.quantity,
-                        coupon.startDate,
-                        coupon.endDate,
-                        coupon.companyId))
-                .from(coupon)
-                .where(
-                        eqName(searchCouponCondition.getName()),
-                        eqCode(searchCouponCondition.getCode()),
-                        eqStartDate(searchCouponCondition.getStartDate()),
-                        eqEndDate(searchCouponCondition.getEndDate()),
-                        eqStatus(searchCouponCondition.getCouponStatus()),
-                        coupon.companyId.eq(company))
-                .orderBy(coupon.createdTime.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        JPAQuery<Coupon> countQuery = queryFactory
-                .selectFrom(coupon)
-                .where(
-                        eqName(searchCouponCondition.getName()),
-                        eqCode(searchCouponCondition.getCode()),
-                        eqStartDate(searchCouponCondition.getStartDate()),
-                        eqEndDate(searchCouponCondition.getEndDate()),
-                        eqStatus(searchCouponCondition.getCouponStatus()),
-                        coupon.companyId.eq(company)
-                );
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    public CouponQueryRepository() {
+        super(Coupon.class);
     }
 
+    public Page<CouponFindResDto> findCouponList(SearchCouponCondition searchCouponCondition, Company company, Pageable pageable) {
+        return applyPagination(
+                pageable,
+                query -> query
+                        .select(
+                                new QCouponFindResDto(
+                                        coupon.id,
+                                        coupon.name,
+                                        coupon.code,
+                                        coupon.couponStatus,
+                                        coupon.quantity,
+                                        coupon.startDate,
+                                        coupon.endDate,
+                                        coupon.companyId))
+                        .from(coupon)
+                        .where(
+                                eqName(searchCouponCondition.getName()),
+                                eqCode(searchCouponCondition.getCode()),
+                                eqStartDate(searchCouponCondition.getStartDate()),
+                                eqEndDate(searchCouponCondition.getEndDate()),
+                                eqStatus(searchCouponCondition.getCouponStatus()),
+                                coupon.companyId.eq(company))
+                        .orderBy(coupon.createdTime.desc()),
+                countQuery -> countQuery
+                        .selectFrom(coupon)
+                        .where(
+                                eqName(searchCouponCondition.getName()),
+                                eqCode(searchCouponCondition.getCode()),
+                                eqStartDate(searchCouponCondition.getStartDate()),
+                                eqEndDate(searchCouponCondition.getEndDate()),
+                                eqStatus(searchCouponCondition.getCouponStatus()),
+                                coupon.companyId.eq(company)));
+    }
+
+
     public Long couponPublishCount() {
-        return queryFactory
-                .select(new QCouponPublishCountRes(
+        return select(new QCouponPublishCountRes(
                         coupon.count().as("count")
                 ))
                 .from(coupon)
@@ -79,10 +72,12 @@ public class CouponQueryRepository {
                 .fetchCount();
     }
 
-    private BooleanExpression eqName(String name) throws Exception {
+
+    private BooleanExpression eqName(String name) {
         return hasText(name) ? coupon.name.eq(name) : null;
     }
-    private BooleanExpression eqCode(String code) throws Exception {
+
+    private BooleanExpression eqCode(String code) {
         return hasText(code) ? coupon.code.eq(code) : null;
     }
 
@@ -90,9 +85,11 @@ public class CouponQueryRepository {
         return hasText(startDate) ? coupon.startDate.eq(LocalDate.from(LocalDate.parse(startDate).atStartOfDay())) : null;
 
     }
+
     private BooleanExpression eqEndDate(String endDate) {
         return hasText(endDate) ? coupon.endDate.eq(LocalDate.from(LocalDate.parse(endDate).atStartOfDay())) : null;
     }
+
     private BooleanExpression eqStatus(String couponStatus) {
         return hasText(couponStatus) ? coupon.couponStatus.eq(CouponStatus.fromValue(couponStatus)) : null;
     }

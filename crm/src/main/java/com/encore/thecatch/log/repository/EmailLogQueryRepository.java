@@ -1,19 +1,21 @@
 package com.encore.thecatch.log.repository;
 
+import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
+import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.domain.QEmailLog;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor
-public class EmailLogQueryRepository {
-    private final JPAQueryFactory queryFactory;
+public class EmailLogQueryRepository extends Querydsl4RepositorySupport {
+
     QEmailLog emailLog = QEmailLog.emailLog;
 
+    public EmailLogQueryRepository (){
+        super(EmailLog.class);
+    }
+
     public Long totalEmail() {
-        return queryFactory
-                .select(
+        return select(
                         emailLog.count())
                 .from(emailLog)
                 .fetchCount();
