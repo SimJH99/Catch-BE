@@ -294,7 +294,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND)
         );
-        return new UserProfileDto(aesUtil.aesCBCDecode(user.getName()));
+        return new UserProfileDto(aesUtil.aesCBCDecode(user.getName()), user.getGrade());
     }
 
     @Transactional
@@ -413,8 +413,9 @@ public class UserService {
         );
 
         String userNotice = userUpdateDto.getUserNotice();
+        String grade = userUpdateDto.getGrade();
 
-        user.userUpdate(userNotice);
+        user.userUpdate(userNotice, grade);
 
         AdminLog adminLog = AdminLog.builder()
                 .type(LogType.USER_UPDATE) // DB로 나눠 관리하지 않고 LogType으로 구별
