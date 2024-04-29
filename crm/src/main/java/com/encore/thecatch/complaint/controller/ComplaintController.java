@@ -59,7 +59,7 @@ public class ComplaintController {
 
     // 게시글 리스트 보기 (검색 로직)
     @PostMapping("/list")
-    public ResponseDto searchComplaint(@RequestBody SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
+    public ResponseDto searchComplaint(@RequestBody SearchComplaintCondition searchComplaintCondition, Pageable pageable) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_POST_LIST,
                 new DefaultResponse<Page<ListComplaintRes>>(complaintService.searchComplaint(searchComplaintCondition, pageable)));
     }

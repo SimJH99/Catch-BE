@@ -20,7 +20,6 @@ import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,10 +27,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -46,7 +46,6 @@ public class ComplaintService {
     private final S3UrlUtil s3UrlUtil;
     private final AesUtil aesUtil;
     private final MaskingUtil maskingUtil;
-
 
     @PreAuthorize("hasAuthority('USER')")
     public Complaint createComplaint(CreateComplaintReq createComplaintReq) {
@@ -110,7 +109,6 @@ public class ComplaintService {
         return UpdateComplaintRes.from(complaint);
     }
 
-
     @PreAuthorize("hasAuthority('USER')")
     public Page<MyComplaints> myComplaintList(Pageable pageable) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -120,7 +118,9 @@ public class ComplaintService {
 
     @PreAuthorize("hasAuthority('USER')")
     public List<MyPageComplaints> myPageComplaints() {
-        return complaintQueryRepository.myPageComplaints();
+        return complaintQueryRepository.myPageComplaints()
+                .stream().map(MyPageComplaints::toDto)
+                .collect(Collectors.toList());
     }
 
     // 삭제된 게시글 확인
@@ -152,23 +152,23 @@ public class ComplaintService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) throws Exception {
-        List<ListComplaintRes> listComplaintRes = complaintQueryRepository.findComplaintList(searchComplaintCondition);
-        List<ListComplaintRes> listComplaintRes1 = new ArrayList<>();
-        for (ListComplaintRes ListComplaint : listComplaintRes) {
-            ListComplaint = ListComplaintRes.builder()
-                    .complaintId(ListComplaint.getComplaintId())
-                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(ListComplaint.getName())))
-                    .title(ListComplaint.getTitle())
-                    .status(ListComplaint.getStatus())
-                    .build();
-            listComplaintRes1.add(ListComplaint);
-        }
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), listComplaintRes1.size());
-
-        return new PageImpl<>(listComplaintRes1.subList(start, end), pageable, listComplaintRes.size());
+    public Page<ListComplaintRes> searchComplaint(SearchComplaintCondition searchComplaintCondition, Pageable pageable) {
+        return complaintQueryRepository.findComplaintList(searchComplaintCondition, pageable)
+                .map(new Function<Complaint, ListComplaintRes>() {
+                    @Override
+                    public ListComplaintRes apply(Complaint complaint) {
+                        try {
+                            return ListComplaintRes.builder()
+                                    .complaintId(complaint.getId())
+                                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(complaint.getUser().getName())))
+                                    .title(complaint.getTitle())
+                                    .status(complaint.getStatus())
+                                    .build();
+                        } catch (Exception e) {
+                            throw new CatchException(ResponseCode.AES_DECODE_FAIL);
+                        }
+                    }
+                });
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
