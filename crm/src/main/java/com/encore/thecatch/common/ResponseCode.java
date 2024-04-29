@@ -78,7 +78,6 @@ public enum ResponseCode {
     SUCCESS_EVENT_CREATE("SUCCESS_EVENT_CREATE","이벤트를 생성했습니다" ),
     EVENT_NOT_FOUND("EVENT_NOT_FOUND","이벤트를 찾을 수 없습니다." ),
     SUCCESS_EVENT_DETAIL("SUCCESS_EVENT_DETAIL","상세정보 확인 완료" );
-
     private final String code;
     private final String label;
 

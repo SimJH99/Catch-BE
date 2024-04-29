@@ -193,7 +193,7 @@ public class UserService {
         String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", user.getEmail(), user.getRole())); // 토큰 생성
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getRole(), user.getId()); // 리프레시 토큰 생성
         // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
-        refreshTokenRepository.findByUserId(user.getId())
+        refreshTokenRepository.findByUserEmail(user.getEmail())
                 .ifPresentOrElse(
                         it -> it.updateRefreshToken(refreshToken),
                         () -> refreshTokenRepository.save(new RefreshToken(user, refreshToken))
@@ -307,7 +307,7 @@ public class UserService {
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND)
         );
 
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId()).orElseThrow(
+        RefreshToken refreshToken = refreshTokenRepository.findByUserEmail(user.getEmail()).orElseThrow(
                 () -> new CatchException(ResponseCode.REFRESH_TOKEN_NOT_FOUND)
         );
         refreshTokenRepository.delete(refreshToken);
