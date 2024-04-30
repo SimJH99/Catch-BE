@@ -5,13 +5,17 @@ import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserSignUpDto {
     private String name;
     private String email;

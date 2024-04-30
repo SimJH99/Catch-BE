@@ -100,7 +100,7 @@ public class User extends BaseEntity implements Serializable {
                 .totalAddress(totalAddress)
                 .phoneNumber(userSignUpDto.getPhoneNumber())
                 .role(Role.USER)
-                .grade(userSignUpDto.getGrade())
+                .grade(Grade.SILVER)
                 .gender(userSignUpDto.getGender())
                 .active(true)
                 .consentReceiveMarketing(userSignUpDto.isConsentReceiveMarketing())

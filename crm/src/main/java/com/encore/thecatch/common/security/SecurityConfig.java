@@ -47,7 +47,9 @@ public class SecurityConfig{
                         "/mailSend",
                         "/admin/mailAuthCheck",
                         "/admin/random/create",
-                        "/admin/test"
+                        "/admin/test",
+                        "/tracking_pixel/**",
+                        "/user/event/**"
                 )
                     .permitAll()
                     // 해당 url은 인증 필요 x
