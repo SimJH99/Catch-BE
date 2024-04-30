@@ -388,7 +388,6 @@ public class AdminService {
         Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
                 () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
         );
-        log.info(String.valueOf(refreshTokenRepository.findByAdminEmployeeNumber(admin.getEmployeeNumber())));
         RefreshToken refreshToken = refreshTokenRepository.findByAdminEmployeeNumber(admin.getEmployeeNumber()).orElseThrow(
                 () -> new CatchException(ResponseCode.REFRESH_TOKEN_NOT_FOUND)
         );

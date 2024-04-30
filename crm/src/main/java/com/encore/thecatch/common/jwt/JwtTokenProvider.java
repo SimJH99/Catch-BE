@@ -68,7 +68,6 @@ public class JwtTokenProvider {
                 .setIssuer(issuer) // JWT 토큰 발급자
                 .setIssuedAt(Timestamp.valueOf(LocalDateTime.now())) // JWT 토큰 발급 시간
                 .setExpiration(Date.from(Instant.now().plus(accessTokenExpirationMinutes, ChronoUnit.HOURS))) // JWT 토큰의 만료시간 설정
-//                .setExpiration(Date.from(Instant.now().plus(30, ChronoUnit.SECONDS))) // JWT 토큰의 만료시간 설정
                 .compact(); // JWT 토큰 생성
         return accessToken;
 
