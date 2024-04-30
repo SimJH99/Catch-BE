@@ -48,8 +48,6 @@ public class LogController {
                 , new DefaultResponse<List<DayOfWeekLogin>>(logService.dayOfWeekLogin()));
     }
 
-
-
     //이메일 총 발송 건수
     @GetMapping("/email/total")
     public ResponseDto totalEmail(){

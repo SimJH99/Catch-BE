@@ -9,6 +9,7 @@ import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.QUser;
 import com.encore.thecatch.user.domain.User;
+import com.encore.thecatch.user.dto.request.SignUpMonthReq;
 import com.encore.thecatch.user.dto.request.UserSearchDto;
 import com.encore.thecatch.user.dto.response.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -18,6 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -124,6 +129,27 @@ public class UserQueryRepository extends Querydsl4RepositorySupport {
                     }
                 }
         );
+    }
+
+    public List<SignUpMonth> signUpMonth(SignUpMonthReq signUpMonthReq) {
+        String dateString = signUpMonthReq.getMonth();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth currentMonth = YearMonth.parse(dateString, formatter);
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return select(
+                new QSignUpMonth(
+                        user.createdTime,
+                        user.count()))
+                .from(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startOfMonth),
+                        user.createdTime.loe(endOfMonth))
+                .groupBy(user.createdTime.dayOfMonth())
+                .fetch();
     }
 
     private BooleanExpression containsName(String name) throws Exception {

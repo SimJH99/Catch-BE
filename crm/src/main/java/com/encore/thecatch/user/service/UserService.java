@@ -23,10 +23,7 @@ import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
-import com.encore.thecatch.user.dto.request.UserLoginDto;
-import com.encore.thecatch.user.dto.request.UserSearchDto;
-import com.encore.thecatch.user.dto.request.UserSignUpDto;
-import com.encore.thecatch.user.dto.request.UserUpdateDto;
+import com.encore.thecatch.user.dto.request.*;
 import com.encore.thecatch.user.dto.response.*;
 import com.encore.thecatch.user.repository.UserQueryRepository;
 import com.encore.thecatch.user.repository.UserRepository;
@@ -46,6 +43,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -516,4 +514,10 @@ public class UserService {
 //        return users.map(UserInfoDto::toUserInfoDto);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<SignUpMonthRes> signUpMonth(SignUpMonthReq signUpMonthReq) {
+        return userQueryRepository.signUpMonth(signUpMonthReq)
+                .stream().map(SignUpMonthRes::toDto)
+                .collect(Collectors.toList());
+    }
 }
