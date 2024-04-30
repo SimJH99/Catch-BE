@@ -5,9 +5,9 @@ import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
 import com.encore.thecatch.common.util.AesUtil;
+import com.encore.thecatch.complaint.dto.request.CountMonthComplaintReq;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.response.CountStatusComplaintRes;
-import com.encore.thecatch.complaint.dto.response.QCountStatusComplaintRes;
+import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
@@ -18,6 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -42,7 +46,8 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
                 pageable,
                 query -> query
                         .selectFrom(complaint)
-                        .where(complaint.user.eq(user), complaint.active.eq(true)),
+                        .where(complaint.user.eq(user), complaint.active.eq(true))
+                        .orderBy(complaint.createdTime.desc()),
                 countQuery -> countQuery
                         .select(complaint.id)
                         .from(complaint)
@@ -109,6 +114,50 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
                 .from(complaint)
                 .where(complaint.active.eq(true))
                 .groupBy(complaint.status)
+                .fetch();
+    }
+
+    public Long countTodayComplaint() {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime startOfDay = LocalDateTime.of(currentDateTime.toLocalDate(), LocalTime.of(0, 0,0)); // 예제: 오전 9시
+        LocalDateTime endOfDay = LocalDateTime.of(currentDateTime.toLocalDate(), LocalTime.of(23, 59,59)); // 예제: 오후 6시
+
+        return selectFrom(complaint)
+                .where(
+                        complaint.active.eq(true),
+                        complaint.createdTime.goe(startOfDay),
+                        complaint.createdTime.loe(endOfDay))
+                .fetchCount();
+    }
+
+    public List<CountCategoryComplaint> categoryComplaint() {
+        return select(new QCountCategoryComplaint(
+                        complaint.category,
+                        complaint.count()))
+                .from(complaint)
+                .where(complaint.active.eq(true))
+                .groupBy(complaint.category)
+                .fetch();
+    }
+
+    public List<CountMonthComplaint> countMonthComplaint(CountMonthComplaintReq countMonthComplaintReq) {
+        String dateString = countMonthComplaintReq.getMonth();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth currentMonth = YearMonth.parse(dateString, formatter);
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return select(new QCountMonthComplaint(
+                complaint.createdTime,
+                complaint.category,
+                complaint.count()))
+                .from(complaint)
+                .where(
+                        complaint.active.eq(true),
+                        complaint.createdTime.goe(startOfMonth),
+                        complaint.createdTime.loe(endOfMonth))
+                .groupBy(complaint.createdTime.dayOfMonth(), complaint.category)
                 .fetch();
     }
 

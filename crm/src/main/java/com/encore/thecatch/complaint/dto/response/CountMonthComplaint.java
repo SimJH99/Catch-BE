@@ -5,15 +5,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor
-public class CountCategoryComplaint {
+public class CountMonthComplaint {
+    private LocalDateTime day;
     private String category;
     private Long count;
 
     @QueryProjection
-    public CountCategoryComplaint (String category, Long count) {
+    public CountMonthComplaint(LocalDateTime day, String category, Long count) {
+        this.day = day;
         this.category = category;
         this.count = count;
     }

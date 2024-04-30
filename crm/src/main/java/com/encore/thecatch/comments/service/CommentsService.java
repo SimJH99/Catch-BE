@@ -32,7 +32,7 @@ public class CommentsService {
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
 
-    @PreAuthorize("hasAuthority('CS')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public CreateCommentsRes createComment(Long id, CreateCommentsReq createCommentsReq) throws Exception {
 
         if (commentsRepository.findByComplaintIdAndActive(id, true).isPresent()) {
@@ -54,7 +54,7 @@ public class CommentsService {
         return DetailCommentRes.from(comments);
     }
 
-    @PreAuthorize("hasAuthority('CS')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public UpdateCommentsRes updateComment(Long id, UpdateCommentsReq updateCommentsReq) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
@@ -66,7 +66,7 @@ public class CommentsService {
         return UpdateCommentsRes.from(comments);
     }
 
-    @PreAuthorize("hasAuthority('CS')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public String deleteComment(Long id) {
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         Comments comments = commentsRepository.findByComplaintIdAndActive(id, true).orElseThrow(() -> new CatchException(ResponseCode.COMMENT_NOT_FOUND));
