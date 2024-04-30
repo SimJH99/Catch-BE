@@ -195,4 +195,10 @@ public class ComplaintService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<CountYearComplaintRes> countYearComplaint(CountYearComplaintReq countYearComplaintReq) {
+        return complaintQueryRepository.countYearComplaint(countYearComplaintReq)
+                .stream().map(CountYearComplaintRes::toDto)
+                .collect(Collectors.toList());
+    }
 }

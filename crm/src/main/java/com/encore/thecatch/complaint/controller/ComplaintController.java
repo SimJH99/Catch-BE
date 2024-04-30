@@ -117,10 +117,17 @@ public class ComplaintController {
                 new DefaultResponse<List<CountCategoryComplaint>>(complaintService.categoryComplaint()));
     }
 
-    //지난달 문의글 작성수
+    //일별 문의글 작성수
     @PostMapping("/countMonth")
     public ResponseDto countMonthComplaint(@RequestBody CountMonthComplaintReq countMonthComplaintReq){
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
                 new DefaultResponse<List<CountMonthComplaintRes>>(complaintService.countMonthComplaint(countMonthComplaintReq)));
+    }
+
+    //월별 문의글 작성수
+    @PostMapping("/countYear")
+    public ResponseDto countYearComplaint(@RequestBody CountYearComplaintReq countYearComplaintReq){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountYearComplaintRes>>(complaintService.countYearComplaint(countYearComplaintReq)));
     }
 }
