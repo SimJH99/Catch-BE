@@ -9,8 +9,12 @@ import java.util.Optional;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-    Optional<RefreshToken> findByIdAndReissueCountLessThan(String email, long count);
-    Optional<RefreshToken> findByAdminId(Long adminId);
-    Optional<RefreshToken> findByUserId(Long userId);
+    Optional<RefreshToken> findByAdminEmployeeNumberAndReissueCountLessThan(String adminEmployeeNumber, int count);
+    Optional<RefreshToken> findByUserEmailAndReissueCountLessThan(String userEmail, int count);
 
+
+    Optional<RefreshToken> findByAdminEmployeeNumber(String adminEmployeeNumber);
+    Optional<RefreshToken> findByUserEmail(String userEmail);
+
+    Optional<RefreshToken> findByRefreshToken(String refreshToken);
 }

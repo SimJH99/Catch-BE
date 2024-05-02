@@ -13,10 +13,8 @@ import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
-import com.encore.thecatch.mail.Entity.EmailTask;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
-import com.encore.thecatch.mail.repository.EmailTaskRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -39,7 +38,6 @@ public class EmailSendService {
     private final String username;
     private final RedisService redisService;
     private final EmailLogRepository emailLogRepository;
-    private final EmailTaskRepository emailTaskRepository;
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
     private final EventRepository eventRepository;
@@ -51,7 +49,6 @@ public class EmailSendService {
             String username,
             RedisService redisService,
             EmailLogRepository emailLogRepository,
-            EmailTaskRepository emailTaskRepository,
             AdminRepository adminRepository,
             AesUtil aesUtil,
             EventRepository eventRepository
@@ -60,7 +57,6 @@ public class EmailSendService {
         this.username = username;
         this.redisService = redisService;
         this.emailLogRepository = emailLogRepository;
-        this.emailTaskRepository = emailTaskRepository;
         this.adminRepository = adminRepository;
         this.aesUtil = aesUtil;
         this.eventRepository = eventRepository;
@@ -137,23 +133,6 @@ public class EmailSendService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public String createGroupEmail(GroupEmailReqDto groupEmailReqDto) {
-        List<String> emailList = groupEmailReqDto.getEmailList();
-
-        EmailTask task = EmailTask.builder()
-                .title(groupEmailReqDto.getTitle())
-                .build();
-        emailTaskRepository.save(task);
-
-        for (String toMail : emailList) {
-            String title = groupEmailReqDto.getTitle(); // 이메일 제목
-            String content = groupEmailReqDto.getContents(); // 이메일 내용
-            GroupSend(task, username, toMail, title, content);
-        }
-        return "전송 완료";
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) {
         List<String> emailList = eventEmailReqDto.getEmailList();
 
@@ -161,15 +140,14 @@ public class EmailSendService {
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
         );
 
-        EmailTask task = EmailTask.builder()
-                .title(event.getName())
-                .build();
-        emailTaskRepository.save(task);
-
         for (String toMail : emailList) {
             String title = event.getName(); // 이메일 제목
             String content = event.getContents(); // 이메일 내용
-            GroupSend(task, username, toMail, title, content);
+            Long eventId = event.getId();
+            content = content.replace("{email}", toMail);
+            content = content.replace("{eventId}", String.valueOf(eventId));
+
+            GroupSend(event, username, toMail, title, content);
         }
         return "전송 완료";
     }
@@ -196,7 +174,7 @@ public class EmailSendService {
 
 
     @PreAuthorize("hasAuthority('MARKETER')")
-    public void GroupSend(EmailTask task, String setFrom, String toMail, String title, String content) {
+    public void GroupSend(Event event, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -217,11 +195,23 @@ public class EmailSendService {
             EmailLog log = EmailLog.builder()
                     .message(result.getMsg())
                     .CODE(result.getResultCode())
+                    .event(event)
                     .toEmail(result.getData())
-                    .emailTaskId(task.getId())
+                    .emailCheck(false)
                     .build();
+
             emailLogRepository.save(log);
             return result;
         });
+    }
+
+    @Transactional
+    public String trackingPixel(String email, Long id) {
+        EmailLog emailLog = emailLogRepository.findByToEmailAndEventId(email,id).orElseThrow(
+                () -> new CatchException(ResponseCode.TO_EMAIL_NOT_FOUND)
+        );
+        emailLog.check();
+
+        return "success";
     }
 }

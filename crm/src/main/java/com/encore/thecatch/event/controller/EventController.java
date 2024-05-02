@@ -37,4 +37,9 @@ public class EventController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_EVENT_DETAIL, eventService.eventDetail(id,IPUtil.getClientIP(request)));
     }
 
+    @GetMapping("/user/event/{id}")
+    public ResponseDto userDetail(@PathVariable Long id, HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_EVENT_DETAIL, eventService.eventContents(id));
+    }
+
 }

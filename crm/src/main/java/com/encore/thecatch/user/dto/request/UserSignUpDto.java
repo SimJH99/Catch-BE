@@ -14,6 +14,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserSignUpDto {
     private String name;
     private String email;
