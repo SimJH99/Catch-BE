@@ -33,6 +33,7 @@ public class CouponResDto {
                 .company(coupon.getCompanyId())
                 .build();
         return couponResDto;
+
     }
 
     public static CouponResDto publishToCouponDto(ReceiveCoupon receiveCoupon){
