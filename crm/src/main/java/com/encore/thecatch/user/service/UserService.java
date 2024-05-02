@@ -520,4 +520,29 @@ public class UserService {
                 .stream().map(SignUpMonthRes::toDto)
                 .collect(Collectors.toList());
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<SignUpYearRes> signUpYear(SignUpYearReq signUpYearReq) {
+        return userQueryRepository.signUpYear(signUpYearReq)
+                .stream().map(SignUpYearRes::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public SignUpUserRes signUpUser() {
+        Long dayUser = userQueryRepository.signUpUserDay();
+        Long lastDayUser = userQueryRepository.signUpUserLastDay();
+        Long weekUser = userQueryRepository.signUpUserWeek();
+        Long lastWeekUser = userQueryRepository.signUpUserLastWeek();
+        Long monthUser = userQueryRepository.signUpUserMonth();
+        Long lastMonthUser = userQueryRepository.signUpUserLastMonth();
+
+        return SignUpUserRes.builder()
+                .dayUser(dayUser)
+                .lastDayUser(dayUser - lastDayUser)
+                .weekUser(weekUser)
+                .lastWeekUser(weekUser - lastWeekUser)
+                .monthUser(monthUser)
+                .lastMonthUser(monthUser - lastMonthUser)
+                .build();
+    }
 }

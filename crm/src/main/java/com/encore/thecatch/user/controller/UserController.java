@@ -113,4 +113,20 @@ public class UserController {
                 new DefaultResponse<List<SignUpMonthRes>>(userService.signUpMonth(signUpMonthReq)));
     }
 
+    @PostMapping("/user/signUp/year")
+    public ResponseDto signUpYear(@RequestBody SignUpYearReq signUpYearReq){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<SignUpYearRes>>(userService.signUpYear(signUpYearReq)));
+    }
+
+    @GetMapping("/user/signUp/user")
+    public ResponseDto signUpUser(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<SignUpUserRes>(userService.signUpUser()));
+    }
+
+
+
 }
