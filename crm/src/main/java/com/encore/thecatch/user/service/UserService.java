@@ -57,10 +57,11 @@ public class UserService {
     private final AesUtil aesUtil;
     private final CompanyRepository companyRepository;
     private final RedisService redisService;
-    private final UserQueryRepository userQueryRepository;
+//    private final UserQueryRepository userQueryRepository;
     private final AdminRepository adminRepository;
     private final AdminLogRepository adminLogRepository;
     private final MaskingUtil maskingUtil;
+    private final UserQueryRepository userQueryRepository;
 
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,

@@ -1,13 +1,10 @@
 package com.encore.thecatch.event.service;
 
 import com.encore.thecatch.admin.domain.Admin;
-import com.encore.thecatch.admin.dto.response.AdminDetailDto;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.util.AesUtil;
-import com.encore.thecatch.coupon.dto.CouponFindResDto;
-import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
 import com.encore.thecatch.event.dto.response.EventContentsDto;
@@ -21,7 +18,6 @@ import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.AdminLogRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,8 +37,8 @@ public class EventService {
     public EventService(EventRepository eventRepository,
                         AdminRepository adminRepository,
                         AdminLogRepository adminLogRepository,
-                        AesUtil aesUtil,
-                        EventQueryRepository eventQueryRepository) {
+                        EventQueryRepository eventQueryRepository,
+                        AesUtil aesUtil) {
         this.eventRepository = eventRepository;
         this.adminRepository = adminRepository;
         this.adminLogRepository = adminLogRepository;
