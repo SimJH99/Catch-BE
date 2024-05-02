@@ -1,6 +1,6 @@
 package com.encore.thecatch.event.dto.response;
 
-import com.encore.thecatch.common.dto.Role;
+import com.encore.thecatch.event.domain.EventStatus;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Data;
@@ -16,16 +16,19 @@ public class EventInfoDto {
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
+    private EventStatus eventStatus;
 
     @QueryProjection
     public EventInfoDto(
             Long id,
             String name,
             LocalDate startDate,
-            LocalDate endDate) {
+            LocalDate endDate,
+            EventStatus eventStatus) {
         this.id = id;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.eventStatus =eventStatus;
     }
 }

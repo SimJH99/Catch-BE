@@ -14,4 +14,5 @@ public class EventSearchDto {
     private String name;
     private String startDate;
     private String endDate;
+    private String eventStatus;
 }

@@ -31,13 +31,13 @@ public class CouponController {
         return new ResponseDto(HttpStatus.CREATED, ResponseCode.SUCCESS_CREATE_COUPON, new DefaultResponse<Long>(coupon.getId()));
     }
 
-    @PatchMapping("/{id}/publish")
-    public ResponseDto couponPublish(@PathVariable Long id, @RequestBody PublishUserDto publishUserDto) throws Exception {
-        Coupon coupon = couponService.publish(id, publishUserDto);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, new DefaultResponse<Long>(coupon.getId()));
+    @PatchMapping("/{id}/couponNotificationSend")
+    public ResponseDto couponNotificationSend(@PathVariable Long id, @RequestBody PublishUserDto publishUserDto) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, couponService.createCouponNotification(id, publishUserDto));
     }
 
-    @PatchMapping("/receive")
+
+    @PostMapping("/receive")
     public ResponseDto couponReceive(@RequestBody CouponReceiveDto couponReceiveDto) {
         Coupon coupon = couponService.receive(couponReceiveDto);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_RECEIVE_COUPON, new DefaultResponse<Long>(coupon.getId()));
