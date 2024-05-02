@@ -6,10 +6,7 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
 import com.encore.thecatch.notification.dto.PushTokenDto;
 import com.encore.thecatch.user.domain.User;
-import com.encore.thecatch.user.dto.request.UserLoginDto;
-import com.encore.thecatch.user.dto.request.UserSearchDto;
-import com.encore.thecatch.user.dto.request.UserSignUpDto;
-import com.encore.thecatch.user.dto.request.UserUpdateDto;
+import com.encore.thecatch.user.dto.request.*;
 import com.encore.thecatch.user.dto.response.*;
 import com.encore.thecatch.user.service.UserService;
 import org.springframework.data.domain.Pageable;
@@ -41,26 +38,6 @@ public class UserController {
     public ResponseDto userLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request) throws Exception {
         ResponseDto responseDto = userService.doLogin(userLoginDto, IPUtil.getClientIP(request));
         return responseDto;
-    }
-
-    @GetMapping("/user/grade")
-    public ResponseDto chartGrade(){
-        return new ResponseDto(HttpStatus.OK,
-                ResponseCode.SUCCESS,
-                new DefaultResponse<List<ChartGradeRes>>(userService.chartGrade()));
-    }
-    @GetMapping("/user/gender")
-    public ResponseDto chartGender(){
-        return new ResponseDto(HttpStatus.OK,
-                ResponseCode.SUCCESS,
-                new DefaultResponse<List<ChartGenderRes>>(userService.chartGender()));
-    }
-
-    @GetMapping("/user/age")
-    public ResponseDto chartAge(){
-        return new ResponseDto(HttpStatus.OK,
-                ResponseCode.SUCCESS,
-                new DefaultResponse<List<ChartAgeRes>>(userService.chartAge()));
     }
 
     @PostMapping("/user/search")
@@ -108,5 +85,48 @@ public class UserController {
     public ResponseDto savePushToken(@RequestBody PushTokenDto pushTokenDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, userService.savePushToken(pushTokenDto.getEmail() ,pushTokenDto.getPushToken()));
     }
+
+    @GetMapping("/user/grade")
+    public ResponseDto chartGrade(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartGradeRes>>(userService.chartGrade()));
+    }
+    @GetMapping("/user/gender")
+    public ResponseDto chartGender(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartGenderRes>>(userService.chartGender()));
+    }
+
+    @GetMapping("/user/age")
+    public ResponseDto chartAge(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<ChartAgeRes>>(userService.chartAge()));
+    }
+
+    @PostMapping("/user/signUp/month")
+    public ResponseDto signUpMonth(@RequestBody SignUpMonthReq signUpMonthReq){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<SignUpMonthRes>>(userService.signUpMonth(signUpMonthReq)));
+    }
+
+    @PostMapping("/user/signUp/year")
+    public ResponseDto signUpYear(@RequestBody SignUpYearReq signUpYearReq){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<List<SignUpYearRes>>(userService.signUpYear(signUpYearReq)));
+    }
+
+    @GetMapping("/user/signUp/user")
+    public ResponseDto signUpUser(){
+        return new ResponseDto(HttpStatus.OK,
+                ResponseCode.SUCCESS,
+                new DefaultResponse<SignUpUserRes>(userService.signUpUser()));
+    }
+
+
 
 }

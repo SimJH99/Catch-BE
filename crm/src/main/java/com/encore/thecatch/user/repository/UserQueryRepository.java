@@ -9,6 +9,8 @@ import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.QUser;
 import com.encore.thecatch.user.domain.User;
+import com.encore.thecatch.user.dto.request.SignUpMonthReq;
+import com.encore.thecatch.user.dto.request.SignUpYearReq;
 import com.encore.thecatch.user.dto.request.UserSearchDto;
 import com.encore.thecatch.user.dto.response.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,7 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -124,6 +127,131 @@ public class UserQueryRepository extends Querydsl4RepositorySupport {
                     }
                 }
         );
+    }
+
+    public List<SignUpMonth> signUpMonth(SignUpMonthReq signUpMonthReq) {
+        String dateString = signUpMonthReq.getMonth();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth currentMonth = YearMonth.parse(dateString, formatter);
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return select(
+                new QSignUpMonth(
+                        user.createdTime,
+                        user.count()))
+                .from(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startOfMonth),
+                        user.createdTime.loe(endOfMonth))
+                .groupBy(user.createdTime.dayOfMonth())
+                .fetch();
+    }
+
+    public List<SignUpYear> signUpYear(SignUpYearReq signUpYearReq) {
+        String dateString = signUpYearReq.getYear();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        Year currentYear = Year.parse(dateString, formatter);
+        LocalDateTime startOfYear = LocalDateTime.of(currentYear.getValue(), 1, 1, 0, 0, 0);
+        LocalDateTime endOfYear = LocalDateTime.of(currentYear.getValue(), 12, 31, 23, 59, 59);
+
+        return select(
+                new QSignUpYear(
+                        user.createdTime,
+                        user.count()))
+                .from(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startOfYear),
+                        user.createdTime.loe(endOfYear))
+                .groupBy(user.createdTime.yearMonth())
+                .fetch();
+    }
+
+    public Long signUpUserDay() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDate currentDate = LocalDate.now();
+        LocalDateTime startTime = LocalDateTime.of(currentDate, LocalTime.of(0,0,0));
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startTime),
+                        user.createdTime.loe(currentTime))
+                .fetchCount();
+    }
+
+    public Long signUpUserLastDay(){
+        LocalDate lastDay = LocalDate.now().minusDays(1);
+        LocalDateTime startLastTime = lastDay.atStartOfDay();
+        LocalDateTime endLastTime = LocalDateTime.of(lastDay, LocalTime.of(23,59,59));
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startLastTime),
+                        user.createdTime.loe(endLastTime))
+                .fetchCount();
+    }
+
+    public Long signUpUserWeek() {
+        LocalDate currentDate = LocalDate.now();
+        DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+        LocalDate thisMonday = currentDate.minusDays(currentDayOfWeek.getValue() - DayOfWeek.MONDAY.getValue());
+        LocalDateTime startTime = thisMonday.atStartOfDay();
+
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startTime),
+                        user.createdTime.loe(LocalDateTime.now()))
+                .fetchCount();
+    }
+
+    public Long signUpUserLastWeek() {
+        LocalDate currentDate = LocalDate.now().minusWeeks(1);
+        DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+        LocalDate thisMonday = currentDate.minusDays(currentDayOfWeek.getValue() - DayOfWeek.MONDAY.getValue());
+        LocalDate thisSunday = currentDate.minusDays(DayOfWeek.SUNDAY.getValue() - currentDayOfWeek.getValue());
+        LocalDateTime startTime = thisMonday.atStartOfDay();
+        LocalDateTime endTime = thisSunday.atTime(LocalTime.MAX);
+
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startTime),
+                        user.createdTime.loe(endTime))
+                .fetchCount();
+    }
+
+    public Long signUpUserMonth() {
+        LocalDate currentDate = LocalDate.now();
+
+        YearMonth currentMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonth());
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startOfMonth),
+                        user.createdTime.loe(LocalDateTime.now()))
+                .fetchCount();
+    }
+
+    public Long signUpUserLastMonth() {
+        LocalDate currentDate = LocalDate.now().minusMonths(1);
+
+        YearMonth currentMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonth());
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        return selectFrom(user)
+                .where(
+                        user.active.eq(true),
+                        user.createdTime.goe(startOfMonth),
+                        user.createdTime.loe(endOfMonth))
+                .fetchCount();
     }
 
     private BooleanExpression containsName(String name) throws Exception {
