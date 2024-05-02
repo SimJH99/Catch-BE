@@ -2,7 +2,6 @@ package com.encore.thecatch.event.domain;
 
 import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.company.domain.Company;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +23,8 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 5000)
+    @Column(nullable = false)
+    @Lob
     private String contents;
 
     @Column(nullable = false)
@@ -36,4 +36,11 @@ public class Event extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company companyId;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus eventStatus;
+
+    public void publishEvent(){
+        this.eventStatus = EventStatus.PUBLISH;
+    }
 }

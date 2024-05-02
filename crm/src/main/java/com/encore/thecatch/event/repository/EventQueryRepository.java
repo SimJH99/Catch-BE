@@ -3,6 +3,7 @@ package com.encore.thecatch.event.repository;
 import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.event.domain.Event;
+import com.encore.thecatch.event.domain.EventStatus;
 import com.encore.thecatch.event.domain.QEvent;
 import com.encore.thecatch.event.dto.response.EventInfoDto;
 import com.encore.thecatch.event.dto.response.EventSearchDto;
@@ -34,11 +35,13 @@ public class EventQueryRepository extends Querydsl4RepositorySupport {
                                         event.id,
                                         event.name,
                                         event.startDate,
-                                        event.endDate))
+                                        event.endDate,
+                                        event.eventStatus))
                         .from(event)
                         .where(containsName(eventSearchDto.getName()),
                                 containsStartDate(eventSearchDto.getStartDate()),
                                 containsEndDate(eventSearchDto.getEndDate()),
+                                containsEventStatus(eventSearchDto.getEventStatus()),
                                 event.companyId.eq(company))
                         .orderBy(event.createdTime.desc()),
                 countQuery -> countQuery
@@ -47,6 +50,7 @@ public class EventQueryRepository extends Querydsl4RepositorySupport {
                                 containsName(eventSearchDto.getName()),
                                 containsStartDate(eventSearchDto.getStartDate()),
                                 containsEndDate(eventSearchDto.getEndDate()),
+                                containsEventStatus(eventSearchDto.getEventStatus()),
                                 event.companyId.eq(company)));
     }
 
@@ -60,6 +64,10 @@ public class EventQueryRepository extends Querydsl4RepositorySupport {
 
     private Predicate containsName(String name) {
         return hasText(name) ? event.name.eq(name) : null;
+    }
+
+    private Predicate containsEventStatus(String eventStatus) {
+        return hasText(eventStatus) ? event.eventStatus.eq(EventStatus.fromValue(eventStatus)) : null;
     }
 
 }

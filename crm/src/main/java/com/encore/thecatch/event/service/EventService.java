@@ -4,8 +4,10 @@ import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.event.domain.Event;
+import com.encore.thecatch.event.domain.EventStatus;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
 import com.encore.thecatch.event.dto.response.EventContentsDto;
 import com.encore.thecatch.event.dto.response.EventDetailDto;
@@ -16,6 +18,15 @@ import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.AdminLog;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.AdminLogRepository;
+import com.encore.thecatch.mail.service.EmailSendService;
+import com.encore.thecatch.notification.dto.EventNotificationReqDto;
+import com.encore.thecatch.notification.service.NotificationService;
+import com.encore.thecatch.user.domain.User;
+import com.encore.thecatch.user.repository.UserRepository;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +36,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class EventService {
@@ -34,16 +47,33 @@ public class EventService {
     private final AesUtil aesUtil;
     private final EventQueryRepository eventQueryRepository;
 
+    private final UserRepository userRepository;
+    public final EmailSendService emailSendService;
+
+    private final RedisService redisService;
+    public final FirebaseMessaging firebaseMessaging;
+    public final NotificationService notificationService;
+
     public EventService(EventRepository eventRepository,
                         AdminRepository adminRepository,
                         AdminLogRepository adminLogRepository,
+                        AesUtil aesUtil,
                         EventQueryRepository eventQueryRepository,
-                        AesUtil aesUtil) {
+                        UserRepository userRepository,
+                        EmailSendService emailSendService,
+                        RedisService redisService,
+                        FirebaseMessaging firebaseMessaging,
+                        NotificationService notificationService) {
         this.eventRepository = eventRepository;
         this.adminRepository = adminRepository;
         this.adminLogRepository = adminLogRepository;
         this.aesUtil = aesUtil;
         this.eventQueryRepository = eventQueryRepository;
+        this.userRepository = userRepository;
+        this.emailSendService = emailSendService;
+        this.redisService = redisService;
+        this.firebaseMessaging = firebaseMessaging;
+        this.notificationService = notificationService;
     }
 
 
@@ -61,6 +91,7 @@ public class EventService {
                 .startDate(LocalDate.parse(eventCreateDto.getStartDate()))
                 .endDate(LocalDate.parse(eventCreateDto.getEndDate()))
                 .companyId(marketer.getCompany())
+                .eventStatus(EventStatus.ISSUANCE)
                 .build();
 
         eventRepository.save(event);
@@ -116,6 +147,45 @@ public class EventService {
         return eventDetailDto;
     }
 
+    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String createEventNotification(Long id, EventNotificationReqDto eventNotificationReqDto) throws Exception {
+
+        List<Long> userIds = eventNotificationReqDto.getUserIds();
+
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        List<User> users = new ArrayList<>();
+        for (Long userId : userIds) {
+            users.add(userRepository.findById(userId).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND)));
+        }
+        for (User user : users) {
+            String fcmToken = redisService.getValues("PushToken" + user.getId());
+            System.out.println(fcmToken);
+            if (fcmToken.equals("false")) {
+                boolean confirm = false;
+                notificationService.saveEventNotification(user, confirm, event);
+            } else {
+                boolean confirm = true;
+                notificationService.saveEventNotification(user, confirm, event);
+                Message message = Message.builder()
+                        .setToken(fcmToken)
+                        .setNotification(Notification.builder()
+                                .setTitle(event.getName())
+                                .setBody("이벤트를 확인하세요!")
+                                .build())
+                        .build();
+                try {
+                    String response = firebaseMessaging.send(message);
+                    System.out.println("Successfully sent message: " + response);
+                } catch (FirebaseMessagingException e) {
+                    System.err.println("Error sending message: " + e.getMessage());
+                }
+            }
+        }
+        return "전송 완료";
+    }
     public EventContentsDto eventContents(Long id){
         Event event = eventRepository.findById(id).orElseThrow(
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)

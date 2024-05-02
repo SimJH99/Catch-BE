@@ -129,6 +129,20 @@ public class UserQueryRepository extends Querydsl4RepositorySupport {
         );
     }
 
+
+    public List<User> TargetUserList(UserSearchDto userSearchDto, Company company) throws Exception {
+        return selectFrom(user)
+                .where(containsName(userSearchDto.getName()),
+                        eqEmail(userSearchDto.getEmail()),
+                        eqBrithDate(userSearchDto.getBirthDate()),
+                        containsPhoneNumber(userSearchDto.getPhoneNumber()),
+                        eqGender(userSearchDto.getGender()),
+                        eqGrade(userSearchDto.getGrade()),
+                        user.consentReceiveMarketing.eq(true),
+                        user.company.eq(company))
+                .fetch();
+    }
+
     public List<SignUpMonth> signUpMonth(SignUpMonthReq signUpMonthReq) {
         String dateString = signUpMonthReq.getMonth();
 

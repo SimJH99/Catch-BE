@@ -70,12 +70,13 @@ public class CouponService {
     @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
     public Coupon createCoupon(CouponReqDto couponReqDto){
-        try{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
-            Long companyId = admin.getCompany().getId();
             // UUID(Universally Unique Identifier)란?
             //범용 고유 식별자를 의미하며 중복이 되지 않는 유일한 값을 구성하고자 할때 주로 사용됨(ex)세션 식별자, 쿠키 값, 무작위 데이터베이스값 )
+            if(couponRepository.findByName(couponReqDto.getName()).isPresent()){
+                throw new CatchException(ResponseCode.EXISTING_COUPON_NAME);
+            }
             String code = UUID.randomUUID().toString();
             Coupon new_coupon = Coupon.builder()
                     .name(couponReqDto.getName())
@@ -88,9 +89,6 @@ public class CouponService {
                     .build();
             Coupon coupon = couponRepository.save(new_coupon);
             return coupon;
-        }catch(CatchException e){
-            throw new CatchException(ResponseCode.EXISTING_COUPON_NAME);
-        }
     }
 
 
@@ -123,7 +121,7 @@ public class CouponService {
     }
 
     public CouponResDto findById(Long id) {
-        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠폰입니다."));
+        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.COUPON_NOT_FOUND));
         return CouponResDto.toCouponResDto(coupon);
     }
 
@@ -135,18 +133,13 @@ public class CouponService {
 
     @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Coupon publish(Long id, PublishUserDto publishUserDto) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
-        Long companyId = admin.getCompany().getId();
+    public String createCouponNotification(Long id, PublishUserDto publishUserDto) throws Exception {
+        List<Long> userIds = publishUserDto.getUserIds();
         Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.COUPON_NOT_FOUND));
-        if(!coupon.getCompanyId().getId().equals(companyId)){
-            throw new CatchException(ResponseCode.ACCESS_DENIED);
-        }
+
         if(coupon.getCouponStatus() == CouponStatus.PUBLISH){
             throw new CatchException(ResponseCode.ALREADY_PUBLISH_COUPON);
         }
-        List<Long> userIds = publishUserDto.getUserIds();
         List<User> users = new ArrayList<>();
         for(Long userId : userIds){
             users.add(userRepository.findById(userId).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND)));
@@ -173,10 +166,8 @@ public class CouponService {
                     System.err.println("Error sending message: " + e.getMessage());
                 }
             }
-            emailSendService.createCouponEmail(coupon, aesUtil.aesCBCDecode(admin.getEmail()));
         }
-        coupon.publishCoupon();
-        return coupon;
+        return "전송 완료";
     }
 
 
@@ -187,6 +178,9 @@ public class CouponService {
         Coupon coupon = couponRepository.findByCode(couponReceiveDto.getCode()).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
         if(!coupon.getCompanyId().equals(user.getCompany()) && !coupon.getCouponStatus().equals(CouponStatus.PUBLISH)){
             throw new CatchException(ResponseCode.NON_RECEIVABLE_COUPON);
+        }
+        if(coupon.getQuantity()<1){
+            throw new CatchException(ResponseCode.COUPON_EXHAUSTION);
         }
         if(!receiveCouponRepository.findByCouponIdAndUserId(coupon.getId(), user.getId()).isEmpty()){
             throw new CatchException(ResponseCode.ALREADY_RECEIVED_COUPON);
@@ -205,10 +199,9 @@ public class CouponService {
 
     public Coupon couponUpdate(Long id, CouponReqDto couponReqDto){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        Long companyId = user.getCompany().getId();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
-        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && user.getRole().equals(Role.ADMIN) && coupon.getCompanyId() == user.getCompany()){
+        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && coupon.getCompanyId() == admin.getCompany()){
             coupon.updateCoupon(couponReqDto);
             couponRepository.save(coupon);
         }else{

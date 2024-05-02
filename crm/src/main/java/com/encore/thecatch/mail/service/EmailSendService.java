@@ -9,12 +9,16 @@ import com.encore.thecatch.common.RsData;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.coupon.repository.CouponRepository;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
+import com.encore.thecatch.mail.dto.CouponEmailReqDto;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
+import com.encore.thecatch.user.repository.UserRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,6 +31,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +48,9 @@ public class EmailSendService {
     private final EventRepository eventRepository;
     private int authNumber;
 
+    private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
+
     public EmailSendService(
             JavaMailSender javaMailSender,
             @Value("${spring.mail.username}")
@@ -51,7 +59,8 @@ public class EmailSendService {
             EmailLogRepository emailLogRepository,
             AdminRepository adminRepository,
             AesUtil aesUtil,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            UserRepository userRepository, CouponRepository couponRepository
     ) {
         this.javaMailSender = javaMailSender;
         this.username = username;
@@ -60,6 +69,8 @@ public class EmailSendService {
         this.adminRepository = adminRepository;
         this.aesUtil = aesUtil;
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+        this.couponRepository = couponRepository;
     }
 
     public boolean checkAuthNum(String email, String authNum) {
@@ -120,8 +131,18 @@ public class EmailSendService {
     }
 
     @Async
-    public void createCouponEmail(Coupon coupon, String toMail) throws Exception {
-        String title = coupon.getName(); // 이메일 제목
+    public String createCouponEmail(Long id, CouponEmailReqDto couponEmailReqDto) throws Exception {
+
+        List<Long> userIds = couponEmailReqDto.getUserIds();
+        List<String> emailList = new ArrayList<>();
+        for(Long userId : userIds){
+            String email = aesUtil.aesCBCDecode(userRepository.findById(userId).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND)).getEmail());
+            emailList.add(email);;
+        }
+
+        Coupon coupon = couponRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.COUPON_NOT_FOUND)
+        );
         String content =
                 "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
                         "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
@@ -129,12 +150,22 @@ public class EmailSendService {
                         "</div>" +
                         "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
 
-        mailSend(username, toMail, title, content);
+        for (String toMail : emailList) {
+            String title = coupon.getName(); // 이메일 제목
+            couponGroupSend(coupon, username, toMail, title, content);
+        }
+        return "전송 완료";
     }
 
+
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) {
-        List<String> emailList = eventEmailReqDto.getEmailList();
+    public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) throws Exception {
+        List<Long> userIds = eventEmailReqDto.getUserIds();
+        List<String> emailList = new ArrayList<>();
+        for(Long userId : userIds){
+            String email = aesUtil.aesCBCDecode(userRepository.findById(userId).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND)).getEmail());
+            emailList.add(email);;
+        }
 
         Event event = eventRepository.findById(id).orElseThrow(
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
@@ -173,6 +204,7 @@ public class EmailSendService {
     }
 
 
+
     @PreAuthorize("hasAuthority('MARKETER')")
     public void GroupSend(Event event, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
@@ -197,10 +229,44 @@ public class EmailSendService {
                     .CODE(result.getResultCode())
                     .event(event)
                     .toEmail(result.getData())
+                    .viewCount(0L)
                     .emailCheck(false)
                     .build();
 
             emailLogRepository.save(log);
+            return result;
+        });
+    }
+
+    @PreAuthorize("hasAuthority('MARKETER')")
+    public void couponGroupSend(Coupon coupon, String setFrom, String toMail, String title, String content) {
+//        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
+        CompletableFuture.supplyAsync(() -> {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+                helper.setFrom(setFrom);//이메일의 발신자 주소 설정
+                helper.setTo(toMail);//이메일의 수신자 주소 설정
+                helper.setSubject(title);//이메일의 제목을 설정
+                helper.setText(content, true);//이메일의 내용 설정 두 번째 매개 변수에 true를 설정하여 html 설정으로한다.
+                javaMailSender.send(mimeMessage);
+                return RsData.of("S-1", "메일이 발송되었습니다.", toMail);
+            } catch (MessagingException e) {
+                return RsData.of("F-1", "메일이 발송되지 않았습니다.", toMail);
+            }
+
+        }).thenApply(result -> {
+            // CompletableFuture가 완료된 후에 실행될 작업을 정의합니다.
+//            EmailLog log = EmailLog.builder()
+//                    .message(result.getMsg())
+//                    .CODE(result.getResultCode())
+//                    .event(event)
+//                    .toEmail(result.getData())
+//                    .viewCount(0L)
+//                    .emailCheck(false)
+//                    .build();
+//
+//            emailLogRepository.save(log);
             return result;
         });
     }
