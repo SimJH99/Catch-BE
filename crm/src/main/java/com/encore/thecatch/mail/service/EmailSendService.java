@@ -9,14 +9,17 @@ import com.encore.thecatch.common.RsData;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.coupon.repository.CouponRepository;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.mail.Entity.EmailTask;
+import com.encore.thecatch.mail.dto.CouponEmailReqDto;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.mail.repository.EmailTaskRepository;
+import com.encore.thecatch.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +49,9 @@ public class EmailSendService {
     private final EventRepository eventRepository;
     private int authNumber;
 
+    private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
+
     public EmailSendService(
             JavaMailSender javaMailSender,
             @Value("${spring.mail.username}")
@@ -54,7 +61,8 @@ public class EmailSendService {
             EmailTaskRepository emailTaskRepository,
             AdminRepository adminRepository,
             AesUtil aesUtil,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            UserRepository userRepository, CouponRepository couponRepository
     ) {
         this.javaMailSender = javaMailSender;
         this.username = username;
@@ -64,6 +72,8 @@ public class EmailSendService {
         this.adminRepository = adminRepository;
         this.aesUtil = aesUtil;
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+        this.couponRepository = couponRepository;
     }
 
     public boolean checkAuthNum(String email, String authNum) {
@@ -124,16 +134,38 @@ public class EmailSendService {
     }
 
     @Async
-    public void createCouponEmail(Coupon coupon, String toMail) throws Exception {
-        String title = coupon.getName(); // 이메일 제목
-        String content =
-                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
-                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
-                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
-                        "</div>" +
-                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+    public String createCouponEmail(Long id, CouponEmailReqDto couponEmailReqDto) throws Exception {
 
-        mailSend(username, toMail, title, content);
+        List<Long> userIds = couponEmailReqDto.getUserIds();
+        List<String> emailList = new ArrayList<>();
+        for(Long userId : userIds){
+            String email = aesUtil.aesCBCDecode(userRepository.findById(userId).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND)).getEmail());
+            emailList.add(email);;
+        }
+
+        Coupon coupon = couponRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.COUPON_NOT_FOUND)
+        );
+
+        EmailTask task = EmailTask.builder()
+                .title(coupon.getName())
+                .build();
+        emailTaskRepository.save(task);
+
+        for (String toMail : emailList) {
+            String title = coupon.getName(); // 이메일 제목
+            String content = coupon.getCode(); // 이메일 내용
+            GroupSend(task, username, toMail, title, content);
+        }
+        return "전송 완료";
+
+//        String content =
+//                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
+//                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
+//                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
+//                        "</div>" +
+//                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
@@ -154,8 +186,13 @@ public class EmailSendService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) {
-        List<String> emailList = eventEmailReqDto.getEmailList();
+    public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) throws Exception {
+        List<Long> userIds = eventEmailReqDto.getUserIds();
+        List<String> emailList = new ArrayList<>();
+        for(Long userId : userIds){
+            String email = aesUtil.aesCBCDecode(userRepository.findById(userId).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND)).getEmail());
+            emailList.add(email);;
+        }
 
         Event event = eventRepository.findById(id).orElseThrow(
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
@@ -195,7 +232,7 @@ public class EmailSendService {
     }
 
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void GroupSend(EmailTask task, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {
@@ -219,6 +256,7 @@ public class EmailSendService {
                     .CODE(result.getResultCode())
                     .toEmail(result.getData())
                     .emailTaskId(task.getId())
+                    .viewCount(0L)
                     .build();
             emailLogRepository.save(log);
             return result;

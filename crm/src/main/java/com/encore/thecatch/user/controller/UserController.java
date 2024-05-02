@@ -68,6 +68,12 @@ public class UserController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
                 new DefaultResponse.PagedResponse<UserListRes>(userService.searchUser(userSearchDto, pageable)));
     }
+
+    @PostMapping("/user/targetSearch")
+    public ResponseDto searchTarget(@RequestBody UserSearchDto userSearchDto) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse.ListResponse<UserListRes>(userService.searchTarget(userSearchDto)));
+    }
     @PostMapping("/user/doLogout")
     public ResponseDto userLogout(HttpServletRequest request) throws Exception {
         userService.userLogout(IPUtil.getClientIP(request));

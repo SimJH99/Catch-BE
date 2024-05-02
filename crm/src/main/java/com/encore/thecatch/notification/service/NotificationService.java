@@ -1,36 +1,18 @@
 package com.encore.thecatch.notification.service;
-//
-//import com.encore.thecatch.admin.domain.Admin;
-//import com.encore.thecatch.admin.repository.AdminRepository;
-//import com.encore.thecatch.common.CatchException;
-//import com.encore.thecatch.common.ResponseCode;
-//import com.encore.thecatch.notification.domain.Notification;
-//import com.encore.thecatch.notification.dto.NotificationRequestDto;
-//import com.encore.thecatch.notification.repository.NotificationRepository;
-//import com.encore.thecatch.user.domain.User;
-//import com.encore.thecatch.user.repository.UserRepository;
-//import com.google.firebase.messaging.FirebaseMessaging;
-//import com.google.firebase.messaging.Message;
-//import com.google.firebase.messaging.WebpushConfig;
-//import com.google.firebase.messaging.WebpushNotification;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.stereotype.Service;
-//
-//import javax.transaction.Transactional;
-//import java.util.concurrent.ExecutionException;
-//
+
 
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.coupon.domain.Coupon;
+import com.encore.thecatch.event.domain.Event;
+import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.notification.domain.Notification;
 import com.encore.thecatch.notification.dto.NotificationResDto;
 import com.encore.thecatch.notification.repository.NotificationRepository;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.repository.UserRepository;
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -47,9 +29,19 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
+    private final EventRepository eventRepository;
+    private final RedisService redisService;
+    public final FirebaseMessaging firebaseMessaging;
+    public NotificationService(NotificationRepository notificationRepository,
+                               UserRepository userRepository,
+                               EventRepository eventRepository,
+                               RedisService redisService,
+                               FirebaseMessaging firebaseMessaging) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
+        this.redisService = redisService;
+        this.firebaseMessaging = firebaseMessaging;
     }
 
     @Transactional
@@ -62,6 +54,17 @@ public class NotificationService {
                 .build();
         notificationRepository.save(notification);
     }
+    @Transactional
+    public void saveEventNotification(User user, Boolean confirm, Event event){
+        Notification notification = Notification.builder()
+                .user(user)
+                .notificationTitle(event.getName())
+                .notificationContent(event.getContents())
+                .confirm(confirm)
+                .build();
+        notificationRepository.save(notification);
+    }
+
 
     public Page<NotificationResDto> findNonReceive(Pageable pageable){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -69,6 +72,8 @@ public class NotificationService {
         Page<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), false , pageable);
         return notifications.map(NotificationResDto::toNotificationResDto);
     }
+
+
 //    public String getNotificationToken() {
 ////        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 ////        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));

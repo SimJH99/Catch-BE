@@ -46,6 +46,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -516,4 +517,27 @@ public class UserService {
 //        return users.map(UserInfoDto::toUserInfoDto);
     }
 
+    public List<UserListRes> searchTarget(UserSearchDto userSearchDto) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        return userQueryRepository.TargetUserList(userSearchDto, admin.getCompany())
+                .stream().map(new Function<User, UserListRes>() {
+                    public UserListRes apply (User user){
+                        try {
+                            return UserListRes.builder()
+                                    .id(user.getId())
+                                    .name(aesUtil.aesCBCDecode(user.getName()))
+                                    .email(aesUtil.aesCBCDecode(user.getEmail()))
+                                    .birthDate(user.getBirthDate())
+                                    .gender(user.getGender())
+                                    .grade(user.getGrade())
+                                    .build();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }).collect(Collectors.toList());
+//                .stream().map(UserListRes -> new UserListRes().bu)
+
+    }
 }

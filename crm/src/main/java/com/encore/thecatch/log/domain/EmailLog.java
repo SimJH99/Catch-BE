@@ -35,4 +35,6 @@ public class EmailLog extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime createdTime;
 
+    private Long viewCount;
+
 }

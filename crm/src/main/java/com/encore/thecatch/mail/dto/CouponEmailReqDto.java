@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class EventEmailReqDto {
+public class CouponEmailReqDto {
     private List<Long> userIds;
 }
