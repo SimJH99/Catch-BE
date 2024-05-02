@@ -26,11 +26,6 @@ public class EmailController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEmailAuthNumber(adminLoginDto));
     }
 
-    @PostMapping("/groupMailSend")
-    public ResponseDto mailSend(@RequestBody GroupEmailReqDto groupEmailReqDto){
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createGroupEmail(groupEmailReqDto));
-    }
-
     @PostMapping("/event/{id}/mailSend")
     public ResponseDto EventMailSend(@PathVariable Long id, @RequestBody EventEmailReqDto eventEmailReqDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEventEmail(id, eventEmailReqDto));
@@ -39,5 +34,10 @@ public class EmailController {
     @PostMapping("/coupon/{id}/mailSend")
     public ResponseDto CouponMailSend(@PathVariable Long id, @RequestBody CouponEmailReqDto couponEmailReqDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createCouponEmail(id, couponEmailReqDto));
+    }
+    @PostMapping("/tracking_pixel/{to_email}/{event_id}")
+    public ResponseDto trackEmail(@PathVariable("to_email") String toEmail, @PathVariable("event_id") Long eventId) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.trackingPixel(toEmail, eventId));
+
     }
 }

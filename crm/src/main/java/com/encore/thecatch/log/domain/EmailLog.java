@@ -1,6 +1,7 @@
 package com.encore.thecatch.log.domain;
 
 import com.encore.thecatch.common.entity.BaseEntity;
+import com.encore.thecatch.event.domain.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +30,11 @@ public class EmailLog extends BaseEntity {
 
     private String toEmail; // 받는 사람 이메일
 
-    private Long emailTaskId;
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
+
+    private boolean emailCheck;
 
     @CreatedDate
     @Column(nullable = false)
@@ -37,4 +42,7 @@ public class EmailLog extends BaseEntity {
 
     private Long viewCount;
 
+    public void check() {
+        this.emailCheck = true;
+    }
 }

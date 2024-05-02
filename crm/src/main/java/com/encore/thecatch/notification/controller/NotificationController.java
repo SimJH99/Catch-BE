@@ -30,4 +30,8 @@ public class NotificationController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<NotificationResDto>(notificationService.findNonReceive(pageable)));
     }
 
+    @GetMapping("/eventList")
+    public ResponseDto findUserEventList(Pageable pageable) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<String>(notificationService.findUserEvent(pageable)));
+    }
 }

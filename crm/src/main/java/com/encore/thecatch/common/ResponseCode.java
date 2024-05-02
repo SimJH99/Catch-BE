@@ -80,8 +80,8 @@ public enum ResponseCode {
     EVENT_NOT_FOUND("EVENT_NOT_FOUND","이벤트를 찾을 수 없습니다." ),
     ALREADY_PUBLISH_EVENT("ALREADY_PUBLISH_EVENT","이미 발행된 이벤트입니다." ),
     SUCCESS_EVENT_DETAIL("SUCCESS_EVENT_DETAIL","상세정보 확인 완료" ),
-    COUPON_EXHAUSTION("COUPON_EXHAUSTION", "쿠폰이 모두 소진 되었습니다.");
-
+    COUPON_EXHAUSTION("COUPON_EXHAUSTION", "쿠폰이 모두 소진 되었습니다."),
+    TO_EMAIL_NOT_FOUND("TO_EMAIL_NOT_FOUND","해당 이메일을 해당 유저에게 보낸 기록이 없습니다." );
     private final String code;
     private final String label;
 

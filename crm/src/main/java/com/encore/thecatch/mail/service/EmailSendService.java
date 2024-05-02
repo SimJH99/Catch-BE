@@ -14,12 +14,11 @@ import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
-import com.encore.thecatch.mail.Entity.EmailTask;
 import com.encore.thecatch.mail.dto.CouponEmailReqDto;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.mail.dto.GroupEmailReqDto;
-import com.encore.thecatch.mail.repository.EmailTaskRepository;
 import com.encore.thecatch.user.repository.UserRepository;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,6 @@ public class EmailSendService {
     private final String username;
     private final RedisService redisService;
     private final EmailLogRepository emailLogRepository;
-    private final EmailTaskRepository emailTaskRepository;
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
     private final EventRepository eventRepository;
@@ -58,7 +57,6 @@ public class EmailSendService {
             String username,
             RedisService redisService,
             EmailLogRepository emailLogRepository,
-            EmailTaskRepository emailTaskRepository,
             AdminRepository adminRepository,
             AesUtil aesUtil,
             EventRepository eventRepository,
@@ -68,7 +66,6 @@ public class EmailSendService {
         this.username = username;
         this.redisService = redisService;
         this.emailLogRepository = emailLogRepository;
-        this.emailTaskRepository = emailTaskRepository;
         this.adminRepository = adminRepository;
         this.aesUtil = aesUtil;
         this.eventRepository = eventRepository;
@@ -146,44 +143,20 @@ public class EmailSendService {
         Coupon coupon = couponRepository.findById(id).orElseThrow(
                 () -> new CatchException(ResponseCode.COUPON_NOT_FOUND)
         );
-
-        EmailTask task = EmailTask.builder()
-                .title(coupon.getName())
-                .build();
-        emailTaskRepository.save(task);
+        String content =
+                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
+                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
+                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
+                        "</div>" +
+                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
 
         for (String toMail : emailList) {
             String title = coupon.getName(); // 이메일 제목
-            String content = coupon.getCode(); // 이메일 내용
-            GroupSend(task, username, toMail, title, content);
-        }
-        return "전송 완료";
-
-//        String content =
-//                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
-//                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
-//                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
-//                        "</div>" +
-//                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
-
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public String createGroupEmail(GroupEmailReqDto groupEmailReqDto) {
-        List<String> emailList = groupEmailReqDto.getEmailList();
-
-        EmailTask task = EmailTask.builder()
-                .title(groupEmailReqDto.getTitle())
-                .build();
-        emailTaskRepository.save(task);
-
-        for (String toMail : emailList) {
-            String title = groupEmailReqDto.getTitle(); // 이메일 제목
-            String content = groupEmailReqDto.getContents(); // 이메일 내용
-            GroupSend(task, username, toMail, title, content);
+            couponGroupSend(coupon, username, toMail, title, content);
         }
         return "전송 완료";
     }
+
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public String createEventEmail(Long id, EventEmailReqDto eventEmailReqDto) throws Exception {
@@ -198,15 +171,14 @@ public class EmailSendService {
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
         );
 
-        EmailTask task = EmailTask.builder()
-                .title(event.getName())
-                .build();
-        emailTaskRepository.save(task);
-
         for (String toMail : emailList) {
             String title = event.getName(); // 이메일 제목
             String content = event.getContents(); // 이메일 내용
-            GroupSend(task, username, toMail, title, content);
+            Long eventId = event.getId();
+            content = content.replace("{email}", toMail);
+            content = content.replace("{eventId}", String.valueOf(eventId));
+
+            GroupSend(event, username, toMail, title, content);
         }
         return "전송 완료";
     }
@@ -232,8 +204,9 @@ public class EmailSendService {
     }
 
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public void GroupSend(EmailTask task, String setFrom, String toMail, String title, String content) {
+
+    @PreAuthorize("hasAuthority('MARKETER')")
+    public void GroupSend(Event event, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -254,12 +227,57 @@ public class EmailSendService {
             EmailLog log = EmailLog.builder()
                     .message(result.getMsg())
                     .CODE(result.getResultCode())
+                    .event(event)
                     .toEmail(result.getData())
-                    .emailTaskId(task.getId())
                     .viewCount(0L)
+                    .emailCheck(false)
                     .build();
+
             emailLogRepository.save(log);
             return result;
         });
+    }
+
+    @PreAuthorize("hasAuthority('MARKETER')")
+    public void couponGroupSend(Coupon coupon, String setFrom, String toMail, String title, String content) {
+//        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
+        CompletableFuture.supplyAsync(() -> {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+                helper.setFrom(setFrom);//이메일의 발신자 주소 설정
+                helper.setTo(toMail);//이메일의 수신자 주소 설정
+                helper.setSubject(title);//이메일의 제목을 설정
+                helper.setText(content, true);//이메일의 내용 설정 두 번째 매개 변수에 true를 설정하여 html 설정으로한다.
+                javaMailSender.send(mimeMessage);
+                return RsData.of("S-1", "메일이 발송되었습니다.", toMail);
+            } catch (MessagingException e) {
+                return RsData.of("F-1", "메일이 발송되지 않았습니다.", toMail);
+            }
+
+        }).thenApply(result -> {
+            // CompletableFuture가 완료된 후에 실행될 작업을 정의합니다.
+//            EmailLog log = EmailLog.builder()
+//                    .message(result.getMsg())
+//                    .CODE(result.getResultCode())
+//                    .event(event)
+//                    .toEmail(result.getData())
+//                    .viewCount(0L)
+//                    .emailCheck(false)
+//                    .build();
+//
+//            emailLogRepository.save(log);
+            return result;
+        });
+    }
+
+    @Transactional
+    public String trackingPixel(String email, Long id) {
+        EmailLog emailLog = emailLogRepository.findByToEmailAndEventId(email,id).orElseThrow(
+                () -> new CatchException(ResponseCode.TO_EMAIL_NOT_FOUND)
+        );
+        emailLog.check();
+
+        return "success";
     }
 }

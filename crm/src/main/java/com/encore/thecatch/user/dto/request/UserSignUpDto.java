@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserSignUpDto {
     private String name;
     private String email;

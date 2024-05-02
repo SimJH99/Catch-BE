@@ -9,6 +9,7 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.domain.EventStatus;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
+import com.encore.thecatch.event.dto.response.EventContentsDto;
 import com.encore.thecatch.event.dto.response.EventDetailDto;
 import com.encore.thecatch.event.dto.response.EventInfoDto;
 import com.encore.thecatch.event.dto.response.EventSearchDto;
@@ -156,16 +157,16 @@ public class EventService {
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
         );
         List<User> users = new ArrayList<>();
-        for(Long userId : userIds){
+        for (Long userId : userIds) {
             users.add(userRepository.findById(userId).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND)));
         }
-        for(User user : users){
-            String fcmToken = redisService.getValues("PushToken"+ user.getId());
+        for (User user : users) {
+            String fcmToken = redisService.getValues("PushToken" + user.getId());
             System.out.println(fcmToken);
-            if(fcmToken.equals("false")){
+            if (fcmToken.equals("false")) {
                 boolean confirm = false;
                 notificationService.saveEventNotification(user, confirm, event);
-            }else {
+            } else {
                 boolean confirm = true;
                 notificationService.saveEventNotification(user, confirm, event);
                 Message message = Message.builder()
@@ -184,5 +185,14 @@ public class EventService {
             }
         }
         return "전송 완료";
+    }
+    public EventContentsDto eventContents(Long id){
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+
+        return EventContentsDto.builder()
+                .contents(event.getContents())
+                .build();
     }
 }

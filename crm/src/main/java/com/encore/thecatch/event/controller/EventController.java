@@ -46,6 +46,9 @@ public class EventController {
     public ResponseDto eventNotificationSend(@PathVariable Long id, @RequestBody EventNotificationReqDto eventNotificationReqDto) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_PUBLISH_COUPON, eventService.createEventNotification(id, eventNotificationReqDto));
     }
-
+    @GetMapping("/user/event/{id}")
+    public ResponseDto userDetail(@PathVariable Long id, HttpServletRequest request) throws Exception {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_EVENT_DETAIL, eventService.eventContents(id));
+    }
 
 }
