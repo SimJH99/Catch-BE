@@ -521,7 +521,7 @@ public class UserService {
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         return userQueryRepository.TargetUserList(userSearchDto, admin.getCompany())
                 .stream().map(new Function<User, UserListRes>() {
-                    public UserListRes apply (User user){
+                    public UserListRes apply(User user) {
                         try {
                             return UserListRes.builder()
                                     .id(user.getId())
@@ -536,6 +536,7 @@ public class UserService {
                         }
                     }
                 }).collect(Collectors.toList());
+    }
 //                .stream().map(UserListRes -> new UserListRes().bu)
 
 
