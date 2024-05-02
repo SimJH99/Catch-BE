@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
 @Builder
 @AllArgsConstructor

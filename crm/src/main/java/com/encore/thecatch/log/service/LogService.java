@@ -1,5 +1,7 @@
 package com.encore.thecatch.log.service;
 
+//import com.encore.thecatch.log.repository.EmailLogQueryRepository;
+
 import com.encore.thecatch.log.dto.DayOfWeekLogin;
 import com.encore.thecatch.log.dto.VisitTodayUserRes;
 import com.encore.thecatch.log.repository.EmailLogQueryRepository;
