@@ -25,13 +25,13 @@ public class EmailController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEmailAuthNumber(adminLoginDto));
     }
 
-    @PostMapping("/groupMailSend")
-    public ResponseDto mailSend(@RequestBody GroupEmailReqDto groupEmailReqDto){
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createGroupEmail(groupEmailReqDto));
-    }
-
     @PostMapping("/event/{id}/mailSend")
     public ResponseDto mailSend(@PathVariable Long id, @RequestBody EventEmailReqDto eventEmailReqDto) {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.createEventEmail(id, eventEmailReqDto));
+    }
+
+    @PostMapping("/tracking_pixel/{to_email}/{event_id}")
+    public ResponseDto trackEmail(@PathVariable("to_email") String toEmail, @PathVariable("event_id") Long eventId) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, emailSendService.trackingPixel(toEmail, eventId));
     }
 }

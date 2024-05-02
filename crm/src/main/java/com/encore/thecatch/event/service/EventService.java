@@ -10,6 +10,7 @@ import com.encore.thecatch.coupon.dto.CouponFindResDto;
 import com.encore.thecatch.coupon.dto.SearchCouponCondition;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
+import com.encore.thecatch.event.dto.response.EventContentsDto;
 import com.encore.thecatch.event.dto.response.EventDetailDto;
 import com.encore.thecatch.event.dto.response.EventInfoDto;
 import com.encore.thecatch.event.dto.response.EventSearchDto;
@@ -117,5 +118,15 @@ public class EventService {
         adminLogRepository.save(adminLog);
 
         return eventDetailDto;
+    }
+
+    public EventContentsDto eventContents(Long id){
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+
+        return EventContentsDto.builder()
+                .contents(event.getContents())
+                .build();
     }
 }

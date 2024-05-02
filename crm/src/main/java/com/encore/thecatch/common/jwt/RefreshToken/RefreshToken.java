@@ -7,22 +7,23 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Getter
 @NoArgsConstructor
 
-public class RefreshToken {
+public class RefreshToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id")
+    @JoinColumn(name = "admin_employee_number", referencedColumnName = "employeeNumber")
     private Admin admin;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_email", referencedColumnName = "email") // user_email 컬럼과 User 엔터티의 email 속성을 매핑
     private User user;
 
     @Column(name = "refresh_token")

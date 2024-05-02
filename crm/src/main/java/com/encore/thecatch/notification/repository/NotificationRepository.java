@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 //    Optional<Notification> findByAdmin(Admin admin);
-
     Page<Notification> findByUserIdAndConfirm(Long user_id, Boolean confirm, Pageable pageable);
+
 }
