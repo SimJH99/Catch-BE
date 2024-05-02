@@ -53,7 +53,7 @@ public class CouponService {
     private final AesUtil aesUtil;
 
 
-    public CouponService(CompanyRepository companyRepository, UserRepository userRepository, CouponRepository couponRepository, ReceiveCouponRepository receiveCouponRepository, CouponQueryRepository couponQueryRepository, NotificationService notificationService, RedisService redisService, AdminRepository adminRepository, FirebaseMessaging firebaseMessaging, EmailSendService emailSendService, AesUtil aesUtil) {
+    public CouponService(CompanyRepository companyRepository, UserRepository userRepository, CouponQueryRepository couponQueryRepository,CouponRepository couponRepository, ReceiveCouponRepository receiveCouponRepository, NotificationService notificationService, RedisService redisService, AdminRepository adminRepository, FirebaseMessaging firebaseMessaging, EmailSendService emailSendService, AesUtil aesUtil) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
         this.couponRepository = couponRepository;

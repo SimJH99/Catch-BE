@@ -1,6 +1,7 @@
 package com.encore.thecatch.log.repository;
 
 import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
+import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.domain.QUserLog;
 import com.encore.thecatch.log.domain.UserLog;
 import com.encore.thecatch.log.dto.DayOfWeekLogin;
@@ -38,7 +39,8 @@ public class UserLogQueryRepository extends Querydsl4RepositorySupport {
         return select(
                 userLog.count())
                 .from(userLog)
-                .where(userLog.createdTime.goe(LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))),
+                .where(userLog.type.eq(LogType.USER_LOGIN),
+                        userLog.createdTime.goe(LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))),
                         userLog.createdTime.loe(LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 59, 59))))
                 .fetchCount();
     }

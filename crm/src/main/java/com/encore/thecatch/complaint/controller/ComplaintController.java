@@ -3,10 +3,7 @@ package com.encore.thecatch.complaint.controller;
 import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
-import com.encore.thecatch.complaint.dto.request.AddImageReq;
-import com.encore.thecatch.complaint.dto.request.CreateComplaintReq;
-import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.request.UpdateComplaintReq;
+import com.encore.thecatch.complaint.dto.request.*;
 import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.service.ComplaintService;
@@ -99,9 +96,38 @@ public class ComplaintController {
                 new DefaultResponse<Long>(complaintService.countAllComplaint()));
     }
 
+    //답변에 따른 문의 수(답변 완료, 미 답변)
     @GetMapping("/countStatus")
     public ResponseDto countStatusComplaint(){
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
                 new DefaultResponse<List<CountStatusComplaintRes>>(complaintService.countStatusComplaint()));
+    }
+
+    //오늘 작성된 문의글
+    @GetMapping("/countToday")
+    public ResponseDto countTodayComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<Long>(complaintService.countTodayComplaint()));
+    }
+
+    //카테고리별 문의글
+    @GetMapping("/countCategory")
+    public ResponseDto categoryComplaint(){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountCategoryComplaint>>(complaintService.categoryComplaint()));
+    }
+
+    //일별 문의글 작성수
+    @PostMapping("/countMonth")
+    public ResponseDto countMonthComplaint(@RequestBody CountMonthComplaintReq countMonthComplaintReq){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountMonthComplaintRes>>(complaintService.countMonthComplaint(countMonthComplaintReq)));
+    }
+
+    //월별 문의글 작성수
+    @PostMapping("/countYear")
+    public ResponseDto countYearComplaint(@RequestBody CountYearComplaintReq countYearComplaintReq){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS,
+                new DefaultResponse<List<CountYearComplaintRes>>(complaintService.countYearComplaint(countYearComplaintReq)));
     }
 }

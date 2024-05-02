@@ -6,10 +6,7 @@ import com.encore.thecatch.common.s3.S3Service;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.common.util.MaskingUtil;
 import com.encore.thecatch.common.util.S3UrlUtil;
-import com.encore.thecatch.complaint.dto.request.AddImageReq;
-import com.encore.thecatch.complaint.dto.request.CreateComplaintReq;
-import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.request.UpdateComplaintReq;
+import com.encore.thecatch.complaint.dto.request.*;
 import com.encore.thecatch.complaint.dto.response.*;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.entity.Image;
@@ -176,7 +173,32 @@ public class ComplaintService {
         return complaintQueryRepository.countAllComplaint();
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public List<CountStatusComplaintRes> countStatusComplaint() {
         return complaintQueryRepository.countStatusComplaint();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long countTodayComplaint() {
+        return complaintQueryRepository.countTodayComplaint();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<CountCategoryComplaint> categoryComplaint() {
+        return complaintQueryRepository.categoryComplaint();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<CountMonthComplaintRes> countMonthComplaint(CountMonthComplaintReq countMonthComplaintReq) {
+        return complaintQueryRepository.countMonthComplaint(countMonthComplaintReq)
+                .stream().map(CountMonthComplaintRes::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<CountYearComplaintRes> countYearComplaint(CountYearComplaintReq countYearComplaintReq) {
+        return complaintQueryRepository.countYearComplaint(countYearComplaintReq)
+                .stream().map(CountYearComplaintRes::toDto)
+                .collect(Collectors.toList());
     }
 }

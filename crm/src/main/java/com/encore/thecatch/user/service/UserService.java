@@ -23,10 +23,7 @@ import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
-import com.encore.thecatch.user.dto.request.UserLoginDto;
-import com.encore.thecatch.user.dto.request.UserSearchDto;
-import com.encore.thecatch.user.dto.request.UserSignUpDto;
-import com.encore.thecatch.user.dto.request.UserUpdateDto;
+import com.encore.thecatch.user.dto.request.*;
 import com.encore.thecatch.user.dto.response.*;
 import com.encore.thecatch.user.repository.UserQueryRepository;
 import com.encore.thecatch.user.repository.UserRepository;
@@ -60,10 +57,11 @@ public class UserService {
     private final AesUtil aesUtil;
     private final CompanyRepository companyRepository;
     private final RedisService redisService;
-    private final UserQueryRepository userQueryRepository;
+//    private final UserQueryRepository userQueryRepository;
     private final AdminRepository adminRepository;
     private final AdminLogRepository adminLogRepository;
     private final MaskingUtil maskingUtil;
+    private final UserQueryRepository userQueryRepository;
 
     public UserService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
@@ -517,6 +515,7 @@ public class UserService {
 //        return users.map(UserInfoDto::toUserInfoDto);
     }
 
+
     public List<UserListRes> searchTarget(UserSearchDto userSearchDto) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
@@ -539,5 +538,36 @@ public class UserService {
                 }).collect(Collectors.toList());
 //                .stream().map(UserListRes -> new UserListRes().bu)
 
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<SignUpMonthRes> signUpMonth(SignUpMonthReq signUpMonthReq) {
+        return userQueryRepository.signUpMonth(signUpMonthReq)
+                .stream().map(SignUpMonthRes::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public List<SignUpYearRes> signUpYear(SignUpYearReq signUpYearReq) {
+        return userQueryRepository.signUpYear(signUpYearReq)
+                .stream().map(SignUpYearRes::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public SignUpUserRes signUpUser() {
+        Long dayUser = userQueryRepository.signUpUserDay();
+        Long lastDayUser = userQueryRepository.signUpUserLastDay();
+        Long weekUser = userQueryRepository.signUpUserWeek();
+        Long lastWeekUser = userQueryRepository.signUpUserLastWeek();
+        Long monthUser = userQueryRepository.signUpUserMonth();
+        Long lastMonthUser = userQueryRepository.signUpUserLastMonth();
+
+        return SignUpUserRes.builder()
+                .dayUser(dayUser)
+                .lastDayUser(dayUser - lastDayUser)
+                .weekUser(weekUser)
+                .lastWeekUser(weekUser - lastWeekUser)
+                .monthUser(monthUser)
+                .lastMonthUser(monthUser - lastMonthUser)
+                .build();
     }
 }
