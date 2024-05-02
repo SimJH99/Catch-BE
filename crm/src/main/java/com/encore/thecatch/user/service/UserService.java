@@ -45,6 +45,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 
 
 @Service
@@ -267,37 +268,33 @@ public class UserService {
     public Page<UserListRes> searchUser(UserSearchDto userSearchDto, Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
-        List<UserListRes> userListRes = userQueryRepository.UserList(userSearchDto, admin.getCompany());
-        List<UserListRes> userListRes1 = new ArrayList<>();
-        for(UserListRes user : userListRes){
-            String name = aesUtil.aesCBCDecode(user.getName());
-            String email = aesUtil.aesCBCDecode(user.getEmail());
-            String phoneNumber = aesUtil.aesCBCDecode(user.getPhoneNumber());
-
-            user = UserListRes.builder()
-                    .id(user.getId())
-                    .name(maskingUtil.nameMasking(name))
-                    .email(maskingUtil.emailMasking(email))
-                    .birthDate(user.getBirthDate())
-                    .phoneNumber(maskingUtil.phoneMasking(phoneNumber))
-                    .gender(user.getGender())
-                    .grade(user.getGrade())
-                    .build();
-            userListRes1.add(user);
-        }
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), userListRes1.size());
-
-        return new PageImpl<>(userListRes1.subList(start, end), pageable, userListRes1.size());
+        return userQueryRepository.UserList(userSearchDto, admin.getCompany(), pageable)
+                .map(new Function<UserListRes, UserListRes>() {
+                    @Override
+                    public UserListRes apply(UserListRes userListRes) {
+                        try {
+                            return UserListRes.builder()
+                                    .id(userListRes.getId())
+                                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(userListRes.getName())))
+                                    .email(maskingUtil.emailMasking(aesUtil.aesCBCDecode(userListRes.getEmail())))
+                                    .birthDate(userListRes.getBirthDate())
+                                    .phoneNumber(maskingUtil.phoneMasking(aesUtil.aesCBCDecode(userListRes.getPhoneNumber())))
+                                    .gender(userListRes.getGender())
+                                    .grade(userListRes.getGrade())
+                                    .build();
+                        } catch (Exception e) {
+                            throw new CatchException(ResponseCode.AES_DECODE_FAIL);
+                        }
+                    }
+                });
     }
 
     public UserProfileDto userProfile() throws Exception {
-        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CatchException(ResponseCode.USER_NOT_FOUND)
         );
-        return new UserProfileDto(aesUtil.aesCBCDecode(user.getName()));
+        return new UserProfileDto(aesUtil.aesCBCDecode(user.getName()), user.getGrade());
     }
 
     @Transactional
@@ -416,8 +413,9 @@ public class UserService {
         );
 
         String userNotice = userUpdateDto.getUserNotice();
+        String grade = userUpdateDto.getGrade();
 
-        user.userUpdate(userNotice);
+        user.userUpdate(userNotice, grade);
 
         AdminLog adminLog = AdminLog.builder()
                 .type(LogType.USER_UPDATE) // DB로 나눠 관리하지 않고 LogType으로 구별
@@ -485,16 +483,17 @@ public class UserService {
 
         return "SUCCESS";
     }
+
     //webPush Test
     public ResponseDto savePushToken(String email, String pushToken) throws Exception {
         User user = userRepository.findByEmail(aesUtil.aesCBCEncode(email))
                 .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        if(user.isConsentReceiveMarketing()){
-            redisService.setValues("PushToken"+user.getId(), pushToken);
+        if (user.isConsentReceiveMarketing()) {
+            redisService.setValues("PushToken" + user.getId(), pushToken);
             Map<String, String> result = new HashMap<>();
             result.put("pushToken", pushToken);
             return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
-        }else{
+        } else {
             return new ResponseDto(HttpStatus.OK, ResponseCode.NOT_RECEIVE_MARKETING_USER, null);
         }
 
@@ -503,7 +502,7 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Page<UserInfoDto> findMarketing(Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Company company = admin.getCompany();
         Page<User> users = userRepository.findByCompanyAndConsentReceiveMarketing(company, pageable, true);
         List<UserInfoDto> maskingUserList = new ArrayList<>();

@@ -34,7 +34,7 @@ public class UserController {
     }
     @GetMapping("/user/profile")
     public ResponseDto userProfile() throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN_ADMIN_PROFILE, userService.userProfile());
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN_USER_PROFILE, userService.userProfile());
     }
 
     @PostMapping("/user/doLogin")

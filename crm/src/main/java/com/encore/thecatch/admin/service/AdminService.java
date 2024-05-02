@@ -4,8 +4,10 @@ import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.admin.dto.request.AdminLoginDto;
 import com.encore.thecatch.admin.dto.request.AdminSignUpDto;
 import com.encore.thecatch.admin.dto.request.AdminUpdateDto;
-import com.encore.thecatch.admin.dto.response.*;
+import com.encore.thecatch.admin.dto.response.AdminDetailDto;
 import com.encore.thecatch.admin.dto.response.AdminInfoDto;
+import com.encore.thecatch.admin.dto.response.AdminProfileDto;
+import com.encore.thecatch.admin.dto.response.AdminSearchDto;
 import com.encore.thecatch.admin.repository.AdminQueryRepository;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
@@ -26,7 +28,6 @@ import com.encore.thecatch.log.repository.AdminLogRepository;
 import com.encore.thecatch.mail.service.EmailSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +37,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -203,28 +206,24 @@ public class AdminService {
     public Page<AdminInfoDto> searchAdmin(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        List<AdminInfoDto> adminInfoDtos = adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany());
-        List<AdminInfoDto> maskingAdminList = new ArrayList<>();
+        return adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany(), pageable)
+                .map(new Function<AdminInfoDto, AdminInfoDto>() {
+                    @Override
+                    public AdminInfoDto apply(AdminInfoDto adminInfoDto) {
+                        try {
+                            return AdminInfoDto.builder()
+                                    .id(adminInfoDto.getId())
+                                    .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(adminInfoDto.getName())))
+                                    .employeeNumber(maskingUtil.employeeNumberMasking(aesUtil.aesCBCDecode(adminInfoDto.getEmployeeNumber())))
+                                    .email(maskingUtil.emailMasking(aesUtil.aesCBCDecode(adminInfoDto.getEmail())))
+                                    .role(adminInfoDto.getRole())
+                                    .build();
+                        } catch (Exception e) {
+                            throw new CatchException(ResponseCode.AES_DECODE_FAIL);
+                        }
+                    }
+                });
 
-        for (AdminInfoDto infoDto : adminInfoDtos) {
-            String name = aesUtil.aesCBCDecode(infoDto.getName());
-            String employeeNumber = aesUtil.aesCBCDecode(infoDto.getEmployeeNumber());
-            String email = aesUtil.aesCBCDecode(infoDto.getEmail());
-            AdminInfoDto adminInfoDto = AdminInfoDto.builder()
-                    .id(infoDto.getId())
-                    .name(maskingUtil.nameMasking(name))
-                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
-                    .email(maskingUtil.emailMasking(email))
-                    .role(infoDto.getRole())
-                    .build();
-
-            maskingAdminList.add(adminInfoDto);
-        }
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), adminInfoDtos.size());
-
-        return new PageImpl<>(maskingAdminList.subList(start, end), pageable, adminInfoDtos.size());
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -311,31 +310,6 @@ public class AdminService {
         Map<String, String> result = new HashMap<>();
         result.put("pushToken", pushToken);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Page<AdminInfoDto> searchComplaint(AdminSearchDto adminSearchDto, Pageable pageable) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        List<AdminInfoDto> allAdmin = adminQueryRepository.findAdminList(adminSearchDto, admin.getCompany());
-        List<AdminInfoDto> adminInfoDtoList = new ArrayList<>();
-        for (AdminInfoDto adminInfoDto : allAdmin) {
-            String name = aesUtil.aesCBCDecode(adminInfoDto.getName());
-            String employeeNumber = aesUtil.aesCBCDecode(adminInfoDto.getEmployeeNumber());
-            String email = aesUtil.aesCBCDecode(adminInfoDto.getEmail());
-
-            adminInfoDto = AdminInfoDto.builder()
-                    .name(maskingUtil.nameMasking(name))
-                    .employeeNumber(maskingUtil.employeeNumberMasking(employeeNumber))
-                    .email(maskingUtil.emailMasking(email))
-                    .role(adminInfoDto.getRole())
-                    .build();
-            adminInfoDtoList.add(adminInfoDto);
-        }
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), adminInfoDtoList.size());
-
-        return new PageImpl<>(adminInfoDtoList.subList(start, end), pageable, allAdmin.size());
     }
 
     @Transactional

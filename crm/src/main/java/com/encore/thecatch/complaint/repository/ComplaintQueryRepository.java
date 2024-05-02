@@ -1,21 +1,21 @@
 package com.encore.thecatch.complaint.repository;
 
 
+import com.encore.thecatch.common.CatchException;
+import com.encore.thecatch.common.ResponseCode;
+import com.encore.thecatch.common.querydsl.Querydsl4RepositorySupport;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.dto.request.SearchComplaintCondition;
-import com.encore.thecatch.complaint.dto.response.*;
+import com.encore.thecatch.complaint.dto.response.CountStatusComplaintRes;
+import com.encore.thecatch.complaint.dto.response.QCountStatusComplaintRes;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.entity.QComplaint;
 import com.encore.thecatch.complaint.entity.Status;
 import com.encore.thecatch.user.domain.QUser;
 import com.encore.thecatch.user.domain.User;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,62 +23,72 @@ import java.util.List;
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
-@RequiredArgsConstructor
-public class ComplaintQueryRepository {
-    private final JPAQueryFactory queryFactory;
+public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
 
     private final AesUtil aesUtil;
 
     QComplaint complaint = QComplaint.complaint;
     QUser user = QUser.user;
 
-    public List<ListComplaintRes> findComplaintList(SearchComplaintCondition searchComplaintCondition) throws Exception {
-        return queryFactory
-                .select(new QListComplaintRes(
-                        complaint.id.as("complaintId"),
-                        user.name,
-                        complaint.title,
-                        complaint.status))
-                .from(complaint)
-                .leftJoin(complaint.user, user)
-                .where(
-                        eqPostId(searchComplaintCondition.getComplaintId()),
-                        eqName(searchComplaintCondition.getName()),
-                        containsTitle(searchComplaintCondition.getTitle()),
-                        eqStatus(searchComplaintCondition.getStatus()),
-                        complaint.active.eq(true))
-                .orderBy(complaint.status.asc(), complaint.createdTime.asc())
-                .fetch();
+    public ComplaintQueryRepository(AesUtil aesUtil) {
+        super(Complaint.class);
+        this.aesUtil = aesUtil;
     }
 
-    public Page<MyComplaintRes> findMyComplaintList(User user, Pageable pageable) {
-        List<MyComplaintRes> content = queryFactory
-                .select(new QMyComplaintRes(
-                        complaint.id,
-                        complaint.title,
-                        complaint.createdTime,
-                        complaint.status))
-                .from(complaint)
-                .where(complaint.user.eq(user),complaint.active.eq(true))
-                .orderBy(complaint.createdTime.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-        JPAQuery<Complaint> countQuery = queryFactory
-                .selectFrom(complaint)
-                .where(
-                        complaint.user.eq(user),complaint.active.eq(true)
-                );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    //나의 문의글 보기
+    public Page<Complaint> findMyComplaintList(User user, Pageable pageable) {
+        return applyPagination(
+                pageable,
+                query -> query
+                        .selectFrom(complaint)
+                        .where(complaint.user.eq(user), complaint.active.eq(true)),
+                countQuery -> countQuery
+                        .select(complaint.id)
+                        .from(complaint)
+                        .where(complaint.user.eq(user), complaint.active.eq(true)));
     }
 
-    public List<MyPageComplaints> myPageComplaints() {
-        return queryFactory
-                .select(new QMyPageComplaints(
-                        complaint.title,
-                        complaint.status))
-                .from(complaint)
+    //문의글 검색 기능
+    public Page<Complaint> findComplaintList(SearchComplaintCondition searchComplaintCondition, Pageable pageable) {
+        return applyPagination(
+                pageable,
+                query -> {
+                    try {
+                        return query
+                                .selectFrom(complaint)
+                                .leftJoin(complaint.user, user)
+                                .where(
+                                        eqPostId(searchComplaintCondition.getComplaintId()),
+                                        eqName(searchComplaintCondition.getName()),
+                                        containsTitle(searchComplaintCondition.getTitle()),
+                                        eqStatus(searchComplaintCondition.getStatus()),
+                                        complaint.active.eq(true)
+                                )
+                                .orderBy(complaint.status.asc(), complaint.createdTime.asc());
+                    } catch (Exception e) {
+                        throw new CatchException(ResponseCode.AES_ENCODE_FAIL);
+                    }
+                },
+                countQuery -> {
+                    try {
+                        return countQuery
+                                .selectFrom(complaint)
+                                .where(
+                                        eqPostId(searchComplaintCondition.getComplaintId()),
+                                        eqName(searchComplaintCondition.getName()),
+                                        containsTitle(searchComplaintCondition.getTitle()),
+                                        eqStatus(searchComplaintCondition.getStatus()),
+                                        complaint.active.eq(true));
+                    } catch (Exception e) {
+                        throw new CatchException(ResponseCode.AES_ENCODE_FAIL);
+                    }
+                }
+        );
+    }
+
+    public List<Complaint> myPageComplaints() {
+        return selectFrom(complaint)
                 .where(complaint.active.eq(true))
                 .orderBy(complaint.createdTime.desc())
                 .limit(5)
@@ -86,18 +96,16 @@ public class ComplaintQueryRepository {
     }
 
     public Long countAllComplaint() {
-        return queryFactory
-                .select(new QCountAllComplaintRes(
-                        complaint.count()))
-                .from(complaint)
+        return selectFrom(complaint)
                 .where(complaint.active.eq(true))
                 .fetchCount();
     }
 
+
     public List<CountStatusComplaintRes> countStatusComplaint() {
-        return queryFactory
-                .select(new QCountStatusComplaintRes(
-                        complaint.count()).as("count"))
+        return select(new QCountStatusComplaintRes(
+                complaint.status,
+                complaint.count()).as("count"))
                 .from(complaint)
                 .where(complaint.active.eq(true))
                 .groupBy(complaint.status)

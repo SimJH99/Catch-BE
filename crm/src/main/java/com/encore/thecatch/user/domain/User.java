@@ -126,7 +126,8 @@ public class User extends BaseEntity implements Serializable {
 //        this.brithDate = maskingBirthDate;
     }
 
-    public void userUpdate(String userNotice) {
+    public void userUpdate(String userNotice, String grade) {
         this.userNotice = userNotice;
+        this.grade = Grade.valueOf(grade);
     }
 }

@@ -1,10 +1,8 @@
 package com.encore.thecatch.user.dto.request;
 
 import com.encore.thecatch.common.dto.Role;
-import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.user.domain.Gender;
 import com.encore.thecatch.user.domain.Grade;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 @AllArgsConstructor
