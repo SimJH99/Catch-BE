@@ -26,6 +26,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       ################ build and push #################
+      - name: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json"
+          json: ${{ secrets.FCM_CREDENTIALS }}
+          dir: './src/main/resources/'
+
       - name: build and push docker image to ecr (catch-crm)
         env:
           REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
