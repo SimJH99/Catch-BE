@@ -177,7 +177,7 @@ public class InitialDataLoader implements CommandLineRunner {
                         .title("고객 문의 "+i)
                         .category(category)
                         .user(users.get(i))
-                        .contents("문의 드립니다. 상품 교환하고")
+                        .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
                         .build();
                 complaints.add(newComplaint);
                 UserLog userLoginLog = UserLog.builder()
