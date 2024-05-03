@@ -32,7 +32,7 @@ public enum ResponseCode {
     EMAIL_CHECK_FAIL("EMAIL_CHECK_FAIL","이메일 인증 실패"),
     SUCCESS_CREATE_COUPON("SUCCESS_CREATE_COUPON", "쿠폰 생성 성공"),
     EXISTING_COUPON_NAME("EXISTING_COUPON_NAME", "이미 존재하는 쿠폰명입니다."),
-    SUCCESS_PUBLISH_COUPON("SUCCESS_PUBLISH_COUPON", "쿠폰 발행 성공"),
+    SUCCESS_PUBLISH_COUPON("SUCCESS_PUBLISH_COUPON", "쿠폰 배포 성공"),
     SUCCESS_RECEIVE_COUPON("SUCCESS_RECEIVE_COUPON", "쿠폰 수령 성공"),
     SUCCESS_DELETE_COUPON("SUCCESS_DELETE_COUPON", "쿠폰 삭제 성공"),
     COMPANY_NOT_FOUND("COMPANY_NOT_FOUND", "해당 회사가 존재하지 않습니다."),
@@ -50,7 +50,7 @@ public enum ResponseCode {
     IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "찾을 수 없는 이미지 입니다."),
     NON_RECEIVABLE_COUPON("NON_RECEIVABLE_COUPON", "수령 불가한 쿠폰입니다."),
     ALREADY_RECEIVED_COUPON("ALREADY_RECEIVED_COUPON", "이미 수령한 쿠폰입니다."),
-    ALREADY_PUBLISH_COUPON("ALREADY_PUBLISH_COUPON", "이미 발행한 쿠폰입니다."),
+    ALREADY_PUBLISH_COUPON("ALREADY_PUBLISH_COUPON", "이미 배포한 쿠폰입니다."),
     COUPON_NOT_FOUND("COUPON_NOT_FOUND", "해당 쿠폰은 존재하지 않습니다."),
     COUPON_CAN_NOT_UPDATE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 수정 불가합니다."),
     ADMIN_NOT_FOUND("ADMIN_NOT_FOUND", "찾을 수 없는 관리자입니다."),
@@ -78,10 +78,12 @@ public enum ResponseCode {
     NOT_RECEIVE_MARKETING_USER("NOT_RECEIVE_MARKETING_USER", "마케팅 수신 미동의 계정입니다."),
     SUCCESS_EVENT_CREATE("SUCCESS_EVENT_CREATE","이벤트를 생성했습니다" ),
     EVENT_NOT_FOUND("EVENT_NOT_FOUND","이벤트를 찾을 수 없습니다." ),
-    ALREADY_PUBLISH_EVENT("ALREADY_PUBLISH_EVENT","이미 발행된 이벤트입니다." ),
+    ALREADY_PUBLISH_EVENT("ALREADY_PUBLISH_EVENT","이미 배포된 이벤트입니다." ),
     SUCCESS_EVENT_DETAIL("SUCCESS_EVENT_DETAIL","상세정보 확인 완료" ),
     COUPON_EXHAUSTION("COUPON_EXHAUSTION", "쿠폰이 모두 소진 되었습니다."),
-    TO_EMAIL_NOT_FOUND("TO_EMAIL_NOT_FOUND","해당 이메일을 해당 유저에게 보낸 기록이 없습니다." );
+    TO_EMAIL_NOT_FOUND("TO_EMAIL_NOT_FOUND","해당 이메일을 해당 유저에게 보낸 기록이 없습니다." ),
+    COUPON_CAN_NOT_DELETE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 삭제 불가합니다."),
+    COUPON_CAN_NOT_PUBlISH("COUPON_CAN_NOT_PUBlISH", "해당 쿠폰은 배포 불가합니다."),;
     private final String code;
     private final String label;
 

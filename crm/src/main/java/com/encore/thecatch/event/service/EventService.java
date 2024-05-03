@@ -195,4 +195,18 @@ public class EventService {
                 .contents(event.getContents())
                 .build();
     }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Event eventPublish(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Event event = eventRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.EVENT_NOT_FOUND));
+        if(event.getEventStatus().equals(EventStatus.ISSUANCE)){
+            event.publishEvent();
+        }else{
+            throw new CatchException(ResponseCode.COUPON_CAN_NOT_PUBlISH);
+        }
+        return event;
+    }
 }
