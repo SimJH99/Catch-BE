@@ -31,7 +31,7 @@ jobs:
         with:
           name: "catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json"
           json: ${{ secrets.FIREBASE_JSON }}
-          dir: './src/main/resources/'
+          dir: './crm/src/main/resources/'
 
       - name: build and push docker image to ecr (catch-crm)
         env:
