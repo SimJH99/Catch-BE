@@ -70,6 +70,11 @@ spec:
                 secretKeyRef:
                   name: db-infos
                   key: SYMMETRICKEY
+            - name: FIREBASE_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: FIREBASE_JSON
 ---
 apiVersion: v1
 kind: Service
