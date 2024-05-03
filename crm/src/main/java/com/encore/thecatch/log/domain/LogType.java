@@ -20,4 +20,8 @@ public enum LogType {
     USER_ACTIVATION,
     CREATE_EVENT,
     EVENT_DETAIL_VIEW,
+
+    COUPON_EMAIL_SEND,
+
+    EVENT_EMAIL_SEND,
 }

@@ -4,7 +4,6 @@ import com.encore.thecatch.admin.domain.Admin;
 import com.encore.thecatch.admin.repository.AdminRepository;
 import com.encore.thecatch.common.CatchException;
 import com.encore.thecatch.common.ResponseCode;
-import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.redis.RedisService;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.company.domain.Company;
@@ -82,6 +81,7 @@ public class CouponService {
                     .name(couponReqDto.getName())
                     .code(code)
                     .quantity(couponReqDto.getQuantity())
+                    .price(couponReqDto.getPrice())
                     .couponStatus(CouponStatus.ISSUANCE)
                     .startDate(LocalDate.parse(couponReqDto.getStartDate()))
                     .endDate(LocalDate.parse(couponReqDto.getEndDate()))
@@ -210,14 +210,15 @@ public class CouponService {
         return coupon;
     }
     @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Coupon couponDelete(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
-        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && user.getRole().equals(Role.ADMIN) && coupon.getCompanyId() == user.getCompany()){
+        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && coupon.getCompanyId() == admin.getCompany()){
             coupon.deleteCoupon();
         }else{
-            throw new IllegalArgumentException("삭제 불가한 쿠폰입니다.");
+            throw new CatchException(ResponseCode.COUPON_CAN_NOT_DELETE);
         }
         return coupon;
     }
@@ -231,5 +232,19 @@ public class CouponService {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         List<ReceiveCoupon> coupons = receiveCouponRepository.findByUserId(user.getId());
         return coupons.size();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Coupon couponPublish(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
+        if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && coupon.getCompanyId() == admin.getCompany()){
+            coupon.publishCoupon();
+        }else{
+            throw new CatchException(ResponseCode.COUPON_CAN_NOT_PUBlISH);
+        }
+        return coupon;
     }
 }

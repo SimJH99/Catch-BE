@@ -5,9 +5,9 @@ import org.springframework.util.StringUtils;
 
 @Getter
 public enum EventStatus {
-        ISSUANCE("발급"),
+        ISSUANCE("생성"),
         DELETE("삭제"),
-        PUBLISH("발행"),
+        PUBLISH("배포"),
         EXPIRATION("만료");
 
         private final String value;

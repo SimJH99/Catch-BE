@@ -30,6 +30,8 @@ public class Coupon extends BaseEntity {
 
     @Column(nullable = false)
     private int quantity;
+    @Column(nullable = false)
+    private Long price;
 
     @Column(nullable = false)
     private LocalDate startDate;

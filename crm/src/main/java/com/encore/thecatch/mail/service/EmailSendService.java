@@ -12,13 +12,14 @@ import com.encore.thecatch.coupon.domain.Coupon;
 import com.encore.thecatch.coupon.repository.CouponRepository;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.repository.EventRepository;
+import com.encore.thecatch.log.domain.CouponEmailLog;
 import com.encore.thecatch.log.domain.EmailLog;
+import com.encore.thecatch.log.domain.LogType;
+import com.encore.thecatch.log.repository.CouponEmailLogRepository;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.mail.dto.CouponEmailReqDto;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
-import com.encore.thecatch.mail.dto.GroupEmailReqDto;
 import com.encore.thecatch.user.repository.UserRepository;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -50,6 +51,7 @@ public class EmailSendService {
 
     private final UserRepository userRepository;
     private final CouponRepository couponRepository;
+    private final CouponEmailLogRepository couponEmailLogRepository;
 
     public EmailSendService(
             JavaMailSender javaMailSender,
@@ -60,7 +62,8 @@ public class EmailSendService {
             AdminRepository adminRepository,
             AesUtil aesUtil,
             EventRepository eventRepository,
-            UserRepository userRepository, CouponRepository couponRepository
+            UserRepository userRepository, CouponRepository couponRepository,
+            CouponEmailLogRepository couponEmailLogRepository
     ) {
         this.javaMailSender = javaMailSender;
         this.username = username;
@@ -71,6 +74,7 @@ public class EmailSendService {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.couponRepository = couponRepository;
+        this.couponEmailLogRepository = couponEmailLogRepository;
     }
 
     public boolean checkAuthNum(String email, String authNum) {
@@ -205,7 +209,8 @@ public class EmailSendService {
 
 
 
-    @PreAuthorize("hasAuthority('MARKETER')")
+    @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
+//    @PreAuthorize("hasAuthority('MARKETER')")
     public void GroupSend(Event event, String setFrom, String toMail, String title, String content) {
 //        if (toMail.endsWith("@naver.com")) return CompletableFuture.completedFuture(RsData.of("S-2", "메일이 발송되었습니다."));
         CompletableFuture.supplyAsync(() -> {
@@ -229,6 +234,7 @@ public class EmailSendService {
                     .CODE(result.getResultCode())
                     .event(event)
                     .toEmail(result.getData())
+                    .type(LogType.EVENT_EMAIL_SEND)
                     .viewCount(0L)
                     .emailCheck(false)
                     .build();
@@ -257,16 +263,15 @@ public class EmailSendService {
 
         }).thenApply(result -> {
             // CompletableFuture가 완료된 후에 실행될 작업을 정의합니다.
-//            EmailLog log = EmailLog.builder()
-//                    .message(result.getMsg())
-//                    .CODE(result.getResultCode())
-//                    .event(event)
-//                    .toEmail(result.getData())
-//                    .viewCount(0L)
-//                    .emailCheck(false)
-//                    .build();
-//
-//            emailLogRepository.save(log);
+            CouponEmailLog log = CouponEmailLog.builder()
+                    .message(result.getMsg())
+                    .CODE(result.getResultCode())
+                    .coupon(coupon)
+                    .toEmail(result.getData())
+                    .type(LogType.COUPON_EMAIL_SEND)
+                    .emailCheck(false)
+                    .build();
+            couponEmailLogRepository.save(log);
             return result;
         });
     }

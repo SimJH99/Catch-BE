@@ -89,4 +89,10 @@ public class CouponController {
     public ResponseDto couponPublishCount() {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(couponService.couponPublishCount()));
     }
+
+    @PatchMapping("/{id}/publish")
+    public ResponseDto couponPublish(@PathVariable Long id) {
+        couponService.couponPublish(id);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(id));
+    }
 }
