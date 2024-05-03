@@ -343,7 +343,122 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
     - 접근 제어: IAM
     - 보안 정책: 쿠버네티스 시크릿을 이용한 데이터 암호화, 보안 그룹 설정
 
+
 ## 문서화 :
 - CI/CD 계획서 
     - 문서화: GitHub Readme 작성
+
+
+</br>
+
+<details>
+<summary> <h1> 배포 과정 </h1> </summary>
+
+## S3 버킷에 dist 파일 업로드
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/22e3419c-5fbd-4f34-940c-f2969dc253af" height="80%" width="80%">
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/fa1de006-2083-48a1-ba58-e41f68ca5e5d" height="80%" width="80%">
+
+</br>
+
+## 버킷 정책 편집
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/f479ab42-a2f5-48af-bfcd-e676132daae4" height="80%" width="80%">
+
+</br>
+
+## Cloud Front 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/2fee512d-0609-4765-85f5-5ea502d7c8af" height="80%" width="80%">
+
+</br>
+
+## Cloud Front에 적용할 SSL 인증서 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/9358e912-7c6d-46fc-90cd-28c3b4221e3a" height="80%" width="80%">
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/763dbcc4-3d03-4766-818e-bf0de7eda16a" height="80%" width="80%">
+
+</br>
+
+## Route53에서 호스팅 영역 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ad5ac0db-d054-4869-a399-614b12121977" height="80%" width="80%">
+
+</br>
+
+## 프론트 레코드 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/5512f162-3e1a-4074-9f00-8b7905579895" height="80%" width="80%">
+
+</br>
+
+## CloudFront의 DNS 세팅
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/221d4d74-7952-4666-8bfb-a66d3f5dd87b" height="80%" width="80%">
+
+</br>
+
+## EKS 클러스터 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/530fdbe7-065a-447f-aa5c-a4b7a62c773b" height="80%" width="80%">
+
+</br>
+
+## 클러스터 서비스 역할 EKS로 설정
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/088be74e-dc23-40cc-a73c-e5024f67a4c6" height="80%" width="80%">
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/d6304e70-97fa-49b1-9387-4705640a2d35" height="80%" width="80%">
+
+</br>
+
+## 클러스터 이름 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/a0f687f7-29ff-44f3-973a-f41ab4b185be" height="80%" width="80%">
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/3a57cdc6-0b3e-4aad-a56a-ff9793635c20" height="80%" width="80%">
+
+</br>
+
+## EKS 보안그룹 설정
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/e3f8df2e-f885-466d-8854-40d945c25b8e" height="80%" width="80%">
+
+</br>
+
+## EKS 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/1d366f8d-5618-4173-badb-8050c7f5e88a" height="80%" width="80%">
+
+</br>
+
+## 노드그룹 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/0cf3ee88-8089-49f4-9f7e-ae0b9f2ee969" height="80%" width="80%">
+
+</br>
+
+## 노드그룹 IAM 역할 설정
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/7a948627-1280-4c59-bdca-10d8f2f0fd9c" height="80%" width="80%">
+
+</br>
+
+## IAM 역할 EC2 부여
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/cf738812-40e9-464b-b2a4-c346e864da7c" height="80%" width="80%">
+
+</br>
+
+## IAM 역할 EKS 권한 부여 
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/e0dadefd-6cca-418d-82dc-7d3865fd593a" height="80%" width="80%">
+
+</br>
+
+## 노드그룹 스펙 설정
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/5815c561-8569-4bf4-b1f6-fa2fbe5a5d87" height="80%" width="80%">
+
+</br>
+
+## 노드그룹 크기 설정
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/9bfd65fa-d89f-48b2-8af1-3b6f5c584e5a" height="80%" width="80%">
+
+</br>
+
+## 노드그룹 생성 완료
+<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/c3f5c062-f2b5-4315-a0cd-27299d70e80a" height="80%" width="80%">
+
+</br>
+
+
+
+
+</details>
 
