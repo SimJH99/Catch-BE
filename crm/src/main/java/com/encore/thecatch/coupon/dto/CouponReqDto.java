@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class CouponReqDto {
     private String name;
     private int quantity;
+    private Long price;
     private String startDate;
     private String endDate;
 }

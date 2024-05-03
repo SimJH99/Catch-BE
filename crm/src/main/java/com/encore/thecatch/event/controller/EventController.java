@@ -1,5 +1,6 @@
 package com.encore.thecatch.event.controller;
 
+import com.encore.thecatch.common.DefaultResponse;
 import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
@@ -49,6 +50,12 @@ public class EventController {
     @GetMapping("/user/event/{id}")
     public ResponseDto userDetail(@PathVariable Long id, HttpServletRequest request) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_EVENT_DETAIL, eventService.eventContents(id));
+    }
+
+    @PatchMapping("event/{id}/publish")
+    public ResponseDto eventPublish(@PathVariable Long id) {
+        eventService.eventPublish(id);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(id));
     }
 
 }
