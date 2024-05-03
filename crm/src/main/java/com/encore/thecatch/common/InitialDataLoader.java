@@ -7,9 +7,16 @@ import com.encore.thecatch.common.dto.Role;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.company.domain.Company;
 import com.encore.thecatch.company.repository.CompanyRepository;
+import com.encore.thecatch.complaint.entity.Complaint;
+import com.encore.thecatch.complaint.repository.ComplaintRepository;
+import com.encore.thecatch.log.domain.LogType;
+import com.encore.thecatch.log.domain.UserLog;
+import com.encore.thecatch.log.repository.UserLogRepository;
 import com.encore.thecatch.user.domain.Gender;
+import com.encore.thecatch.user.domain.Grade;
 import com.encore.thecatch.user.domain.TotalAddress;
 import com.encore.thecatch.user.domain.User;
+import com.encore.thecatch.user.dto.request.UserLoginDto;
 import com.encore.thecatch.user.dto.request.UserSignUpDto;
 import com.encore.thecatch.user.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -17,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
@@ -27,15 +35,20 @@ public class InitialDataLoader implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
     private final AdminRepository adminRepository;
+    private final UserLogRepository userLogRepository;
+    private final ComplaintRepository complaintRepository;
+
     private final AesUtil aesUtil;
     static Boolean randomEmployeeNumber = true;
 
 
-    public InitialDataLoader(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyRepository companyRepository, AdminRepository adminRepository, AesUtil aesUtil) {
+    public InitialDataLoader(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyRepository companyRepository, AdminRepository adminRepository, UserLogRepository userLogRepository, ComplaintRepository complaintRepository, AesUtil aesUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.companyRepository = companyRepository;
         this.adminRepository = adminRepository;
+        this.userLogRepository = userLogRepository;
+        this.complaintRepository = complaintRepository;
         this.aesUtil = aesUtil;
     }
 
@@ -115,6 +128,8 @@ public class InitialDataLoader implements CommandLineRunner {
 
             for (int i = 0; i < 300; i++) {
 
+                String[] grades = {"SILVER", "GOLD", "VIP", "VVIP"};
+                String grade = grades[random.nextInt(grades.length)];
                 UserSignUpDto userSignUpDto = UserSignUpDto.builder()
                         .name(name)
                         .email("user"+i+"@test.com")
@@ -125,17 +140,61 @@ public class InitialDataLoader implements CommandLineRunner {
                         .zipcode("12345")
                         .phoneNumber("010-1234-5678")
                         .role(Role.USER)
-                        .gender(Gender.FEMALE)
+                        .gender(Gender.MALE)
                         .consentReceiveMarketing(true)
                         .companyId(1L)
                         .build();
                 User user = User.toEntity(userSignUpDto, company);
                 user.passwordEncode(passwordEncoder);
                 toEncodeAES(user);
+                user.userUpdate("", grade);
                 testUsers.add(user);
             }
 
-            userRepository.saveAll(testUsers);
+
+
+            List<User> users = userRepository.saveAll(testUsers);
+            String[] categoryList = {"DELIVERY", "ORDER", "CANCEL/EXCHANGE/REFUND", "MYINFO", "CONFIRMATION", "SERVICE"};
+            LocalDateTime createdTime = LocalDateTime.now();
+
+            List<Complaint> complaints = new ArrayList<>();
+            List<UserLog> userLogList = new ArrayList<>();
+            List<User> updateUsers = new ArrayList<>();
+            for(int i = 0; i < users.size(); i++) {
+
+                if(i%10 == 0) {
+                    createdTime = createdTime.minusMonths(1);
+                }
+                if(i%2 == 0) {
+                    createdTime = createdTime.minusDays(1);
+                }
+
+                users.get(i).setCreatedTime(createdTime);
+
+
+                String category = categoryList[random.nextInt(categoryList.length)];
+                Complaint newComplaint = Complaint.builder()
+                        .title("고객 문의 "+i)
+                        .category(category)
+                        .user(users.get(i))
+                        .contents("문의 드립니다. 상품 교환하고")
+                        .build();
+                complaints.add(newComplaint);
+                UserLog userLoginLog = UserLog.builder()
+                        .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
+                        .ip("192.168.0.216")
+                        .email(aesUtil.aesCBCDecode(users.get(i).getEmail()))
+                        .method("POST")
+                        .data("user login")
+                        .createdTime(users.get(i).getCreatedTime())
+                        .build();
+                userLogList.add(userLoginLog);
+            }
+
+            userRepository.saveAll(users);
+            userLogRepository.saveAll(userLogList);
+            complaintRepository.saveAll(complaints);
+
         }
 
 
