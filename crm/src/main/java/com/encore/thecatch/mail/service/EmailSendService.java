@@ -17,6 +17,7 @@ import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.domain.LogType;
 import com.encore.thecatch.log.repository.CouponEmailLogRepository;
 import com.encore.thecatch.log.repository.EmailLogRepository;
+import com.encore.thecatch.mail.dto.CommentsEmailDto;
 import com.encore.thecatch.mail.dto.CouponEmailReqDto;
 import com.encore.thecatch.mail.dto.EventEmailReqDto;
 import com.encore.thecatch.user.repository.UserRepository;
@@ -26,6 +27,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
@@ -102,7 +104,7 @@ public class EmailSendService {
     @Async
     public String createEmailAuthNumber(AdminLoginDto adminLoginDto) throws Exception {
         Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminLoginDto.getEmployeeNumber()))
-                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
 
         makeRandomNumber();
         String toMail = aesUtil.aesCBCDecode(admin.getEmail()); // 보낼 이메일 주소
@@ -133,6 +135,55 @@ public class EmailSendService {
 
         return "success";
     }
+
+    @Async
+    public String createCommentsEmail(CommentsEmailDto commentsEmailDto) throws Exception {
+
+        String toMail = commentsEmailDto.getUserEmail(); // 받는 이메일 주소
+        String title = "[주)"+commentsEmailDto.getAdminCompany()+"] 1:1 상담에 대한 답변이 등록되었습니다."; // 이메일 제목
+
+        // HTML 내용 구성
+        String content = "<p style=\"font-size: 10pt; font-family: sans-serif; padding: 0px 0px 0px 10pt;\"><br></p>\n" +
+                "<table align=\"center\" width=\"700\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border: 1px solid rgb(187, 192, 196);\">\n" +
+                "    <tbody><tr><td style=\"padding: 24px 14px 0px;\">\n" +
+                "                <table width=\"670\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n" +
+                "                <tbody><tr><td>\n" +
+                "                           <img src=\"http://m-img.cafe24.com/images/template/admin/ko_KR/img_visual_customer_20.jpg\">\n" +
+                "                        </td></tr><tr><td style=\"padding: 50px 0px 0px 10px; font-size: 12px; font-family: Gulim; color: rgb(57, 57, 57); line-height: 19px;\">\n" +
+                "                            <p><b>" + commentsEmailDto.getUserName() + "</b> 님께서 <b>" + commentsEmailDto.getComplaintCreatedTime() + "</b>에 문의하신 내용에 대한 답변입니다.<br>\n" +
+                "                            답변을 받기까지 많이 기다리시진 않으셨는지요. <br>최대한 빠르고 정확한 답변을 드리기 위해 더욱 노력하겠습니다.</p>\n" +
+                "                        </td></tr><tr><td>\n" +
+                "                            \n" +
+                "                            <table width=\"670\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"font-size: 12px; font-family: Gulim; color: rgb(57, 57, 57); line-height: 19px;\">\n" +
+                "                            <tbody><tr><td style=\"padding: 23px 0px 0px;\">\n" +
+                "                                        <table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px 0px 20px;\">\n" +
+                "                                        <tbody><tr><td width=\"19\"><img src=\"http://m-img.cafe24.com/images/template/admin/ko_KR/ico_title.gif\"></td><td><strong style=\"font-size: 13px; font-family: Gulim; color: rgb(28, 28, 28);\">고객님께서 작성하신 내용입니다.</strong></td></tr></tbody>\n" +
+                "                                        </table>\n" +
+                "                                    </td></tr><tr><td align=\"left\" height=\"130\" style=\"padding: 14px; font-size: 12px; font-family: Gulim; border: 1px solid rgb(213, 213, 213);\">" + commentsEmailDto.getComplaintContents() + "\n" +
+                "                                    </td></tr><tr><td height=\"40\">&nbsp;</td></tr><tr><td>\n" +
+                "                                        <table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px 0px 20px;\">\n" +
+                "                                        <tbody><tr><td width=\"19\"><img src=\"http://m-img.cafe24.com/images/template/admin/ko_KR/ico_title.gif\"></td><td><strong style=\"font-size: 13px; font-family: Gulim; color: rgb(28, 28, 28);\">문의하신 내용에 대한 답변입니다.</strong></td></tr></tbody>\n" +
+                "                                        </table>\n" +
+                "                                    </td></tr><tr><td align=\"left\" height=\"130\" style=\"padding: 14px; font-size: 12px; font-family: Gulim; border: 1px solid rgb(213, 213, 213);\">\n" +
+                "                                        <p>" + commentsEmailDto.getCommentContents() + "<br></p>\n" +
+                "                                    </td></tr></tbody>\n" +
+                "                            </table>\n" +
+                "                            \n" +
+                "                        </td></tr><tr><td style=\"padding: 30px 0px 60px 10px; font-size: 12px; font-family: Gulim; color: rgb(57, 57, 57); line-height: 19px;\">\n" +
+                "                            <p>만족스러운 답변이 되셨기를 바랍니다. <br>앞으로도 저희 쇼핑몰의 많은 이용부탁드립니다. 감사합니다.</p>\n" +
+                "                        </td></tr></tbody>\n" +
+                "                </table>\n" +
+                "            </td></tr><tr><td style=\"padding: 24px 34px; font-family: Gulim; font-size: 12px; line-height: 18px; background-color: rgb(202, 205, 212); color: rgb(255, 255, 255);\">\n" +
+                "                <p style=\"\"><br></p>\n" +
+                "            </td></tr></tbody>\n" +
+                "</table>";
+
+        // 메일 전송
+        mailSend(username, toMail, title, content);
+
+        return "success";
+    }
+
 
     @Async
     public String createCouponEmail(Long id, CouponEmailReqDto couponEmailReqDto) throws Exception {
