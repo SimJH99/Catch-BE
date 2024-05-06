@@ -137,12 +137,11 @@ public class EmailSendService {
     }
 
     @Async
-    public String createCommentsEmail(CommentsEmailDto commentsEmailDto) throws Exception {
+    public void createCommentsEmail(CommentsEmailDto commentsEmailDto) throws Exception {
 
+        String setFrom = username;
         String toMail = commentsEmailDto.getUserEmail(); // 받는 이메일 주소
         String title = "[주)"+commentsEmailDto.getAdminCompany()+"] 1:1 상담에 대한 답변이 등록되었습니다."; // 이메일 제목
-
-        // HTML 내용 구성
         String content = "<p style=\"font-size: 10pt; font-family: sans-serif; padding: 0px 0px 0px 10pt;\"><br></p>\n" +
                 "<table align=\"center\" width=\"700\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border: 1px solid rgb(187, 192, 196);\">\n" +
                 "    <tbody><tr><td style=\"padding: 24px 14px 0px;\">\n" +
@@ -179,9 +178,20 @@ public class EmailSendService {
                 "</table>";
 
         // 메일 전송
-        mailSend(username, toMail, title, content);
-
-        return "success";
+        CompletableFuture.supplyAsync(() -> {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+                helper.setFrom(setFrom);//이메일의 발신자 주소 설정
+                helper.setTo(toMail);//이메일의 수신자 주소 설정
+                helper.setSubject(title);//이메일의 제목을 설정
+                helper.setText(content, true);//이메일의 내용 설정 두 번째 매개 변수에 true를 설정하여 html 설정으로한다.
+                javaMailSender.send(mimeMessage);
+                return RsData.of("S-1", "메일이 발송되었습니다.", toMail);
+            } catch (MessagingException e) {
+                return RsData.of("F-1", "메일이 발송되지 않았습니다.", toMail);
+            }
+        });
     }
 
 
