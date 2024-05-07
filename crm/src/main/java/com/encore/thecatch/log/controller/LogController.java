@@ -67,4 +67,18 @@ public class LogController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
                 , new DefaultResponse<Long>(logService.couponReceiveCount(id)));
     }
+
+    @GetMapping("/event/{id}/send/count")
+    public ResponseDto eventSendCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.eventSendCount(id)));
+    }
+
+    @GetMapping("/event/{id}/receive/count")
+    public ResponseDto eventReceiveCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.eventReceiveCount(id)));
+    }
+
+
 }
