@@ -391,6 +391,8 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 </br>
 
 ## 프론트 레코드 생성
+
+- cloudfront의 엔드포인트 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/5512f162-3e1a-4074-9f00-8b7905579895" height="80%" width="80%">
 
 </br>
@@ -522,14 +524,10 @@ jobs:
 ## 노드그룹 IAM 역할 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/7a948627-1280-4c59-bdca-10d8f2f0fd9c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EC2 부여
+- IAM 역할 EC2 부여
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/cf738812-40e9-464b-b2a4-c346e864da7c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EKS 권한 부여 
+- IAM 역할 EKS 권한 부여 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/e0dadefd-6cca-418d-82dc-7d3865fd593a" height="80%" width="80%">
 
 </br>
@@ -552,10 +550,14 @@ jobs:
 ## cert manager 설정
 1. 터미널을 킵니다.
 
-2. aws cli 설치
+2. aws cli 설치 및 aws configure 설정
+
+- aws cli 설치
 https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/getting-started-install.html
+
+- aws configure 설정
+
 ```
-aws
 aws configure
 > AWS Access Key ID: aws 액세스 키 입력
 > AWS Secret Access Key: aws 비밀 액세스 키 입력
