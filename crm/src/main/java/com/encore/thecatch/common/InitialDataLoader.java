@@ -166,18 +166,16 @@ public class InitialDataLoader implements CommandLineRunner {
                 testUsers.add(user);
             }
 
-
-
             List<User> users = userRepository.saveAll(testUsers);
             String[] categoryList = {"DELIVERY", "ORDER", "CANCEL/EXCHANGE/REFUND", "MYINFO", "CONFIRMATION", "SERVICE"};
             LocalDateTime createdTime = LocalDateTime.now();
 
             List<Complaint> complaints = new ArrayList<>();
             List<UserLog> userLogList = new ArrayList<>();
-            List<User> updateUsers = new ArrayList<>();
+
             for(int i = 0; i < users.size(); i++) {
 
-                if(i%10 == 0) {
+                if(i%3 == 0) {
                     createdTime = createdTime.minusMonths(1);
                 }
                 if(i%2 == 0) {
@@ -209,6 +207,23 @@ public class InitialDataLoader implements CommandLineRunner {
             userRepository.saveAll(users);
             userLogRepository.saveAll(userLogList);
             complaintRepository.saveAll(complaints);
+
+            List<Complaint> complaintList = new ArrayList<>();
+            complaintList = complaintRepository.findAll();
+
+            for(int i = 0; i < complaintList.size(); i++) {
+
+                if(i%2 == 0) {
+                    createdTime = createdTime.minusMonths(1);
+                }
+                if(i%3 == 0) {
+                    createdTime = createdTime.minusDays(1);
+                }
+
+                complaintList.get(i).setCreatedTime(createdTime);
+            }
+
+            complaintRepository.saveAll(complaintList);
 
         }
 

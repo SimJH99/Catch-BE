@@ -1,13 +1,12 @@
 package com.encore.thecatch.complaint.entity;
 
 import com.encore.thecatch.comments.entity.Comments;
+import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.user.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.joda.time.base.BaseDateTime;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Complaint {
+public class Complaint extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;    //PK
@@ -53,14 +52,6 @@ public class Complaint {
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;
-
-    @CreationTimestamp
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime createdTime;
-
-    @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime updatedTime;
 
 
     //글 내용 수정 메소드
