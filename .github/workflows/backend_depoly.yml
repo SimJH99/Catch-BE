@@ -1,0 +1,78 @@
+name: deploy Catch-Backend
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout github
+        uses: actions/checkout@v2
+      - name: install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.25.9"
+        id: install
+      - name: configure aws #aws configure 팀 키값
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # 추가 해줘야함
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # 추가 해줘야함
+          aws-region: ap-northeast-2
+      - name: update cluster information
+        run: aws eks update-kubeconfig --name catch-cluster --region ap-northeast-2
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      ################ build and push #################
+      - name: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json"
+          json: ${{ secrets.FIREBASE_JSON }}
+          dir: './crm/src/main/resources/'
+
+      - name: build and push docker image to ecr (catch-crm)
+        env:
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
+          REPOSITORY: catch-crm
+          IMAGE_TAG: latest
+        run: |
+          docker build \
+          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          -f ./crm/Dockerfile ./crm
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      - name: build and push docker image to ecr (catch-batch)
+        env:
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
+          REPOSITORY: catch-batch
+          IMAGE_TAG: latest
+        run: |
+          docker build \
+          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          -f ./batch/Dockerfile ./batch
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+#      - name: build and push docker image to ecr (catch-event)
+#        env:
+#          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
+#          REPOSITORY: catch-event
+#          IMAGE_TAG: latest
+#        run: |
+#          docker build \
+#          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+#          -f ./event/Dockerfile ./event
+#          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      ################ apply ################
+      - name: eks kubectl crm apply
+        run: |
+          kubectl apply -f ./crm/k8s/catch-crm-serv.yml
+          kubectl rollout restart deployment crm
+      - name: eks kubectl batch apply
+        run: |
+          kubectl apply -f ./batch/k8s/catch-batch-serv.yml
+          kubectl rollout restart deployment batch
+#      - name: eks kubectl event apply
+#        run: |
+#          kubectl apply -f ./event/k8s/catch-event-serv.yml
+#          kubectl rollout restart deployment event
