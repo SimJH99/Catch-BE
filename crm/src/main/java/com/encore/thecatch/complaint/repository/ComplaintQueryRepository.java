@@ -94,9 +94,11 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
         );
     }
 
-    public List<Complaint> myPageComplaints() {
+    public List<Complaint> myPageComplaints(User user) {
         return selectFrom(complaint)
-                .where(complaint.active.eq(true))
+                .where(
+                        complaint.user.eq(user),
+                        complaint.active.eq(true))
                 .orderBy(complaint.createdTime.desc())
                 .limit(5)
                 .fetch();
