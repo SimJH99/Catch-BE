@@ -354,8 +354,7 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <details>
 <summary> <h1> 배포 과정 </h1> </summary>
 
-## S3 버킷에 dist 파일 업로드
-<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/22e3419c-5fbd-4f34-940c-f2969dc253af" height="80%" width="80%">
+## S3 버킷 생성
 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/fa1de006-2083-48a1-ba58-e41f68ca5e5d" height="80%" width="80%">
 
@@ -372,18 +371,28 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 </br>
 
 ## Cloud Front에 적용할 SSL 인증서 생성
-<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/9358e912-7c6d-46fc-90cd-28c3b4221e3a" height="80%" width="80%">
 
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/f096f15f-1d73-4482-a125-e2f49be9e77c">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/e323d9f6-0384-42c5-9e02-0d0d72c96576">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c76584b5-a42f-41ab-8e27-d2458d0ede88">
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/763dbcc4-3d03-4766-818e-bf0de7eda16a" height="80%" width="80%">
+
+
 
 </br>
 
 ## Route53에서 호스팅 영역 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ad5ac0db-d054-4869-a399-614b12121977" height="80%" width="80%">
 
+- 가비아에서 등록한 도메인의 ns 레코드 값을 생성된 호스팅 영역의 ns 레코드 값을 수정
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/59ac6833-4903-4d10-9d9a-c13ac458517f" height="80%" width="80%">
+
 </br>
 
 ## 프론트 레코드 생성
+
+- cloudfront의 엔드포인트 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/5512f162-3e1a-4074-9f00-8b7905579895" height="80%" width="80%">
 
 </br>
@@ -392,6 +401,90 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/221d4d74-7952-4666-8bfb-a66d3f5dd87b" height="80%" width="80%">
 
 </br>
+
+## frontend git action
+<details>
+<summary> - frontend_depoly.yml </summary>
+  
+```
+name: Deploy to AWS S3
+
+on:
+  push:
+    branches:
+    - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - run: |
+        echo "VUE_APP_FIREBASE_API_KEY=${{secrets.API_KEY}}" >> .env
+        echo "VUE_APP_FIREBASE_AUTH_DOMAIN=${{secrets.DOMAIN}}" >> .env
+        echo "VUE_APP_FIREBASE_PROJECT_ID=${{secrets.PROJECT_ID}}" >> .env
+        echo "VUE_APP_FIREBASE_STORAGE_BUCKET=${{secrets.BUCKET}}" >> .env
+        echo "VUE_APP_FIREBASE_MESSAGING_SENDER_ID=${{secrets.SENDER_ID}}" >> .env
+        echo "VUE_APP_FIREBASE_APP_ID=${{secrets.APP_ID}}" >> .env
+        echo "VUE_APP_FIREBASE_MEASUREMENTID=${{secrets.MEASUREMENT_ID}}" >> .env
+        echo "VUE_APP_FIREBASE_VAP_ID=${{secrets.VAP_ID}}" >> .env
+    - run: cat .env
+    
+    - name: npm install
+      working-directory: ./
+      run: npm install
+
+    - name: npm firebase install
+      working-directory: ./
+      run: npm install firebase
+
+    - name: npm run build
+      working-directory: ./
+      run: npm run build
+
+    - name: setup aws cli
+      uses: aws-actions/configure-aws-credentials@v2
+      with: 
+        aws-access-key-id: ${{secrets.AWS_S3_ACCESS_KEY}}
+        aws-secret-access-key: ${{secrets.AWS_S3_SECRET_KEY}}
+        aws-region: "ap-northeast-2"
+
+    - name: deploy to s3
+      run: |
+        aws s3 cp ./dist s3://catchteam/ --recursive
+
+```
+
+</details>
+</br>
+
+## RDS 생성
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/e92d8a1f-b47d-4bd9-acf0-b95598e3c1e4">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/b886fc70-9909-4f41-991c-f3061a85d42a">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/d697076a-aa57-42da-9bde-0f504f138b59">
+<img height="80%" width="80%"src="https://github.com/Catch-team/Catch-BE/assets/122894395/678b510a-da71-4cde-8bb7-265ae8e6dfab">
+
+## RDS 파라미터 그룹 설정
+- 파라미터 그룹을 설정해주지 않으면 DB에 한글을 넣을때 에러 발생
+
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/ab9a4eec-dac9-4c1f-b52c-5be9cb274d05">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c6cf80bc-8623-4ef5-99b0-efc1d490ae8a">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c06eb74b-1642-4035-a5d6-7c5c1255f561">
+
+- char 검색시 나오는 항목들 utf8mb4
+
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/a08a8fb9-80b0-4f66-8669-f588f2aee708">
+
+- collation 검색시 나오는 항목들 utf8mb4_general_ci
+  
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/b981d82a-c195-45eb-91be-b6fcfcbec7e3">
+
 
 ## EKS 클러스터 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/530fdbe7-065a-447f-aa5c-a4b7a62c773b" height="80%" width="80%">
@@ -402,6 +495,7 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/088be74e-dc23-40cc-a73c-e5024f67a4c6" height="80%" width="80%">
 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/d6304e70-97fa-49b1-9387-4705640a2d35" height="80%" width="80%">
+
 
 </br>
 
@@ -430,14 +524,10 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 ## 노드그룹 IAM 역할 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/7a948627-1280-4c59-bdca-10d8f2f0fd9c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EC2 부여
+- IAM 역할 EC2 부여
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/cf738812-40e9-464b-b2a4-c346e864da7c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EKS 권한 부여 
+- IAM 역할 EKS 권한 부여 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/e0dadefd-6cca-418d-82dc-7d3865fd593a" height="80%" width="80%">
 
 </br>
@@ -457,8 +547,220 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 
 </br>
 
+## cert manager 설정
+1. 터미널을 킵니다.
 
+2. aws cli 설치 및 aws configure 설정
 
+- aws cli 설치
+https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/getting-started-install.html
+
+- aws configure 설정
+
+```
+aws configure
+> AWS Access Key ID: aws 액세스 키 입력
+> AWS Secret Access Key: aws 비밀 액세스 키 입력
+> Default region name: region name 입력
+> Default output format: output format 입력
+```
+
+3. kubectl 설치
+- mac 
+```
+brew install kubectl
+```
+- 윈도우
+
+```
+winget install -e --id Kubernetes.kubectl
+```
+
+4. 설치 확인
+```
+kubectl version --client
+```
+
+5. 클러스터 설정
+aws에서 클러스터 생성 후
+```
+aws eks update-kubeconfig --region ap-northeast-2 --name catch-cluster
+```
+
+6. cert-manager 생성
+```
+kubectl create namespace cert-manager
+```
+
+7. Helm 설치
+```
+helm repo add jetstack [https://charts.jetstack.io](https://charts.jetstack.io/)
+helm repo update
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.5.0 --create-namespace --set installCRDs=true
+// ingress_cert 파일이 있는곳으로 이동
+cd ./k8s
+```
+<details>
+<summary> - ingress_cert.yml</summary>
+  
+```
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # 인증서 서버 주소. 해당 서버의 리소스를 통해 인증서 발행
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # 인증서 만료 또는 갱신 필요시 알람 email
+    email: s99s4481@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# ClusterIssue를 사용하여 Certificate 리소스 생성 : Certificate리소스 생성시에 인증서 발급
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: catch-com-tls
+  namespace: default
+spec:
+  secretName: catch-com-tls
+  duration: 2160h #90days
+  renewBefore: 360h #before 15day
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: server.catch-crm.shop
+  dnsNames:
+    - server.catch-crm.shop
+```
+
+</details>
+</br>
+
+8. ingress aplly
+
+```
+kubectl apply -f ingress_cert.yml
+kubectl get certificate
+// 문제가 있다면 지우고 다시 시도
+kubectl delete -f ingress_cert.yml
+```
+
+</br>
+
+## nginx ingress controller 설정
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
+```
+</br>
+
+## ingress HOSTS 확인
+<img width="1003" alt="328369541-f508d7ec-e55f-4412-8ce2-78c5ae88e060" src="https://github.com/Catch-team/Catch-BE/assets/122894395/2fd351ad-4848-4356-be61-d56b345cf45f">
+
+## route53에 cname으로 생성된 로드밸런서 dns 넣기
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/6c790e4c-2e91-40fd-8544-2b5bd992dd3b" height="80%" width="80%">
+
+## elastiCache (redis) 생성
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/1add8025-9183-4bd6-9a23-725121a3f2ba" height="80%" width="80%">
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/6e83de84-7cff-40fe-93ec-31a0bc960940" height="80%" width="80%">
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/7a968350-9997-46c4-bfc5-754e138ca607" height="80%" width="80%">
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/f7e30150-4ca7-4ea3-8369-dda53b1f6f51" height="80%" width="80%">
+
+## k8s secret 설정
+```
+kubectl create secret generic db-infos \
+--from-literal=DB_HOST= DB_HOST\
+--from-literal=DB_USERNAME= DB_USERNAME \
+--from-literal=DB_PASSWORD= DB_PASSWORD \
+--from-literal=REDIS_HOST= REDIS_HOST \
+--from-literal=GOOGLE_EMAIL= GOOGLE_EMAIL \
+--from-literal=GOOGLE_SMTP= GOOGLE_SMTP \
+--from-literal=JWT_SECRETKEY= JWT_SECRETKEY \
+--from-literal=SYMMETRICKEY= SYMMETRICKEY \
+--from-literal=FIREBASE_JSON= FIREBASE_JSON \
+```
+
+## backend git action
+<details>
+<summary> - backend_depoly.yml </summary>
+  
+```
+name: deploy Catch-Backend
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout github
+        uses: actions/checkout@v2
+      - name: install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.25.9"
+        id: install
+      - name: configure aws #aws configure 팀 키값
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # 추가 해줘야함
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # 추가 해줘야함
+          aws-region: ap-northeast-2
+      - name: update cluster information
+        run: aws eks update-kubeconfig --name catch-cluster --region ap-northeast-2
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      ################ build and push #################
+      - name: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json"
+          json: ${{ secrets.FIREBASE_JSON }}
+          dir: './crm/src/main/resources/'
+
+      - name: build and push docker image to ecr (catch-crm)
+        env:
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
+          REPOSITORY: catch-crm
+          IMAGE_TAG: latest
+        run: |
+          docker build \
+          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          -f ./crm/Dockerfile ./crm
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      - name: build and push docker image to ecr (catch-batch)
+        env:
+          REGISTRY: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com # ECR주소
+          REPOSITORY: catch-batch
+          IMAGE_TAG: latest
+        run: |
+          docker build \
+          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+          -f ./batch/Dockerfile ./batch
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      ################ apply ################
+      - name: eks kubectl crm apply
+        run: |
+          kubectl apply -f ./crm/k8s/catch-crm-serv.yml
+          kubectl rollout restart deployment crm
+      - name: eks kubectl batch apply
+        run: |
+          kubectl apply -f ./batch/k8s/catch-batch-serv.yml
+          kubectl rollout restart deployment batch
+
+```
+
+</details>
+</br>
 
 </details>
 
