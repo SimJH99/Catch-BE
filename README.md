@@ -384,6 +384,10 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 ## Route53에서 호스팅 영역 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ad5ac0db-d054-4869-a399-614b12121977" height="80%" width="80%">
 
+- 가비아에서 등록한 도메인의 ns 레코드 값을 생성된 호스팅 영역의 ns 레코드 값을 수정
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/59ac6833-4903-4d10-9d9a-c13ac458517f" height="80%" width="80%">
+
 </br>
 
 ## 프론트 레코드 생성
