@@ -115,7 +115,9 @@ public class ComplaintService {
 
     @PreAuthorize("hasAuthority('USER')")
     public List<MyPageComplaints> myPageComplaints() {
-        return complaintQueryRepository.myPageComplaints()
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+        return complaintQueryRepository.myPageComplaints(user)
                 .stream().map(MyPageComplaints::toDto)
                 .collect(Collectors.toList());
     }

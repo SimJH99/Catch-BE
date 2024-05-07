@@ -223,8 +223,22 @@ public class CouponService {
         return coupon;
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Long couponPublishCount() {
         return couponQueryRepository.couponPublishCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long couponIssuanceCount() {
+        return couponQueryRepository.couponIssuanceCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long couponExpirationCount() {
+        return couponQueryRepository.couponExpirationCount();
     }
 
     public int findMyCouponCount() {
