@@ -122,14 +122,14 @@ public class AdminService {
         String employeeNum = aesUtil.aesCBCEncode(adminLoginDto.getEmployeeNumber());
 
         Admin admin = adminRepository.findByEmployeeNumber(employeeNum).orElseThrow(
-                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
 
         if (!admin.isActive()) {
             throw new CatchException(ResponseCode.DISABLED_ACCOUNT);
         }
 
         if (!passwordEncoder.matches(adminLoginDto.getPassword(), admin.getPassword())) {
-            throw new CatchException(ResponseCode.USER_NOT_FOUND);
+            throw new CatchException(ResponseCode.ADMIN_NOT_FOUND);
         }
 
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");
@@ -138,7 +138,7 @@ public class AdminService {
     public ResponseDto validateAuthNumber(String employeeNumber, String authNumber, String ip) {
         try {
             Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
-                    .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
+                    .orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
 
             // 입력된 인증 번호를 검증합니다.
             boolean isAuthValid = emailSendService.checkAuthNum(aesUtil.aesCBCDecode(admin.getEmail()), authNumber);
@@ -175,6 +175,28 @@ public class AdminService {
             log.info(String.valueOf(e));
             return new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR, null);
         }
+    }
+
+    public ResponseDto superLogin(AdminLoginDto adminLoginDto) throws Exception {
+        Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(adminLoginDto.getEmployeeNumber()))
+                .orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+
+        // 인증 번호가 유효하면 로그인 성공
+        String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", admin.getEmployeeNumber(), admin.getRole())); // 토큰 생성
+        String refreshToken = jwtTokenProvider.createRefreshToken(admin.getRole(), admin.getId()); // 리프레시 토큰 생성
+
+        // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
+        refreshTokenRepository.findByAdminEmployeeNumber(admin.getEmployeeNumber())
+                .ifPresentOrElse(
+                        it -> it.updateRefreshToken(refreshToken),
+                        () -> refreshTokenRepository.save(new RefreshToken(admin, refreshToken))
+                );
+
+        Map<String, String> result = new HashMap<>();
+        result.put("access_token", accessToken);
+        result.put("refresh_token", refreshToken);
+
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_LOGIN, result);
     }
 
     private void toMasking(Admin admin) {

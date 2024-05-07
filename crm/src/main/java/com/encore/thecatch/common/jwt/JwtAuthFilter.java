@@ -46,6 +46,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+//    HTTP 요청 헤에 Authorization 값을 찾아서 Bearer로 시작하는지 확인 하고 접두어를 제외한 토큰값으로 parsing
+//    헤더에 Authorization 값이 존재하지 않거나 접두어가 Bearer가 아니면 null을 반환한다.
     private String parseBearerToken(HttpServletRequest request, String headerName) {
         return Optional.ofNullable(request.getHeader(headerName))
                 .filter(token -> token.substring(0, 7).equalsIgnoreCase("Bearer "))
@@ -53,6 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .orElse(null);
     }
 
+//    토큰값을 토대로 토큰에 담긴
     private User parseUserSpecification(String token) {
         String[] split = Optional.ofNullable(token)
                 .filter(subject -> subject.length() >= 10)
