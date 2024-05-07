@@ -14,6 +14,9 @@ import com.encore.thecatch.common.ResponseCode;
 import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.complaint.entity.Complaint;
 import com.encore.thecatch.complaint.repository.ComplaintRepository;
+import com.encore.thecatch.mail.dto.CommentsEmailDto;
+import com.encore.thecatch.mail.service.EmailSendService;
+import com.encore.thecatch.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class CommentsService {
     private final CommentsRepository commentsRepository;
     private final AdminRepository adminRepository;
     private final AesUtil aesUtil;
+    private final EmailSendService emailSendService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public CreateCommentsRes createComment(Long id, CreateCommentsReq createCommentsReq) throws Exception {
@@ -43,8 +48,19 @@ public class CommentsService {
         Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Complaint complaint = complaintRepository.findById(id).orElseThrow(() -> new CatchException(ResponseCode.POST_NOT_FOUND));
         Comments comments = createCommentsReq.toEntity(complaint, admin);
+        User user = complaint.getUser();
+
         complaint.isReply();
         commentsRepository.save(comments);
+        CommentsEmailDto commentsEmailDto = CommentsEmailDto.builder()
+                .adminCompany(admin.getCompany().getName())
+                .complaintContents(complaint.getContents())
+                .userName(aesUtil.aesCBCDecode(user.getName()))
+                .userEmail(aesUtil.aesCBCDecode(user.getEmail()))
+                .commentContents(comments.getComment())
+                .ComplaintCreatedTime(LocalDate.from(complaint.getCreatedTime()))
+                .build();
+        emailSendService.createCommentsEmail(commentsEmailDto);
 
         return CreateCommentsRes.from(comments);
     }

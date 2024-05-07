@@ -25,7 +25,7 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   redis:
     host: ${REDIS_HOST}
@@ -46,15 +46,18 @@ logging:
   level:
     root: info
 jwt:
+#  JWT의 서명에 사용할 비밀키
   secretKey: ${JWT_SECRETKEY}
+#  토큰 발급자
   issuer: thecatch
+#  액세스 토큰의 유효 시간은 30분
   access:
     expiration-minutes: 30
-  #    액세스 토큰의 유효 시간은 30분
+#  리프레시 토큰의 유효시간은 24시간
   refresh:
     expiration-hours: 24
-#    리프레시 토큰의 유효시간은 24시간
 
+#  마스킹에 사용할 키
 symmetricKey: ${SYMMETRICKEY}
 
 #kafka:

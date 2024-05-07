@@ -59,10 +59,7 @@ public class InitialDataLoader implements CommandLineRunner {
         // 랜덤한 한글 이름 생성
         String[] surnames = {"김", "이", "박", "최", "정", "강", "조", "윤", "장", "임"};
         String[] givenNames = {"민준", "서연", "하준", "지우", "지후", "서준", "서현", "지민", "수빈", "지유", "주원", "지호", "지훈", "예은", "수현", "지원", "다은", "은지", "윤서", "현우"};
-        String surname = surnames[random.nextInt(surnames.length)];
-        String givenName = givenNames[random.nextInt(givenNames.length)];
 
-        String name = surname + givenName;
 
         if(companyRepository.count() < 1) {
             Company company = Company.builder()
@@ -77,6 +74,9 @@ public class InitialDataLoader implements CommandLineRunner {
             Set<String> usedEmployeeNumbers = new HashSet<>(); // 중복된 직원 번호를 체크하기 위한 Set
 
             for (int i = 0; i < 300; i++) {
+                String surname = surnames[random.nextInt(surnames.length)];
+                String givenName = givenNames[random.nextInt(givenNames.length)];
+                String name = surname + givenName;
                 String employeeNumber;
                 // 직원 번호 생성
                 do {
@@ -124,12 +124,27 @@ public class InitialDataLoader implements CommandLineRunner {
             List<User> testUsers = new ArrayList<>();
             Company company = companyRepository.findById(1L).orElseThrow();
 
-            LocalDate birthDate = LocalDate.of(1990,1,1);
-
+            LocalDate birthDate = LocalDate.now();
             for (int i = 0; i < 300; i++) {
 
+                if(i % 2 == 0) {
+                    birthDate = birthDate.minusDays(3);
+                }
+
+                if(i % 5 == 0) {
+                    birthDate = birthDate.minusMonths(1);
+                }
+
+                String surname = surnames[random.nextInt(surnames.length)];
+                String givenName = givenNames[random.nextInt(givenNames.length)];
+
+                String name = surname + givenName;
+
+                Gender[] genders = {Gender.MALE, Gender.FEMALE};
                 String[] grades = {"SILVER", "GOLD", "VIP", "VVIP"};
                 String grade = grades[random.nextInt(grades.length)];
+                Gender gender = genders[random.nextInt(genders.length)];
+
                 UserSignUpDto userSignUpDto = UserSignUpDto.builder()
                         .name(name)
                         .email("user"+i+"@test.com")
@@ -140,7 +155,7 @@ public class InitialDataLoader implements CommandLineRunner {
                         .zipcode("12345")
                         .phoneNumber("010-1234-5678")
                         .role(Role.USER)
-                        .gender(Gender.MALE)
+                        .gender(gender)
                         .consentReceiveMarketing(true)
                         .companyId(1L)
                         .build();

@@ -43,6 +43,11 @@ public class AdminController {
         return adminService.doLogin(adminLoginDto);
     }
 
+    @PostMapping("/admin/superLogin")
+    public ResponseDto adminSuperLogin(@RequestBody AdminLoginDto adminLoginDto) throws Exception {
+        return adminService.superLogin(adminLoginDto);
+    }
+
     @PostMapping("/admin/mailAuthCheck")
     public ResponseDto verifyAuthNumber(@RequestBody EmailCheckDto emailCheckDto, HttpServletRequest request) {
         try {

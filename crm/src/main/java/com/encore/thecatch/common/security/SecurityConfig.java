@@ -44,6 +44,7 @@ public class SecurityConfig{
                         "/user/doLogin",
                         "/system/admin/signUp",
                         "/admin/doLogin",
+                        "/admin/superLogin",
                         "/mailSend",
                         "/admin/mailAuthCheck",
                         "/admin/random/create",

@@ -29,7 +29,7 @@ jobs:
       - name: create-json
         uses: jsdaniell/create-json@v1.2.3
         with:
-          name: "catch-push-firebase-adminsdk-x6w7k-9a1fd170cd.json"
+          name: "catch-push-firebase-adminsdk-x6w7k-bded31fa6b.json"
           json: ${{ secrets.FIREBASE_JSON }}
           dir: './crm/src/main/resources/'
 
