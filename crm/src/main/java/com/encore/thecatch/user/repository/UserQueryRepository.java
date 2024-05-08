@@ -187,6 +187,7 @@ public class UserQueryRepository extends Querydsl4RepositorySupport {
     public Long signUpUserDay() {
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDate currentDate = LocalDate.now();
+        System.out.println("signUpUserDay :" +  currentTime);
         LocalDateTime startTime = LocalDateTime.of(currentDate, LocalTime.of(0,0,0));
         return selectFrom(user)
                 .where(
@@ -199,6 +200,7 @@ public class UserQueryRepository extends Querydsl4RepositorySupport {
     public Long signUpUserLastDay(){
         LocalDate lastDay = LocalDate.now().minusDays(1);
         LocalDateTime startLastTime = lastDay.atStartOfDay();
+        System.out.println("signUpUserLastDay :" +  lastDay);
         LocalDateTime endLastTime = LocalDateTime.of(lastDay, LocalTime.of(23,59,59));
         return selectFrom(user)
                 .where(
