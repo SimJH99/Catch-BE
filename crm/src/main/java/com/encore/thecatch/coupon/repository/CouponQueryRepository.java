@@ -49,8 +49,10 @@ public class CouponQueryRepository extends Querydsl4RepositorySupport {
                                 eqStartDate(searchCouponCondition.getStartDate()),
                                 eqEndDate(searchCouponCondition.getEndDate()),
                                 eqStatus(searchCouponCondition.getCouponStatus()),
+                                coupon.couponStatus.notIn(CouponStatus.DELETE),
                                 coupon.companyId.eq(company))
                         .orderBy(coupon.createdTime.desc()),
+
                 countQuery -> countQuery
                         .selectFrom(coupon)
                         .where(
