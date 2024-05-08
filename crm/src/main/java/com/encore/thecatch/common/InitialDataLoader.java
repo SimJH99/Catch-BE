@@ -124,7 +124,7 @@ public class InitialDataLoader implements CommandLineRunner {
             List<User> testUsers = new ArrayList<>();
             Company company = companyRepository.findById(1L).orElseThrow();
 
-            LocalDate birthDate = LocalDate.now();
+            LocalDate birthDate = LocalDate.of(2000,12,13);
             for (int i = 0; i < 300; i++) {
 
                 if(i % 2 == 0) {
@@ -133,6 +133,10 @@ public class InitialDataLoader implements CommandLineRunner {
 
                 if(i % 5 == 0) {
                     birthDate = birthDate.minusMonths(1);
+                }
+
+                if(i % 10 == 0) {
+                    birthDate = birthDate.minusYears(1);
                 }
 
                 String surname = surnames[random.nextInt(surnames.length)];
@@ -167,6 +171,8 @@ public class InitialDataLoader implements CommandLineRunner {
             }
 
             List<User> users = userRepository.saveAll(testUsers);
+
+
             String[] categoryList = {"DELIVERY", "ORDER", "CANCEL/EXCHANGE/REFUND", "MYINFO", "CONFIRMATION", "SERVICE"};
             LocalDateTime createdTime = LocalDateTime.now();
 
@@ -180,49 +186,58 @@ public class InitialDataLoader implements CommandLineRunner {
                 }
                 if(i%2 == 0) {
                     createdTime = createdTime.minusDays(1);
+
                 }
 
                 users.get(i).setCreatedTime(createdTime);
 
-
-                String category = categoryList[random.nextInt(categoryList.length)];
-                Complaint newComplaint = Complaint.builder()
-                        .title("고객 문의 "+i)
-                        .category(category)
-                        .user(users.get(i))
-                        .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
-                        .build();
-                complaints.add(newComplaint);
                 UserLog userLoginLog = UserLog.builder()
                         .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                         .ip("192.168.0.216")
                         .email(aesUtil.aesCBCDecode(users.get(i).getEmail()))
                         .method("POST")
                         .data("user login")
-                        .createdTime(users.get(i).getCreatedTime())
                         .build();
                 userLogList.add(userLoginLog);
+
+                String category = categoryList[random.nextInt(categoryList.length)];
+                Complaint complaint = Complaint.builder()
+                        .title("고객 문의 "+i)
+                        .category(category)
+                        .user(users.get(i))
+                        .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
+                        .build();
+                complaints.add(complaint);
             }
 
+
             userRepository.saveAll(users);
-            userLogRepository.saveAll(userLogList);
             complaintRepository.saveAll(complaints);
+            userLogRepository.saveAll(userLogList);
 
             List<Complaint> complaintList = new ArrayList<>();
+            List<UserLog> userLogUpdateList = new ArrayList<>();
             complaintList = complaintRepository.findAll();
+            userLogUpdateList = userLogRepository.findAll();
+            LocalDateTime updateCeatedTime = LocalDateTime.of(2024,5,8,0,0);
 
             for(int i = 0; i < complaintList.size(); i++) {
 
-                if(i%2 == 0) {
-                    createdTime = createdTime.minusMonths(1);
-                }
-                if(i%3 == 0) {
-                    createdTime = createdTime.minusDays(1);
+                if(i % 10 == 0) {
+                    updateCeatedTime = updateCeatedTime.minusDays(1);
                 }
 
-                complaintList.get(i).setCreatedTime(createdTime);
+                if(i % 3 ==0) {
+                    updateCeatedTime = updateCeatedTime.minusHours(3);
+                }
+
+
+                complaintList.get(i).setCreatedTime(updateCeatedTime);
+                userLogUpdateList.get(i).setCreatedTime(updateCeatedTime);
             }
 
+
+            userLogRepository.saveAll(userLogUpdateList);
             complaintRepository.saveAll(complaintList);
 
         }
