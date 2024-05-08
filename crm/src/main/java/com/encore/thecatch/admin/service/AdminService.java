@@ -129,7 +129,7 @@ public class AdminService {
         }
 
         if (!passwordEncoder.matches(adminLoginDto.getPassword(), admin.getPassword())) {
-            throw new CatchException(ResponseCode.ADMIN_NOT_FOUND);
+            throw new CatchException(ResponseCode.FAIL_PASSWORD_CHECK);
         }
 
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");

@@ -90,13 +90,9 @@ public class NotificationService {
     public Page<String> findUserEvent(Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        Page<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), true , pageable);
         List<EmailLog> emailLogs = emailLogRepository.findByToEmail(aesUtil.aesCBCDecode(user.getEmail()));
 
         HashSet<String> set = new HashSet<>();
-        for (Notification notification : notifications) {
-            set.add(notification.getNotificationContent());
-        }
         for (EmailLog emailLog : emailLogs) {
             set.add(emailLog.getEvent().getContents());
         }

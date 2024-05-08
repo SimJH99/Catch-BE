@@ -89,8 +89,10 @@ public enum ResponseCode {
     NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "해당 쿠폰을 찾지 못했습니다."),
     NOTIFICATION_NOT_READ("NOTIFICATION_NOT_READ", "해당 쿠폰을 읽지 못했습니다."),
     EVENT_CAN_NOT_PUBlISH("EVENT_CAN_NOT_PUBlISH", "해당 쿠폰은 발행 불가합니다."),
-    EVENT_CAN_NOT_DELETE("EVENT_CAN_NOT_DELETE", "해당 캠페인은 삭제 불가합니다.")
-    ;
+    EVENT_CAN_NOT_DELETE("EVENT_CAN_NOT_DELETE", "해당 캠페인은 삭제 불가합니다."),
+    USER_IS_DISABLE("USER_IS_DISABLE","계정이 비활성화 상태 입니다." ),
+    FAIL_PASSWORD_CHECK("FAIL_PASSWORD_CHECK", "패스워드가 틀렸습니다." );
+
     private final String code;
     private final String label;
 

@@ -37,6 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
@@ -183,37 +184,49 @@ public class UserService {
 
     @Transactional
     public ResponseDto doLogin(UserLoginDto userLoginDto, String ip) throws Exception {
-        String email = aesUtil.aesCBCEncode(userLoginDto.getEmail());
+        try {
+            // 로그인 로직
+            String email = aesUtil.aesCBCEncode(userLoginDto.getEmail());
+            User user = userRepository.findByEmail(email).orElseThrow(
+                    () -> new CatchException(ResponseCode.USER_NOT_FOUND));
 
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-            throw new CatchException(ResponseCode.USER_NOT_FOUND);
+            if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
+                throw new CatchException(ResponseCode.FAIL_PASSWORD_CHECK);
+            }
+
+            if (!user.isActive()) {
+                throw new CatchException(ResponseCode.USER_IS_DISABLE);
+            }
+
+            String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", user.getEmail(), user.getRole()));
+            String refreshToken = jwtTokenProvider.createRefreshToken(user.getRole(), user.getId());
+
+            refreshTokenRepository.findByUserEmail(user.getEmail())
+                    .ifPresentOrElse(
+                            it -> it.updateRefreshToken(refreshToken),
+                            () -> refreshTokenRepository.save(new RefreshToken(user, refreshToken))
+                    );
+
+            Map<String, String> result = new HashMap<>();
+            result.put("access_token", accessToken);
+            result.put("refresh_token", refreshToken);
+
+            // 로그 저장
+            UserLog userLoginLog = UserLog.builder()
+                    .type(LogType.USER_LOGIN)
+                    .ip(ip)
+                    .email(aesUtil.aesCBCDecode(user.getEmail()))
+                    .method("POST")
+                    .data("user login")
+                    .build();
+
+            userLogRepository.save(userLoginLog);
+
+            return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
+        } catch (Exception e) {
+            // 그 외 예외 발생 시 트랜잭션 롤백
+            throw new Exception("로그인 중 에러 발생", e);
         }
-        String accessToken = jwtTokenProvider.createAccessToken(String.format("%s:%s", user.getEmail(), user.getRole())); // 토큰 생성
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getRole(), user.getId()); // 리프레시 토큰 생성
-        // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가한다.
-        refreshTokenRepository.findByUserEmail(user.getEmail())
-                .ifPresentOrElse(
-                        it -> it.updateRefreshToken(refreshToken),
-                        () -> refreshTokenRepository.save(new RefreshToken(user, refreshToken))
-                );
-        Map<String, String> result = new HashMap<>();
-        result.put("access_token", accessToken);
-        result.put("refresh_token", refreshToken);
-
-
-        UserLog userLoginLog = UserLog.builder()
-                .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
-                .ip(ip)
-                .email(aesUtil.aesCBCDecode(user.getEmail()))
-                .method("POST")
-                .data("user login")
-                .build();
-
-
-        userLogRepository.save(userLoginLog);
-        return new ResponseDto(HttpStatus.OK, "JWT token is created", result);
     }
 
 
