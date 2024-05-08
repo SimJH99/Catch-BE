@@ -124,7 +124,7 @@ public class InitialDataLoader implements CommandLineRunner {
             List<User> testUsers = new ArrayList<>();
             Company company = companyRepository.findById(1L).orElseThrow();
 
-            LocalDate birthDate = LocalDate.now();
+            LocalDate birthDate = LocalDate.of(2000,12,13);
             for (int i = 0; i < 300; i++) {
 
                 if(i % 2 == 0) {
@@ -133,6 +133,10 @@ public class InitialDataLoader implements CommandLineRunner {
 
                 if(i % 5 == 0) {
                     birthDate = birthDate.minusMonths(1);
+                }
+
+                if(i % 10 == 0) {
+                    birthDate = birthDate.minusYears(1);
                 }
 
                 String surname = surnames[random.nextInt(surnames.length)];
