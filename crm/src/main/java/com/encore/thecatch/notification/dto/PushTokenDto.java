@@ -1,9 +1,11 @@
 package com.encore.thecatch.notification.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PushTokenDto {
-    private String email;
     private String pushToken;
 }

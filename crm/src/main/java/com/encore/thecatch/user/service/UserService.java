@@ -226,16 +226,6 @@ public class UserService {
 //        return "user Disable";
 //    }
 
-    @Transactional
-    public String doLogout() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        redisService.deleteValues(String.valueOf(user.getId()));
-        redisService.deleteValues("PushToken:" + user.getEmail());
-
-        return "delete refresh token";
-    }
 
     public List<ChartGradeRes> chartGrade() {
         return userQueryRepository.countGrade();
@@ -484,8 +474,10 @@ public class UserService {
     }
 
     //webPush Test
-    public ResponseDto savePushToken(String email, String pushToken) throws Exception {
-        User user = userRepository.findByEmail(aesUtil.aesCBCEncode(email))
+    public ResponseDto savePushToken(String pushToken) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println(email);
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
         if (user.isConsentReceiveMarketing()) {
             redisService.setValues("PushToken" + user.getId(), pushToken);
@@ -517,8 +509,8 @@ public class UserService {
 
 
     public List<UserListRes> searchTarget(UserSearchDto userSearchDto) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(() -> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         return userQueryRepository.TargetUserList(userSearchDto, admin.getCompany())
                 .stream().map(new Function<User, UserListRes>() {
                     public UserListRes apply(User user) {

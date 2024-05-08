@@ -54,16 +54,16 @@ public class CouponController {
     }
 
     @GetMapping("/myList")
-    public ResponseDto findMyAll(Pageable pageable) {
+    public ResponseDto findMyAll(Pageable pageable) throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.PagedResponse<CouponResDto>(couponService.findMyAll(pageable)));
     }
     @GetMapping("/myCouponCount")
-    public ResponseDto findMyCouponCount() {
+    public ResponseDto findMyCouponCount() throws Exception{
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Integer>(couponService.findMyCouponCount()));
     }
 
     @GetMapping("/receivable")
-    public ResponseDto findReceivable() {
+    public ResponseDto findReceivable() throws Exception {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse.ListResponse<CouponResDto>(couponService.findReceivable()));
     }
 
@@ -102,7 +102,7 @@ public class CouponController {
     }
 
     @PatchMapping("/{id}/publish")
-    public ResponseDto couponPublish(@PathVariable Long id) {
+    public ResponseDto couponPublish(@PathVariable Long id) throws Exception {
         couponService.couponPublish(id);
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(id));
     }

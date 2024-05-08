@@ -89,7 +89,7 @@ public class UserController {
 
     @PostMapping("/user/pushToken")
     public ResponseDto savePushToken(@RequestBody PushTokenDto pushTokenDto) throws Exception {
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, userService.savePushToken(pushTokenDto.getEmail() ,pushTokenDto.getPushToken()));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, userService.savePushToken(pushTokenDto.getPushToken()));
     }
 
     @GetMapping("/user/grade")
