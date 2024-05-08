@@ -162,6 +162,7 @@ public class ComplaintService {
                                     .name(maskingUtil.nameMasking(aesUtil.aesCBCDecode(complaint.getUser().getName())))
                                     .title(complaint.getTitle())
                                     .status(complaint.getStatus())
+                                    .category(complaint.getCategory())
                                     .build();
                         } catch (Exception e) {
                             throw new CatchException(ResponseCode.AES_DECODE_FAIL);
