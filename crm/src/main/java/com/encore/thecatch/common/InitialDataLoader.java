@@ -200,33 +200,35 @@ public class InitialDataLoader implements CommandLineRunner {
                         .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
                         .build();
                 complaints.add(newComplaint);
+            }
+
+            userRepository.saveAll(users);
+            complaintRepository.saveAll(complaints);
+
+            List<Complaint> complaintList = new ArrayList<>();
+            complaintList = complaintRepository.findAll();
+            LocalDateTime updateCeatedTime = LocalDateTime.of(2024,5,8,0,0);
+
+            for(int i = 0; i < complaintList.size(); i++) {
+
+                if(i%2 == 0) {
+                    updateCeatedTime = updateCeatedTime.minusDays(1).minusHours(2).minusMinutes(3);
+                }
+
                 UserLog userLoginLog = UserLog.builder()
                         .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                         .ip("192.168.0.216")
                         .email(aesUtil.aesCBCDecode(users.get(i).getEmail()))
                         .method("POST")
                         .data("user login")
-                        .createdTime(users.get(i).getCreatedTime())
+                        .createdTime(updateCeatedTime)
                         .build();
                 userLogList.add(userLoginLog);
+
+                complaintList.get(i).setCreatedTime(updateCeatedTime);
             }
 
-            userRepository.saveAll(users);
             userLogRepository.saveAll(userLogList);
-            complaintRepository.saveAll(complaints);
-
-            List<Complaint> complaintList = new ArrayList<>();
-            complaintList = complaintRepository.findAll();
-            LocalDateTime loginCreatedTime = LocalDateTime.of(2024,5,8,0,0);
-
-            for(int i = 0; i < complaintList.size(); i++) {
-
-                if(i%2 == 0) {
-                    loginCreatedTime = loginCreatedTime.minusDays(1).minusHours(2).minusMinutes(3);
-                }
-
-                complaintList.get(i).setCreatedTime(loginCreatedTime);
-            }
 
             complaintRepository.saveAll(complaintList);
 
