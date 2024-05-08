@@ -213,13 +213,13 @@ public class EventService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Event eventPublish(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Event event = eventRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.EVENT_NOT_FOUND));
-        if(event.getEventStatus().equals(EventStatus.ISSUANCE)){
+        if(event.getEventStatus().equals(EventStatus.ISSUANCE)&& event.getCompanyId() == admin.getCompany()){
             event.publishEvent();
         }else{
-            throw new CatchException(ResponseCode.COUPON_CAN_NOT_PUBlISH);
+            throw new CatchException(ResponseCode.EVENT_CAN_NOT_PUBlISH);
         }
         return event;
     }
