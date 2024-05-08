@@ -70,6 +70,7 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
                                         eqName(searchComplaintCondition.getName()),
                                         containsTitle(searchComplaintCondition.getTitle()),
                                         eqStatus(searchComplaintCondition.getStatus()),
+                                        eqCategory(searchComplaintCondition.getCategory()),
                                         complaint.active.eq(true)
                                 )
                                 .orderBy(complaint.status.asc(), complaint.createdTime.asc());
@@ -86,6 +87,7 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
                                         eqName(searchComplaintCondition.getName()),
                                         containsTitle(searchComplaintCondition.getTitle()),
                                         eqStatus(searchComplaintCondition.getStatus()),
+                                        eqCategory(searchComplaintCondition.getCategory()),
                                         complaint.active.eq(true));
                     } catch (Exception e) {
                         throw new CatchException(ResponseCode.AES_ENCODE_FAIL);
@@ -202,5 +204,8 @@ public class ComplaintQueryRepository extends Querydsl4RepositorySupport {
 
     private BooleanExpression eqStatus(Status status) {
         return status != null ? complaint.status.eq(status) : null;
+    }
+    private BooleanExpression eqCategory(String category) throws Exception {
+        return hasText(category) ? complaint.category.eq(category) : null;
     }
 }
