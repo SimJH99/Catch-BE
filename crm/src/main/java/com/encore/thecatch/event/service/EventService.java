@@ -117,6 +117,19 @@ public class EventService {
     }
 
     @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
+    @Transactional
+    public void eventDelete(Long id){
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        eventRepository.delete(event);
+    }
+
+    @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
     public EventDetailDto eventDetail(Long id, String ip) throws Exception {
         String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(

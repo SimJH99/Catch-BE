@@ -64,6 +64,12 @@ public class EventController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(eventService.issuanceEventCount()));
     }
 
+    @PostMapping("/event/{id}/delete")
+    public ResponseDto eventDelete(@PathVariable Long id){
+        eventService.eventDelete(id);
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, "SUCCESS");
+    }
+
     //배포중인 캠페인 수 보기
     @GetMapping("/publish/event")
     public ResponseDto publishEventCount() {
