@@ -211,16 +211,17 @@ public class CouponService {
     }
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public Coupon couponDelete(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+    public void couponDelete(Long id) {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
         if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && coupon.getCompanyId() == admin.getCompany()){
-            coupon.deleteCoupon();
+            couponRepository.delete(coupon);
         }else{
             throw new CatchException(ResponseCode.COUPON_CAN_NOT_DELETE);
         }
-        return coupon;
     }
 
     @Transactional
