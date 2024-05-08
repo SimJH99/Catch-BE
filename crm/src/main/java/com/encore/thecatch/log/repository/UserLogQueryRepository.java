@@ -41,7 +41,7 @@ public class UserLogQueryRepository extends Querydsl4RepositorySupport {
                 .from(userLog)
                 .where(userLog.type.eq(LogType.USER_LOGIN),
                         userLog.createdTime.goe(LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))),
-                        userLog.createdTime.loe(LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 59, 59))))
+                        userLog.createdTime.loe(LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59))))
                 .fetchCount();
     }
 
@@ -50,7 +50,7 @@ public class UserLogQueryRepository extends Querydsl4RepositorySupport {
                 .distinct()
                 .from(userLog)
                 .where(userLog.createdTime.goe(LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0))),
-                        userLog.createdTime.loe(LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 59, 59))))
+                        userLog.createdTime.loe(LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59))))
                 .fetch();
     }
 
