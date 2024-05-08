@@ -209,11 +209,47 @@ public class EmailSendService {
                 () -> new CatchException(ResponseCode.COUPON_NOT_FOUND)
         );
         String content =
-                "<div style='font-family: Arial, sans-serif; color: #333333; border-top: 2px solid #CCCCCC; padding-top: 20px;'>" +
-                        "<h2 style='margin-bottom: 20px;'>Catch 쿠폰 인증 코드입니다.</h2>" +
-                        "<p style='margin-bottom: 10px;'>인증 번호는 <strong>" + coupon.getCode() + "</strong>입니다.</p>" +
-                        "</div>" +
-                        "<div style='border-bottom: 2px solid #CCCCCC; padding-bottom: 20px;'></div>";
+                        "<div></div>" +
+                        "<table align='center' border='0' cellpadding='0' cellspacing='0' height='100%' width='100%' style='border-collapse: collapse; text-size-adjust: 100%; height: 100%; margin: 0px; padding: 0px; width: 100%; background-color: rgb(255, 255, 255);'>" +
+                        "<tbody><tr><td align='center' style='text-size-adjust: 100%; height: 100%; margin: 0px; padding: 0px; width: 100%; border-top: 0px;'>" +
+                        "<table border='0' cellpadding='0' cellspacing='0' width='100%' style='border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td align='center' style='background: none center center / cover no-repeat rgb(255, 255, 255); text-size-adjust: 100%; border-top: 0px; border-bottom: 0px; padding-top: 0px; padding-bottom: 0px;'>" +
+                        "<table align='center' border='0' cellpadding='0' cellspacing='0' width='100%' style='border-collapse: collapse; text-size-adjust: 100%; max-width: 600px !important;'>" +
+                        "<tbody><tr><td style='text-size-adjust: 100%;'><table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding-top: 9px; text-size-adjust: 100%;'><table align='left' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 100%; min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding: 0px 18px 9px; text-size-adjust: 100%; word-break: break-word; color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 24px; line-height: 100%; text-align: left;'>" +
+                        "<h3 style='text-align: center; display: block; margin: 0px; padding: 0px; color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 30px; font-style: normal; font-weight: normal; line-height: 100%; letter-spacing: normal;'>" +
+                        "<span style='font-family: &quot;helvetica neue&quot;, helvetica, arial, verdana, sans-serif;'>" +
+                        "<span><span style='font-size: 32px; font-weight: bold; color: rgb(255, 152, 0);'>CODE : " + coupon.getName() + "</span></span></span></h3>" +
+                        "<h3 style='text-align: center; display: block; margin: 0px; padding: 0px; color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 30px; font-style: normal; font-weight: normal; line-height: 100%; letter-spacing: normal;'>" +
+                        "<span style='font-family: &quot;helvetica neue&quot;, helvetica, arial, verdana, sans-serif;'>" +
+                        "<span><span style='font-size: 32px; font-weight: bold; color: rgb(255, 152, 0);'>“" + coupon.getCode() + "”</span></span></span></h3>" +
+                        "</td></tr></tbody></table>" +
+                        "</td></tr></tbody></table><table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding: 9px; text-size-adjust: 100%;'></td></tr></tbody></table><table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding-top: 9px; text-size-adjust: 100%;'><table align='left' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 100%; min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding: 0px 18px 9px; line-height: 100%; text-size-adjust: 100%; word-break: break-word; text-align: left;'><div style=''>" +
+                        "<font style=''><span style='font-size: 16px; white-space-collapse: preserve;'><br></span></font></div>" +
+                        "<p style='color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 24px; text-align: center; line-height: 100%; margin: 10px 0px; padding: 0px; text-size-adjust: 100%;'>" +
+                        "원하는 상품을 더욱 <span style='color: rgb(255, 152, 0);'>저렴한 가격</span>에 만나보세요!</p>" +
+                        "<p style='color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 24px; text-align: center; line-height: 100%; margin: 10px 0px; padding: 0px; text-size-adjust: 100%;'>" +
+                        "<span style='font-size: 16px;'>‣ 할인코드 [" + coupon.getCode() + "]&nbsp;</span></p>" +
+                        "<p style='color: rgb(32, 32, 32); font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 24px; text-align: center; line-height: 100%; margin: 10px 0px; padding: 0px; text-size-adjust: 100%;'>" +
+                        "<span style='font-size: 16px;'>마이페이지 쿠폰 등록에서 입력하여 적용 가능합니다.</span></p></td></tr></tbody></table></td></tr></tbody></table>" +
+                        "<table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding-top: 9px; text-size-adjust: 100%;'><table align='left' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 100%; min-width: 100%; border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='padding: 0px 18px 9px; color: rgb(73, 70, 70); text-size-adjust: 100%; word-break: break-word; font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, Verdana, sans-serif; font-size: 24px; line-height: 100%; text-align: left;'>" +
+                        "<div style='margin: 0px auto; max-width: 500px; text-align: center;'><span style='font-family: &quot;helvetica neue&quot;, helvetica, arial, verdana, sans-serif;'><span style='color: rgb(34, 34, 34); display: inline-block; font-size: 12px; font-weight: 400; line-height: 19px;'>" +
+                        "본 메일은 정보통신망법률 등 관련규정에 의거 회원님의 이메일 수신동의 여부를 확인 후 발송되었습니다.&nbsp;만약 메일 수신을 원치 않으시면&nbsp;<u><a href='https://heights-store.us12.list-manage.com/unsubscribe?u=65408ac755ac2505fdafa3f9e&amp;id=781fc25856&amp;e=137ceec6bc&amp;c=648c077731' target='_blank' style='text-size-adjust: 100%; color: rgb(0, 124, 137); font-weight: normal; text-decoration: underline;'>수신거부</a></u>를 클릭하세요. 혹은&nbsp;<u><a href='https://heights-store.us12.list-manage.com/profile?u=65408ac755ac2505fdafa3f9e&amp;id=781fc25856&amp;e=137ceec6bc&amp;c=648c077731' target='_blank' style='text-size-adjust: 100%; color: rgb(0, 124, 137); font-weight: normal; text-decoration: underline;'>이메일 변경</a></u>&nbsp;할 수 있습니다.<br></span></span></div></td></tr></tbody></table></td></tr></tbody></table>" +
+                        "<table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-collapse: collapse; text-size-adjust: 100%; table-layout: fixed !important;'>" +
+                        "<tbody><tr><td style='min-width: 100%; padding: 18px; text-size-adjust: 100%;'>" +
+                        "<table border='0' cellpadding='0' cellspacing='0' width='100%' style='min-width: 100%; border-top: 2px solid rgb(255, 255, 255); border-collapse: collapse; text-size-adjust: 100%;'>" +
+                        "<tbody><tr><td style='text-size-adjust: 100%;'>" +
+                        "<span></span>" +
+                        "</td></tr></tbody></table>" +
+                        "</td></tr></tbody></table></td></tr>" +
+                        "</tbody></table>";
+
 
         for (String toMail : emailList) {
             String title = coupon.getName(); // 이메일 제목
