@@ -58,4 +58,22 @@ public class EventController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(id));
     }
 
+    //생성한 캠페인 수 보기
+    @GetMapping("/issuance/event")
+    public ResponseDto issuanceEventCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(eventService.issuanceEventCount()));
+    }
+
+    //배포중인 캠페인 수 보기
+    @GetMapping("/publish/event")
+    public ResponseDto publishEventCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(eventService.publishEventCount()));
+    }
+
+    //금일 종료예정 캠페인 수 보기
+    @GetMapping("/expiration/event")
+    public ResponseDto expirationEventCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(eventService.expirationEventCount()));
+    }
+
 }
