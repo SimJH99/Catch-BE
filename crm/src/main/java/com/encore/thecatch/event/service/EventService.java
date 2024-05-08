@@ -9,6 +9,7 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.domain.EventStatus;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
+import com.encore.thecatch.event.dto.request.EventUpdateDto;
 import com.encore.thecatch.event.dto.response.EventContentsDto;
 import com.encore.thecatch.event.dto.response.EventDetailDto;
 import com.encore.thecatch.event.dto.response.EventInfoDto;
@@ -117,6 +118,19 @@ public class EventService {
     }
 
     @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
+    @Transactional
+    public void eventDelete(Long id){
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        eventRepository.delete(event);
+    }
+
+    @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
     public EventDetailDto eventDetail(Long id, String ip) throws Exception {
         String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
@@ -207,6 +221,21 @@ public class EventService {
         }else{
             throw new CatchException(ResponseCode.EVENT_CAN_NOT_PUBlISH);
         }
+        return event;
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MARKETER')")
+    public Event eventUpdate(Long id, EventUpdateDto eventUpdateDto) {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        event.eventUpdate(eventUpdateDto);
+
         return event;
     }
 
