@@ -43,4 +43,5 @@ public class Event extends BaseEntity {
     public void publishEvent(){
         this.eventStatus = EventStatus.PUBLISH;
     }
+
 }
