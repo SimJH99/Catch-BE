@@ -29,8 +29,4 @@ public class UserLog extends BaseEntity {
 
     private String email;
 
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdTime;
-
 }
