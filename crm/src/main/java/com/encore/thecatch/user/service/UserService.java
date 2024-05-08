@@ -528,8 +528,8 @@ public class UserService {
                         }
                     }
                 }).collect(Collectors.toList());
-    }
 //                .stream().map(UserListRes -> new UserListRes().bu)
+    }
 
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")

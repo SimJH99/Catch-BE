@@ -72,6 +72,20 @@ public class CouponQueryRepository extends Querydsl4RepositorySupport {
                 .fetchCount();
     }
 
+    public Long couponIssuanceCount() {
+        return select(coupon.count())
+                .from(coupon)
+                .where(coupon.couponStatus.eq(CouponStatus.ISSUANCE))
+                .fetchCount();
+    }
+
+    public Long couponExpirationCount() {
+        return select(coupon.count())
+                .from(coupon)
+                .where(coupon.endDate.eq(LocalDate.now()))
+                .fetchCount();
+    }
+
 
     private BooleanExpression eqName(String name) {
         return hasText(name) ? coupon.name.eq(name) : null;

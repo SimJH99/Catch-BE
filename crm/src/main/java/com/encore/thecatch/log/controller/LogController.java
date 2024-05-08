@@ -8,6 +8,7 @@ import com.encore.thecatch.log.service.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,4 +55,30 @@ public class LogController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
                 , new DefaultResponse<Long>(logService.totalEmail()));
     }
+
+    @GetMapping("/coupon/{id}/send/count")
+    public ResponseDto couponSendCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.couponSendCount(id)));
+    }
+
+    @GetMapping("/coupon/{id}/receive/count")
+    public ResponseDto couponReceiveCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.couponReceiveCount(id)));
+    }
+
+    @GetMapping("/event/{id}/send/count")
+    public ResponseDto eventSendCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.eventSendCount(id)));
+    }
+
+    @GetMapping("/event/{id}/receive/count")
+    public ResponseDto eventReceiveCount(@PathVariable Long id){
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS
+                , new DefaultResponse<Long>(logService.eventReceiveCount(id)));
+    }
+
+
 }

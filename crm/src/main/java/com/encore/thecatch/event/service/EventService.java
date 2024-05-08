@@ -209,4 +209,22 @@ public class EventService {
         }
         return event;
     }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long issuanceEventCount() {
+        return eventQueryRepository.issuanceEventCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long publishEventCount() {
+        return eventQueryRepository.publishEventCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long expirationEventCount() {
+        return eventQueryRepository.expirationEventCount();
+    }
 }

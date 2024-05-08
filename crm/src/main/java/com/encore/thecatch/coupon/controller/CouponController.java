@@ -90,6 +90,17 @@ public class CouponController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(couponService.couponPublishCount()));
     }
 
+    @GetMapping("/issuance/count")
+    public ResponseDto couponIssuanceCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(couponService.couponIssuanceCount()));
+    }
+
+    //오늘 만료될 쿠폰
+    @GetMapping("/expiration/count")
+    public ResponseDto couponExpirationCount() {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(couponService.couponExpirationCount()));
+    }
+
     @PatchMapping("/{id}/publish")
     public ResponseDto couponPublish(@PathVariable Long id) throws Exception {
         couponService.couponPublish(id);

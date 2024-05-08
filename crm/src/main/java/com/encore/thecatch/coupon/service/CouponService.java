@@ -223,13 +223,28 @@ public class CouponService {
         return coupon;
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Long couponPublishCount() {
         return couponQueryRepository.couponPublishCount();
     }
 
-    public int findMyCouponCount() throws Exception {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long couponIssuanceCount() {
+        return couponQueryRepository.couponIssuanceCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long couponExpirationCount() {
+        return couponQueryRepository.couponExpirationCount();
+    }
+
+    public int findMyCouponCount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         List<ReceiveCoupon> coupons = receiveCouponRepository.findByUserId(user.getId());
         return coupons.size();
     }

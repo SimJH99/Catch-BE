@@ -47,6 +47,8 @@ public enum ResponseCode {
     SUCCESS_DELETE_IMAGES("SUCCESS_DELETE_IMAGES", "사진 삭제 성공"),
     S3_DELETE_ERROR("S3_DELETE_ERROR", "S3 이미지 삭제 실패"),
     S3_UPLOAD_ERROR("S3_UPLOAD_ERROR", "S3 이미지 등록 실패"),
+    S3_UPLOAD_VALIDATION("S3_UPLOAD_VALIDATION", "유효하지 않은 형식입니다."),
+    S3_NOT_FOUND_IMAGE("S3_NOT_FOUND_IMAGE", "S3에서 찾을 수 없는 이미지입니다."),
     IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "찾을 수 없는 이미지 입니다."),
     NON_RECEIVABLE_COUPON("NON_RECEIVABLE_COUPON", "수령 불가한 쿠폰입니다."),
     ALREADY_RECEIVED_COUPON("ALREADY_RECEIVED_COUPON", "이미 수령한 쿠폰입니다."),

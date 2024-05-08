@@ -54,6 +54,27 @@ public class EventQueryRepository extends Querydsl4RepositorySupport {
                                 event.companyId.eq(company)));
     }
 
+    public Long issuanceEventCount() {
+        return select(event.count())
+                .from(event)
+                .where(event.eventStatus.eq(EventStatus.ISSUANCE))
+                .fetchCount();
+    }
+
+    public Long publishEventCount() {
+        return select(event.count())
+                .from(event)
+                .where(event.eventStatus.eq(EventStatus.PUBLISH))
+                .fetchCount();
+    }
+
+    public Long expirationEventCount() {
+        return select(event.count())
+                .from(event)
+                .where(event.endDate.eq(LocalDate.now()))
+                .fetchCount();
+    }
+
     private Predicate containsStartDate(String startDate) {
         return hasText(startDate) ? event.startDate.eq(LocalDate.from(LocalDate.parse(startDate).atStartOfDay())) : null;
     }
@@ -69,5 +90,4 @@ public class EventQueryRepository extends Querydsl4RepositorySupport {
     private Predicate containsEventStatus(String eventStatus) {
         return hasText(eventStatus) ? event.eventStatus.eq(EventStatus.fromValue(eventStatus)) : null;
     }
-
 }

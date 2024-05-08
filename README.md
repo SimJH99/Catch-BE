@@ -354,7 +354,7 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 <details>
 <summary> <h1> 배포 과정 </h1> </summary>
 
-## S3 버킷 설정
+## S3 버킷 생성
 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/fa1de006-2083-48a1-ba58-e41f68ca5e5d" height="80%" width="80%">
 
@@ -371,18 +371,28 @@ CRM 마케팅이란, Customer Relationship Management의 약자로 고객 관계
 </br>
 
 ## Cloud Front에 적용할 SSL 인증서 생성
-<img src="https://github.com/Catch-team/Catch-BE/assets/78871184/9358e912-7c6d-46fc-90cd-28c3b4221e3a" height="80%" width="80%">
 
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/f096f15f-1d73-4482-a125-e2f49be9e77c">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/e323d9f6-0384-42c5-9e02-0d0d72c96576">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c76584b5-a42f-41ab-8e27-d2458d0ede88">
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/763dbcc4-3d03-4766-818e-bf0de7eda16a" height="80%" width="80%">
+
+
 
 </br>
 
 ## Route53에서 호스팅 영역 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/ad5ac0db-d054-4869-a399-614b12121977" height="80%" width="80%">
 
+- 가비아에서 등록한 도메인의 ns 레코드 값을 생성된 호스팅 영역의 ns 레코드 값을 수정
+
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/59ac6833-4903-4d10-9d9a-c13ac458517f" height="80%" width="80%">
+
 </br>
 
 ## 프론트 레코드 생성
+
+- cloudfront의 엔드포인트 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/5512f162-3e1a-4074-9f00-8b7905579895" height="80%" width="80%">
 
 </br>
@@ -454,6 +464,28 @@ jobs:
 </details>
 </br>
 
+## RDS 생성
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/e92d8a1f-b47d-4bd9-acf0-b95598e3c1e4">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/b886fc70-9909-4f41-991c-f3061a85d42a">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/d697076a-aa57-42da-9bde-0f504f138b59">
+<img height="80%" width="80%"src="https://github.com/Catch-team/Catch-BE/assets/122894395/678b510a-da71-4cde-8bb7-265ae8e6dfab">
+
+## RDS 파라미터 그룹 설정
+- 파라미터 그룹을 설정해주지 않으면 DB에 한글을 넣을때 에러 발생
+
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/ab9a4eec-dac9-4c1f-b52c-5be9cb274d05">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c6cf80bc-8623-4ef5-99b0-efc1d490ae8a">
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/c06eb74b-1642-4035-a5d6-7c5c1255f561">
+
+- char 검색시 나오는 항목들 utf8mb4
+
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/a08a8fb9-80b0-4f66-8669-f588f2aee708">
+
+- collation 검색시 나오는 항목들 utf8mb4_general_ci
+  
+<img height="80%" width="80%" src="https://github.com/Catch-team/Catch-BE/assets/122894395/b981d82a-c195-45eb-91be-b6fcfcbec7e3">
+
+
 ## EKS 클러스터 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/530fdbe7-065a-447f-aa5c-a4b7a62c773b" height="80%" width="80%">
 
@@ -463,6 +495,7 @@ jobs:
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/088be74e-dc23-40cc-a73c-e5024f67a4c6" height="80%" width="80%">
 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/d6304e70-97fa-49b1-9387-4705640a2d35" height="80%" width="80%">
+
 
 </br>
 
@@ -491,14 +524,10 @@ jobs:
 ## 노드그룹 IAM 역할 설정
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/7a948627-1280-4c59-bdca-10d8f2f0fd9c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EC2 부여
+- IAM 역할 EC2 부여
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/cf738812-40e9-464b-b2a4-c346e864da7c" height="80%" width="80%">
 
-</br>
-
-## IAM 역할 EKS 권한 부여 
+- IAM 역할 EKS 권한 부여 
 <img src="https://github.com/Catch-team/Catch-BE/assets/78871184/e0dadefd-6cca-418d-82dc-7d3865fd593a" height="80%" width="80%">
 
 </br>
@@ -520,6 +549,14 @@ jobs:
 
 ## cert manager 설정
 1. 터미널을 킵니다.
+
+2. aws cli 설치 및 aws configure 설정
+
+- aws cli 설치
+https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/getting-started-install.html
+
+- aws configure 설정
+
 ```
 aws configure
 > AWS Access Key ID: aws 액세스 키 입력
@@ -528,7 +565,7 @@ aws configure
 > Default output format: output format 입력
 ```
 
-2. kubectl 설치
+3. kubectl 설치
 - mac 
 ```
 brew install kubectl
@@ -539,23 +576,23 @@ brew install kubectl
 winget install -e --id Kubernetes.kubectl
 ```
 
-3. 설치 확인
+4. 설치 확인
 ```
 kubectl version --client
 ```
 
-4. 클러스터 설정
+5. 클러스터 설정
 aws에서 클러스터 생성 후
 ```
 aws eks update-kubeconfig --region ap-northeast-2 --name catch-cluster
 ```
 
-5. cert-manager 생성
+6. cert-manager 생성
 ```
 kubectl create namespace cert-manager
 ```
 
-6. Helm 설치
+7. Helm 설치
 ```
 helm repo add jetstack [https://charts.jetstack.io](https://charts.jetstack.io/)
 helm repo update
@@ -605,7 +642,7 @@ spec:
 </details>
 </br>
 
-7. ingress aplly
+8. ingress aplly
 
 ```
 kubectl apply -f ingress_cert.yml
@@ -621,6 +658,12 @@ kubectl delete -f ingress_cert.yml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/cloud/deploy.yaml
 ```
 </br>
+
+## ingress HOSTS 확인
+<img width="1003" alt="328369541-f508d7ec-e55f-4412-8ce2-78c5ae88e060" src="https://github.com/Catch-team/Catch-BE/assets/122894395/2fd351ad-4848-4356-be61-d56b345cf45f">
+
+## route53에 cname으로 생성된 로드밸런서 dns 넣기
+<img src="https://github.com/Catch-team/Catch-BE/assets/122894395/6c790e4c-2e91-40fd-8544-2b5bd992dd3b" height="80%" width="80%">
 
 ## elastiCache (redis) 생성
 <img src="https://github.com/Catch-team/Catch-BE/assets/122894395/1add8025-9183-4bd6-9a23-725121a3f2ba" height="80%" width="80%">

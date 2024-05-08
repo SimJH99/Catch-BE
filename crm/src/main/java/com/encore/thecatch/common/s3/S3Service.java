@@ -79,7 +79,7 @@ public class S3Service {
                     .withCannedAcl(CannedAccessControlList.PublicRead));
             imgKey =  fileType + "/" + getFolderName() + "/" + fileName;
         } catch (IOException e) {
-            throw new NoSuchElementException("업로드 실패");
+            throw new CatchException(ResponseCode.S3_UPLOAD_ERROR);
         }
 
         return imgKey;
@@ -93,7 +93,7 @@ public class S3Service {
     // 파일 유효성 검사
     private String getFileExtension(String fileName) {
         if (fileName.length() == 0) {
-            throw new NoSuchElementException("파일명이 없음");
+            throw new CatchException(ResponseCode.S3_NOT_FOUND_IMAGE);
         }
         ArrayList<String> fileValidate = new ArrayList<>();
         fileValidate.add(".jpg");
@@ -104,7 +104,7 @@ public class S3Service {
         fileValidate.add(".PNG");
         String idxFileName = fileName.substring(fileName.lastIndexOf("."));
         if (!fileValidate.contains(idxFileName)) {
-            throw new NoSuchElementException("유효성 미적합");
+            throw new CatchException(ResponseCode.S3_UPLOAD_VALIDATION);
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
