@@ -127,7 +127,12 @@ public class EventService {
         Event event = eventRepository.findById(id).orElseThrow(
                 () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
         );
-        eventRepository.delete(event);
+        if (event.getEventStatus().equals(EventStatus.ISSUANCE)){
+            eventRepository.delete(event);
+        }else{
+            throw new CatchException(ResponseCode.EVENT_CAN_NOT_DELETE);
+        }
+
     }
 
     @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")

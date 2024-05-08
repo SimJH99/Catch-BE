@@ -79,10 +79,10 @@ public class CouponController {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(coupon.getId()));
     }
 
-    @PatchMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public ResponseDto couponDelete(@PathVariable Long id) {
         couponService.couponDelete(id);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_COUPON, new DefaultResponse<Long>(id));
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS_DELETE_COUPON, "SUCCESS");
     }
 
     @GetMapping("/publish/count")
