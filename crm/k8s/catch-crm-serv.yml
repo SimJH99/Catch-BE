@@ -75,6 +75,13 @@ spec:
                 secretKeyRef:
                   name: db-infos
                   key: FIREBASE_JSON
+          volumeMounts:
+            - name: tz-seoul
+              mountPath: /etc/localtime
+      volumes:
+        - name: tz-seoul
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Seoul
 ---
 apiVersion: v1
 kind: Service
