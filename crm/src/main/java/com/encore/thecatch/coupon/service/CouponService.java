@@ -67,7 +67,7 @@ public class CouponService {
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MARKETER')")
     public Coupon createCoupon(CouponReqDto couponReqDto){
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
@@ -101,9 +101,9 @@ public class CouponService {
         return coupons.map(CouponResDto::toCouponResDto);
     }
 
-    public List<CouponResDto> findReceivable() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+    public List<CouponResDto> findReceivable() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         Company company =  user.getCompany();
         List<Coupon> coupons = couponRepository.findByCompanyIdAndCouponStatus(company, CouponStatus.PUBLISH);
         List<CouponResDto> couponResDtos = new ArrayList<>();
@@ -112,9 +112,9 @@ public class CouponService {
         }
         return couponResDtos;
     }
-    public Page<CouponResDto> findMyAll(Pageable pageable){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+    public Page<CouponResDto> findMyAll(Pageable pageable) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         Page<ReceiveCoupon> coupons = receiveCouponRepository.findByUserId(user.getId(), pageable);
         List<CouponResDto> couponResDtos = new ArrayList<>();
         return coupons.map(CouponResDto::publishToCouponDto);
@@ -126,8 +126,8 @@ public class CouponService {
     }
 
     public Page<CouponFindResDto> searchCoupon(SearchCouponCondition searchCouponCondition, Pageable pageable) throws Exception{
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         return couponQueryRepository.findCouponList(searchCouponCondition, admin.getCompany(), pageable);
     }
 
@@ -227,18 +227,18 @@ public class CouponService {
         return couponQueryRepository.couponPublishCount();
     }
 
-    public int findMyCouponCount() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
+    public int findMyCouponCount() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
         List<ReceiveCoupon> coupons = receiveCouponRepository.findByUserId(user.getId());
         return coupons.size();
     }
 
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
-    public Coupon couponPublish(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+    public Coupon couponPublish(Long id) throws Exception {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Coupon coupon = couponRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.COUPON_NOT_FOUND));
         if(coupon.getCouponStatus().equals(CouponStatus.ISSUANCE) && coupon.getCompanyId() == admin.getCompany()){
             coupon.publishCoupon();

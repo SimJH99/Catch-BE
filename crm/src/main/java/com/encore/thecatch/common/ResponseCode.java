@@ -83,7 +83,10 @@ public enum ResponseCode {
     COUPON_EXHAUSTION("COUPON_EXHAUSTION", "쿠폰이 모두 소진 되었습니다."),
     TO_EMAIL_NOT_FOUND("TO_EMAIL_NOT_FOUND","해당 이메일을 해당 유저에게 보낸 기록이 없습니다." ),
     COUPON_CAN_NOT_DELETE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 삭제 불가합니다."),
-    COUPON_CAN_NOT_PUBlISH("COUPON_CAN_NOT_PUBlISH", "해당 쿠폰은 배포 불가합니다."),;
+    COUPON_CAN_NOT_PUBlISH("COUPON_CAN_NOT_PUBlISH", "해당 쿠폰은 배포 불가합니다."),
+    NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "해당 쿠폰을 찾지 못했습니다."),
+    NOTIFICATION_NOT_READ("NOTIFICATION_NOT_READ", "해당 쿠폰을 읽지 못했습니다."),
+    ;
     private final String code;
     private final String label;
 
