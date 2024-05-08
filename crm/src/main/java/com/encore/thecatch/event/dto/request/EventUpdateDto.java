@@ -1,14 +1,15 @@
 package com.encore.thecatch.event.dto.request;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
-public class
-EventCreateDto {
+@Builder
+public class EventUpdateDto {
     private String name;
     private String contents;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

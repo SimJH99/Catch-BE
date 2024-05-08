@@ -6,6 +6,7 @@ import com.encore.thecatch.common.dto.ResponseDto;
 import com.encore.thecatch.common.util.IPUtil;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
 import com.encore.thecatch.event.dto.response.EventSearchDto;
+import com.encore.thecatch.event.dto.request.EventUpdateDto;
 import com.encore.thecatch.event.service.EventService;
 import com.encore.thecatch.mail.service.EmailSendService;
 import com.encore.thecatch.notification.dto.EventNotificationReqDto;
@@ -80,6 +81,11 @@ public class EventController {
     @GetMapping("/expiration/event")
     public ResponseDto expirationEventCount() {
         return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, new DefaultResponse<Long>(eventService.expirationEventCount()));
+    }
+
+    @PostMapping("/event/{id}/update")
+    public ResponseDto eventUpdate(@PathVariable Long id, @RequestBody EventUpdateDto eventUpdateDto) {
+        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, eventService.eventUpdate(id, eventUpdateDto));
     }
 
 }
