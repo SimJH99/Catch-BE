@@ -171,10 +171,10 @@ public class InitialDataLoader implements CommandLineRunner {
             }
 
             List<User> users = userRepository.saveAll(testUsers);
+
+
             String[] categoryList = {"DELIVERY", "ORDER", "CANCEL/EXCHANGE/REFUND", "MYINFO", "CONFIRMATION", "SERVICE"};
             LocalDateTime createdTime = LocalDateTime.now();
-
-
 
             List<Complaint> complaints = new ArrayList<>();
             List<UserLog> userLogList = new ArrayList<>();
@@ -191,45 +191,53 @@ public class InitialDataLoader implements CommandLineRunner {
 
                 users.get(i).setCreatedTime(createdTime);
 
-
-                String category = categoryList[random.nextInt(categoryList.length)];
-                Complaint newComplaint = Complaint.builder()
-                        .title("고객 문의 "+i)
-                        .category(category)
-                        .user(users.get(i))
-                        .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
-                        .build();
-                complaints.add(newComplaint);
-            }
-
-            userRepository.saveAll(users);
-            complaintRepository.saveAll(complaints);
-
-            List<Complaint> complaintList = new ArrayList<>();
-            complaintList = complaintRepository.findAll();
-            LocalDateTime updateCeatedTime = LocalDateTime.of(2024,5,8,0,0);
-
-            for(int i = 0; i < complaintList.size(); i++) {
-
-                if(i%2 == 0) {
-                    updateCeatedTime = updateCeatedTime.minusDays(1).minusHours(2).minusMinutes(3);
-                }
-
                 UserLog userLoginLog = UserLog.builder()
                         .type(LogType.USER_LOGIN) // DB로 나눠 관리하지 않고 LogType으로 구별
                         .ip("192.168.0.216")
                         .email(aesUtil.aesCBCDecode(users.get(i).getEmail()))
                         .method("POST")
                         .data("user login")
-                        .createdTime(updateCeatedTime)
                         .build();
                 userLogList.add(userLoginLog);
 
-                complaintList.get(i).setCreatedTime(updateCeatedTime);
+                String category = categoryList[random.nextInt(categoryList.length)];
+                Complaint complaint = Complaint.builder()
+                        .title("고객 문의 "+i)
+                        .category(category)
+                        .user(users.get(i))
+                        .contents("문의 드립니다. 상품을 교환하고 싶습니다.")
+                        .build();
+                complaints.add(complaint);
             }
 
+
+            userRepository.saveAll(users);
+            complaintRepository.saveAll(complaints);
             userLogRepository.saveAll(userLogList);
 
+            List<Complaint> complaintList = new ArrayList<>();
+            List<UserLog> userLogUpdateList = new ArrayList<>();
+            complaintList = complaintRepository.findAll();
+            userLogUpdateList = userLogRepository.findAll();
+            LocalDateTime updateCeatedTime = LocalDateTime.of(2024,5,8,0,0);
+
+            for(int i = 0; i < complaintList.size(); i++) {
+
+                if(i % 10 == 0) {
+                    updateCeatedTime = updateCeatedTime.minusDays(1);
+                }
+
+                if(i % 3 ==0) {
+                    updateCeatedTime = updateCeatedTime.minusHours(3);
+                }
+
+
+                complaintList.get(i).setCreatedTime(updateCeatedTime);
+                userLogUpdateList.get(i).setCreatedTime(updateCeatedTime);
+            }
+
+
+            userLogRepository.saveAll(userLogUpdateList);
             complaintRepository.saveAll(complaintList);
 
         }
