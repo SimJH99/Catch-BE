@@ -19,7 +19,7 @@ public enum ResponseCode {
     EXISTING_EMAIL("EXISTING_EMAIL", "이미 존재하는 이메일 주소입니다."),
     CODE_NOT_CONFIRMED("CODE_NOT_CONFIRMED", "인증번호를 확인해주세요."),
     CODE_EXPIRED("CODE_EXPIRED", "만료된 인증번호입니다."),
-    USER_NOT_FOUND("USER_NOT_FOUND", "입력하신 정보와 일치하는 정보가 없습니다. <br /> 확인 후 다시 입력해주세요."),
+    USER_NOT_FOUND("USER_NOT_FOUND", "입력하신 정보와 일치하는 정보가 없습니다."),
     INVALID_PW("INVALID_PW", "비밀번호를 확인해주세요."),
     PAYLOAD_INVALID("PAYLOAD_INVALID","입력값을 확인해주세요"),
     INAPPROPRIATE_PARAMETER_VALUE("INAPPROPRIATE_PARAMETER_VALUE", "잘못된 입력값입니다."),
