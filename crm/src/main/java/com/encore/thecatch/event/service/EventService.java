@@ -9,6 +9,7 @@ import com.encore.thecatch.common.util.AesUtil;
 import com.encore.thecatch.event.domain.Event;
 import com.encore.thecatch.event.domain.EventStatus;
 import com.encore.thecatch.event.dto.request.EventCreateDto;
+import com.encore.thecatch.event.dto.request.EventUpdateDto;
 import com.encore.thecatch.event.dto.response.EventContentsDto;
 import com.encore.thecatch.event.dto.response.EventDetailDto;
 import com.encore.thecatch.event.dto.response.EventInfoDto;
@@ -117,6 +118,24 @@ public class EventService {
     }
 
     @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
+    @Transactional
+    public void eventDelete(Long id){
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        if (event.getEventStatus().equals(EventStatus.ISSUANCE)){
+            eventRepository.delete(event);
+        }else{
+            throw new CatchException(ResponseCode.EVENT_CAN_NOT_DELETE);
+        }
+
+    }
+
+    @PreAuthorize("hasAnyAuthority('MARKETER','ADMIN')")
     public EventDetailDto eventDetail(Long id, String ip) throws Exception {
         String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
@@ -199,14 +218,47 @@ public class EventService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
     public Event eventPublish(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Admin admin = adminRepository.findByEmployeeNumber(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin admin = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(()-> new CatchException(ResponseCode.ADMIN_NOT_FOUND));
         Event event = eventRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.EVENT_NOT_FOUND));
-        if(event.getEventStatus().equals(EventStatus.ISSUANCE)){
+        if(event.getEventStatus().equals(EventStatus.ISSUANCE)&& event.getCompanyId() == admin.getCompany()){
             event.publishEvent();
         }else{
-            throw new CatchException(ResponseCode.COUPON_CAN_NOT_PUBlISH);
+            throw new CatchException(ResponseCode.EVENT_CAN_NOT_PUBlISH);
         }
         return event;
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MARKETER')")
+    public Event eventUpdate(Long id, EventUpdateDto eventUpdateDto) {
+        String employeeNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        Admin marketer = adminRepository.findByEmployeeNumber(employeeNumber).orElseThrow(
+                () -> new CatchException(ResponseCode.ADMIN_NOT_FOUND)
+        );
+        Event event = eventRepository.findById(id).orElseThrow(
+                () -> new CatchException(ResponseCode.EVENT_NOT_FOUND)
+        );
+        event.eventUpdate(eventUpdateDto);
+
+        return event;
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long issuanceEventCount() {
+        return eventQueryRepository.issuanceEventCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long publishEventCount() {
+        return eventQueryRepository.publishEventCount();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CS','MARKETER')")
+    public Long expirationEventCount() {
+        return eventQueryRepository.expirationEventCount();
     }
 }

@@ -19,7 +19,7 @@ public enum ResponseCode {
     EXISTING_EMAIL("EXISTING_EMAIL", "이미 존재하는 이메일 주소입니다."),
     CODE_NOT_CONFIRMED("CODE_NOT_CONFIRMED", "인증번호를 확인해주세요."),
     CODE_EXPIRED("CODE_EXPIRED", "만료된 인증번호입니다."),
-    USER_NOT_FOUND("USER_NOT_FOUND", "입력하신 정보와 일치하는 정보가 없습니다. <br /> 확인 후 다시 입력해주세요."),
+    USER_NOT_FOUND("USER_NOT_FOUND", "입력하신 정보와 일치하는 정보가 없습니다."),
     INVALID_PW("INVALID_PW", "비밀번호를 확인해주세요."),
     PAYLOAD_INVALID("PAYLOAD_INVALID","입력값을 확인해주세요"),
     INAPPROPRIATE_PARAMETER_VALUE("INAPPROPRIATE_PARAMETER_VALUE", "잘못된 입력값입니다."),
@@ -85,7 +85,14 @@ public enum ResponseCode {
     COUPON_EXHAUSTION("COUPON_EXHAUSTION", "쿠폰이 모두 소진 되었습니다."),
     TO_EMAIL_NOT_FOUND("TO_EMAIL_NOT_FOUND","해당 이메일을 해당 유저에게 보낸 기록이 없습니다." ),
     COUPON_CAN_NOT_DELETE("COUPON_CAN_NOT_UPDATE", "해당 쿠폰은 삭제 불가합니다."),
-    COUPON_CAN_NOT_PUBlISH("COUPON_CAN_NOT_PUBlISH", "해당 쿠폰은 배포 불가합니다."),;
+    COUPON_CAN_NOT_PUBlISH("COUPON_CAN_NOT_PUBlISH", "해당 쿠폰은 배포 불가합니다."),
+    NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "해당 쿠폰을 찾지 못했습니다."),
+    NOTIFICATION_NOT_READ("NOTIFICATION_NOT_READ", "해당 쿠폰을 읽지 못했습니다."),
+    EVENT_CAN_NOT_PUBlISH("EVENT_CAN_NOT_PUBlISH", "해당 쿠폰은 발행 불가합니다."),
+    EVENT_CAN_NOT_DELETE("EVENT_CAN_NOT_DELETE", "해당 캠페인은 삭제 불가합니다."),
+    USER_IS_DISABLE("USER_IS_DISABLE","계정이 비활성화 상태 입니다." ),
+    FAIL_PASSWORD_CHECK("FAIL_PASSWORD_CHECK", "패스워드가 틀렸습니다." );
+
     private final String code;
     private final String label;
 

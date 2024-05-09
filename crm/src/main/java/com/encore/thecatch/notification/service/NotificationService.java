@@ -11,7 +11,6 @@ import com.encore.thecatch.event.repository.EventRepository;
 import com.encore.thecatch.log.domain.EmailLog;
 import com.encore.thecatch.log.repository.EmailLogRepository;
 import com.encore.thecatch.notification.domain.Notification;
-import com.encore.thecatch.notification.dto.NotificationResDto;
 import com.encore.thecatch.notification.repository.NotificationRepository;
 import com.encore.thecatch.user.domain.User;
 import com.encore.thecatch.user.repository.UserRepository;
@@ -80,24 +79,20 @@ public class NotificationService {
     }
 
 
-    public Page<NotificationResDto> findNonReceive(Pageable pageable){
+    public List<Notification> findNonReceive(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        Page<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), false , pageable);
-        return notifications.map(NotificationResDto::toNotificationResDto);
+        List<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), false);
+        return notifications;
     }
 
     @PreAuthorize("hasAuthority('USER')")
     public Page<String> findUserEvent(Pageable pageable) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(()-> new CatchException(ResponseCode.USER_NOT_FOUND));
-        Page<Notification> notifications = notificationRepository.findByUserIdAndConfirm(user.getId(), true , pageable);
         List<EmailLog> emailLogs = emailLogRepository.findByToEmail(aesUtil.aesCBCDecode(user.getEmail()));
 
         HashSet<String> set = new HashSet<>();
-        for (Notification notification : notifications) {
-            set.add(notification.getNotificationContent());
-        }
         for (EmailLog emailLog : emailLogs) {
             set.add(emailLog.getEvent().getContents());
         }
@@ -105,6 +100,18 @@ public class NotificationService {
         List<String> list = new ArrayList<>(set);
 
         return new PageImpl<String>(list, pageable, set.size());
+    }
+
+    @Transactional
+    public Notification notificationRead(Long id) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Notification notification = notificationRepository.findById(id).orElseThrow(()->new CatchException(ResponseCode.NOTIFICATION_NOT_FOUND));
+        if(notification.getUser().getEmail().equals(email)){
+            notification.readNotification();
+        }else{
+            throw new CatchException(ResponseCode.NOTIFICATION_NOT_READ);
+        }
+        return notification;
     }
 
 //    public String getNotificationToken() {

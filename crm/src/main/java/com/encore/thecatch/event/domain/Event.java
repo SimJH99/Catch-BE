@@ -2,6 +2,7 @@ package com.encore.thecatch.event.domain;
 
 import com.encore.thecatch.common.entity.BaseEntity;
 import com.encore.thecatch.company.domain.Company;
+import com.encore.thecatch.event.dto.request.EventUpdateDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,5 +43,12 @@ public class Event extends BaseEntity {
 
     public void publishEvent(){
         this.eventStatus = EventStatus.PUBLISH;
+    }
+
+    public void eventUpdate(EventUpdateDto eventUpdateDto) {
+        this.name = eventUpdateDto.getName();
+        this.contents = eventUpdateDto.getContents();
+        this.startDate = eventUpdateDto.getStartDate();
+        this.endDate = eventUpdateDto.getEndDate();
     }
 }

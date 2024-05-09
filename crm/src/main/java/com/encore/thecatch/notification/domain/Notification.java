@@ -7,19 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-
-
-//
-//import com.encore.thecatch.admin.domain.Admin;
-//import com.encore.thecatch.user.domain.User;
-//import lombok.AccessLevel;
-//import lombok.Builder;
-//import lombok.Getter;
-//import lombok.NoArgsConstructor;
-//
 import javax.persistence.*;
 //
 @Entity
@@ -46,7 +33,9 @@ public class Notification extends BaseEntity {
     private String notificationContent;
     private boolean confirm;
 
-
+    public void readNotification(){
+        this.confirm = true;
+    }
 
 }
 

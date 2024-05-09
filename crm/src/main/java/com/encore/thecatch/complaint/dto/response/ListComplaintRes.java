@@ -13,13 +13,15 @@ public class ListComplaintRes {
     private String name;
     private String title;
     private Status status;
+    private String category;
 
 
     @QueryProjection
-    public ListComplaintRes (Long complaintId, String name, String title, Status status) {
+    public ListComplaintRes (Long complaintId, String name, String title, Status status, String category) {
         this.complaintId = complaintId;
         this.name = name;
         this.title = title;
         this.status = status;
+        this.category = category;
     }
 }

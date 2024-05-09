@@ -129,7 +129,7 @@ public class AdminService {
         }
 
         if (!passwordEncoder.matches(adminLoginDto.getPassword(), admin.getPassword())) {
-            throw new CatchException(ResponseCode.ADMIN_NOT_FOUND);
+            throw new CatchException(ResponseCode.FAIL_PASSWORD_CHECK);
         }
 
         return new ResponseDto(HttpStatus.OK, ResponseCode.CHECK_EMAIL, "CHECK_EMAIL");
@@ -324,15 +324,6 @@ public class AdminService {
 //    }
 
     //webPush Test
-    public ResponseDto savePushToken(String employeeNumber, String pushToken) throws Exception {
-        System.out.println(pushToken);
-        Admin admin = adminRepository.findByEmployeeNumber(aesUtil.aesCBCEncode(employeeNumber))
-                .orElseThrow(() -> new CatchException(ResponseCode.USER_NOT_FOUND));
-        redisService.setValues(String.format("%s:%s", "PushToken", admin.getEmployeeNumber()), pushToken);
-        Map<String, String> result = new HashMap<>();
-        result.put("pushToken", pushToken);
-        return new ResponseDto(HttpStatus.OK, ResponseCode.SUCCESS, result);
-    }
 
     @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")

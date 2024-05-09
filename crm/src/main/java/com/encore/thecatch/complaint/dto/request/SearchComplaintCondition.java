@@ -12,4 +12,5 @@ public class SearchComplaintCondition {
     private String title;
     private Status status;
     private int pageNo;
+    private String category;
 }
