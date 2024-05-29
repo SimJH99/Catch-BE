@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crm
+  template:
+    metadata:
+      labels:
+        app: crm
+    spec:
+      containers:
+        - name: crm-backend
+          image: 533267078155.dkr.ecr.ap-northeast-2.amazonaws.com/catch-crm:latest # ecr 주소 # 변경되면 수정 필요
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+          resources:
+            # container가 사용할 수 있는 리소스의 최대치
+            limits:
+              cpu: "1"
+              memory: "500Mi"
+            # container가 시작될때 보장받아야 하는 최소 자원
+            requests:
+              cpu: "0.5"
+              memory: "250Mi"
+          # 런타임이라 db주입, github에 sercrets key에서 넣어주는게 아니라
+          # 비밀번호를 내장 저장해서 사용한다.
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: DB_HOST
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: DB_PASSWORD
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: REDIS_HOST
+            - name: GOOGLE_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: GOOGLE_EMAIL
+            - name: GOOGLE_SMTP
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: GOOGLE_SMTP
+            - name: JWT_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: JWT_SECRETKEY
+            - name: SYMMETRICKEY
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: SYMMETRICKEY
+            - name: FIREBASE_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: FIREBASE_JSON
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: S3_SECRET_KEY
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: db-infos
+                  key: S3_ACCESS_KEY
+          volumeMounts:
+            - name: tz-seoul
+              mountPath: /etc/localtime
+      volumes:
+        - name: tz-seoul
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Seoul
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crm-service
+spec:
+  # ClusterIP는 클러스터 내부에서만 접근가능한 Service를 생성
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8001
+  selector:
+    app: crm

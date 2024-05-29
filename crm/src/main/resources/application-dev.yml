@@ -1,0 +1,65 @@
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: catch-s3
+    stack:
+      auto: false
+
+server:
+  port: 8001
+spring:
+  application:
+    name: thecatch
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${DB_HOST}:3306/thecatch
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  redis:
+    host: ${REDIS_HOST}
+    port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GOOGLE_EMAIL}
+    password: ${GOOGLE_SMTP}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    root: info
+jwt:
+#  JWT의 서명에 사용할 비밀키
+  secretKey: ${JWT_SECRETKEY}
+#  토큰 발급자
+  issuer: thecatch
+#  액세스 토큰의 유효 시간은 30분
+  access:
+    expiration-minutes: 30
+#  리프레시 토큰의 유효시간은 24시간
+  refresh:
+    expiration-hours: 24
+
+#  마스킹에 사용할 키
+symmetricKey: ${SYMMETRICKEY}
+
+#kafka:
+#  topic: "limited-coupon-apply"
+#  groupId: "catchevent"
